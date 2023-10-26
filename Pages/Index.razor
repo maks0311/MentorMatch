@@ -1,0 +1,147 @@
+﻿@page "/"
+
+@implements IDisposable
+
+@using System
+@using System.Text
+@using System.Reflection
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+@inject IUserService UserInfoService
+@inject IGroupService UserGroupService
+
+
+@if (AppState.IsNull())
+{
+    <p>Loading menu..</p>
+}
+else
+{
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
+
+<div class="content px-4">
+    <div class="row" style="margin-top:100px">
+        <div class="col-12" style="display:block; text-align:center;">
+            <RadzenImage Path="images/class.gif" @onclick="AdminAutoLogon" Style="height:fit-content; margin-bottom:30px; border:2px solid lightgrey; border-radius:20px; box-shadow:15px 15px 15px lightgrey;"></RadzenImage>
+            <h2>Welcome to <span style="color: rgb(0,215,130)">Mentor-Match</span></h2>
+            <h4>@Today</h4>
+        </div>
+    </div>
+</div>
+
+@code {
+    AppState AppState { get; set; } = new AppState();
+    string msg { get; set; }
+    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
+    private bool IsRendered { get; set; } = false;
+    private string AppVersion { get; set; }
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                await InitializeSession();
+
+                IsRendered = true;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task AdminAutoLogon()
+    {
+        try
+        {
+            if (Globals.AdminHostNames.Contains(System.Environment.MachineName))
+            {
+                int UserID = UserInfoService.Authenticate("ADMIN", "123qwe!@#QWE");
+                AppState.UserInfo = await UserInfoService.SelectAsync(UserID);
+                AppState.SetParamAsInteger("USER_ID", UserID);
+                AppState.CRUD = "UPDATE";
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                NavigationManager.NavigateTo("./");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
+
+    public void Dispose()
+    {
+    }
+}

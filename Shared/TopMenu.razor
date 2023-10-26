@@ -1,0 +1,167 @@
+﻿@inherits LayoutComponentBase
+
+@implements IDisposable
+
+@using Dapper;
+@using System.Data.SqlClient;
+@using NLog;
+@using Radzen;
+@using System.Threading;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using System.Reflection;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject ISessionStorageService SessionStorage
+@inject IConfiguration AppConfig
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IJSRuntime JSRuntime;
+
+@inject IUserService UserInfoService
+@inject IGroupService UserGroupService
+
+<div class="row float-left">
+    <RadzenMenu Visible="@IsRendered" Click="@GoBackJS" Style="margin-left: 16px">
+        <RadzenMenuItem Text="Back" Icon="arrow_back" Style="padding-right:25px;"></RadzenMenuItem>
+    </RadzenMenu>
+</div>
+
+<div class="row float-right" style="margin-right:0px">
+
+    <RadzenMenu Click="@(args => OnMenuItemClick(args))" Style="padding-right:5px">
+
+        @if (AppState != null)
+        {
+            @if (AppState.UserInfo != null && AppState.UserInfo.IsAuthenticated)
+            {
+                <RadzenMenuItem Text="@AppState.UserInfo.USER_NICKNAME" Icon="person"></RadzenMenuItem>
+                @if(AppState.UserInfo.IsAdmin)
+                {
+                    <RadzenMenuItem Text="Settings" Icon="settings"></RadzenMenuItem>
+                }
+                <RadzenMenuItem Text="Logout" Icon="lock"></RadzenMenuItem>
+            }
+            else
+            {
+                <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
+            }
+        }
+        else
+        {
+            <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
+        }
+
+        <RadzenMenuItem Text="Help" Icon="help"></RadzenMenuItem>
+
+    </RadzenMenu>
+</div>
+
+
+@code {
+    [Parameter]
+    public AppState AppState { get; set; } = new AppState();
+    [Parameter]
+    public bool IsRendered { get; set; } = false;
+
+    private string msg { get; set; }
+    private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+    private static NLog.ILogger AppLogger = LogManager.GetCurrentClassLogger();
+
+    private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
+    {
+        if (args.Text == "About")
+        {
+            NavigationManager.NavigateTo("/about");
+        }
+
+        if (args.Text == "Login")
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+
+        if (args.Text == "Logout")
+        {
+            AppState.UserInfo = new();
+            SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            NavigationManager.NavigateTo("./");
+        }
+
+        if (AppState.UserInfo != null && AppState.UserInfo.IsAuthenticated)
+        {
+            if (args.Text == AppState.UserInfo.USER_NICKNAME)
+            {
+                AppState.CRUD = "UPDATE";
+                AppState.SetParamAsInteger("USER_ID", AppState.UserInfo.USER_ID);
+                SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+
+                NavigationManager.NavigateTo("/user");
+            }
+        }
+
+        if (args.Text == "Settings")
+        {
+            NavigationManager.NavigateTo("/settings");
+        }
+
+        if (args.Text == "Test")
+        {
+            NavigationManager.NavigateTo("/test");
+        }
+
+        if (args.Text == "Search")
+        {
+            NavigationManager.NavigateTo("/search");
+        }
+
+        if (args.Text == "Help")
+        {
+            AppState.UserInfo = new();
+            NavigationManager.NavigateTo("/help");
+        }
+    }
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async void GoBackJS()
+    {
+        try
+        {
+            if (IsRendered)
+            {
+                await JSRuntime.InvokeVoidAsync("history.back");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error(MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+}

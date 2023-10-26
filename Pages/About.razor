@@ -1,0 +1,134 @@
+﻿@page "/about"
+
+@implements IDisposable;
+
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using System.Reflection;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+@if (AppState.IsNull())
+{
+    <p>Loading menu</p>
+}
+else
+{
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
+
+<div class="content px-4">
+    <div class="row" style="margin-top:250px">
+        <div class="col-12" style="display:block; text-align:center;">
+            <RadzenIcon Icon="account_balance" Style="font-size:300px; color:indigo; cursor:pointer"></RadzenIcon>
+            <h1>Welcome to <span style="color: rgb(0,215,130)">Mentor-Match</span></h1>
+            <h4>@Today</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:150px">
+    <div class="col-10">
+    </div>
+    <div class="col-2" style="vertical-align:bottom">
+        <RadzenIcon Icon="polaccount_balanceymer" Style="vertical-align: middle; margin-right: 5px; color:indigo"></RadzenIcon>Software Version: @AppVersion<br />
+    </div>
+</div>
+
+@code {
+    private AppState AppState { get; set; } = new AppState();
+    private string msg { get; set; }
+    private int TabIndex { get; set; } = 0;
+    private bool IsRendered { get; set; } = false;
+    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
+
+    private string AppVersion { get; set; }
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeSession();
+
+            IsRendered = true;
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+
+            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void OnTabChange(int tabIndex)
+    {
+        AppState.SetParamAsInteger("ABOUT_TAB_INDEX", tabIndex);
+        SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+    }
+
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+                TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
+
+    public void Dispose()
+    {
+
+    }
+}

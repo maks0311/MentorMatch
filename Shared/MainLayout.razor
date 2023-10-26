@@ -1,0 +1,134 @@
+﻿@inherits LayoutComponentBase
+
+@using Dapper;
+@using System.Data.SqlClient;
+@using NLog;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.JSInterop;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using System.Reflection;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject ISessionStorageService SessionStorage
+@inject IConfiguration AppConfig
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IJSRuntime JSRuntime
+
+@inject IUserService UserInfoService
+@inject IGroupService UserGroupService
+
+<RadzenDialog/>
+<RadzenNotification/>
+<RadzenContextMenu/>
+<RadzenTooltip/>
+
+<div class="sidebar">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="content px-4">
+        @Body
+    </div>
+</div>
+
+@code {
+    private AppState AppState { get; set; } = new AppState();
+    private string msg { get; set; }
+
+    private static NLog.ILogger AppLogger = LogManager.GetCurrentClassLogger();
+
+    private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeSession();
+
+            SessionStorage.Changed += (sender, e) =>
+            {
+                Console.WriteLine($"Value for key {e.Key} changed from {e.OldValue} to {e.NewValue}");
+            };
+
+            StateHasChanged();
+        }
+    }
+
+    async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error(ex.Message);
+        }
+    }
+
+    private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
+    {
+        if (args.Text == "Login")
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+
+        if (args.Text == "Logout")
+        {
+            AppState.UserInfo = new();
+            NavigationManager.NavigateTo("./");
+        }
+
+        if (args.Text == "About")
+        {
+            AppState.UserInfo = new();
+            NavigationManager.NavigateTo("/about");
+        }
+    }
+
+    void OnMenuitemClick(Radzen.MenuItemEventArgs args)
+    {
+        if (args.Text == "About")
+        {
+            NavigationManager.NavigateTo("/about");
+        }
+
+        if (args.Text == "Login")
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+
+        if (args.Text == "Logout")
+        {
+            AppState.UserInfo = new();
+            NavigationManager.NavigateTo("./");
+        }
+
+        if (args.Text == "Settings")
+        {
+            NavigationManager.NavigateTo("/settings");
+        }
+    }
+
+    void OnClick(string buttonName)
+    {
+        if (buttonName == "Return")
+        {
+
+        }
+    }
+}
