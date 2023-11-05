@@ -32,6 +32,7 @@
 @inject ILevelService LevelService;
 @inject ISubjectService SubjectService;
 @inject ICompetenceService CompetenceService;
+@inject ILessonService LessonService;
 
 @if (AppState.IsNull())
 {
@@ -193,13 +194,38 @@ else
                             </RadzenTabsItem>
                         }
 
-                        <RadzenTabsItem Text="My Lessons">
-                            <RadzenCard>
-                                <RadzenButton Text="Add Lesson" Icon="add" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                            </RadzenCard>
-                            <RadzenCard>
-                            </RadzenCard>
-                        </RadzenTabsItem>
+                        @if(UserObject.IsStudent || UserObject.IsTutor)
+                        {
+                            <RadzenTabsItem Text="My Lessons">
+                                <RadzenCard>
+                                    <RadzenButton Text="Add Lesson" Icon="add" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                </RadzenCard>
+                                <RadzenCard>
+                                    <RadzenDataGrid Data="@LessonEnum"
+                                                    AllowFiltering="false"
+                                                    AllowMultiColumnSorting="true"
+                                                    ClearFilterText="true"
+                                                    AllowColumnResize="true"
+                                                    FilterMode="FilterMode.Simple"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowVirtualization="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    LogicalFilterOperator="LogicalFilterOperator.And"
+                                                    Visible="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="STUDENT_NAME" Filterable="false" Title="Student" Frozen="true" Visible="@UserObject.IsTutor" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_STATUS_NAME" Filterable="false" Title="Status" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="DATE_STOP" Filterable="false" Title="End Date" Frozen="true" TextAlign="TextAlign.Left" />
+
+                                            </Columns>
+                                    </RadzenDataGrid>
+                                </RadzenCard>
+                            </RadzenTabsItem>
+                        }
                     </Tabs>
                 </RadzenTabs>
             </div>
@@ -235,11 +261,13 @@ else
 
     private UserModel UserObject { get; set; } = new UserModel();
     private CompetenceModel CompetenceObject { get; set; } = new CompetenceModel();
+    private LessonModel LessonObject { get; set; } = new LessonModel();
     private IEnumerable<GroupModel> GroupEnum { get; set; }
     private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
     private IEnumerable<LevelModel> LevelEnum { get; set; }
     private IEnumerable<SubjectModel> SubjectEnum { get; set; }
     private IEnumerable<CompetenceModel> CompetenceEnum { get; set; }
+    private IEnumerable<LessonModel> LessonEnum { get; set; }
 
     protected override void OnInitialized()
     {
@@ -312,6 +340,15 @@ else
                     CompetenceObject.TUTOR_ID = UserObject.USER_ID;
                     CompetenceObject.SUBJECT_ID = SubjectEnum.FirstOrDefault().SUBJECT_ID;
                     CompetenceObject.LEVEL_ID = LevelEnum.FirstOrDefault().LEVEL_ID;
+                }
+
+                if (UserObject.IsTutor)
+                {
+                    LessonEnum = await LessonService.SelectAllByTutorAsync(UserObject.USER_ID);
+                }
+                else if (UserObject.IsStudent)
+                {
+                    LessonEnum = await LessonService.SelectAllByStudentAsync(UserObject.USER_ID);
                 }
             }
         }

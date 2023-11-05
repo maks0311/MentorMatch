@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Nowy folder1\**" />
+    <Content Remove="Data\Nowy folder1\**" />
+    <EmbeddedResource Remove="Data\Nowy folder1\**" />
+    <None Remove="Data\Nowy folder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.SessionStorage" Version="2.3.0" />
     <PackageReference Include="Dapper" Version="2.0.143" />
     <PackageReference Include="NLog" Version="5.2.0" />
