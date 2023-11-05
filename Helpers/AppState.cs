@@ -12,6 +12,7 @@ namespace Mentor
     public class AppState
     {
         public UserModel UserInfo { get; set; }
+        public LessonModel LessonInfo { get; set; }
         public String CRUD { get; set; }
         public List<AppStateParams> Params { get; set; }
 
