@@ -36,7 +36,7 @@
 
 @if (AppState.IsNull())
 {
-    <p>Loading menu..</p>
+    <p>Loading menu...</p>
 }
 else
 {
@@ -54,7 +54,7 @@ else
                     <Tabs>
                         <RadzenTabsItem Text="My Account">
                             <RadzenCard>
-                                <RadzenButton Text="Save" Icon="save" Click="Save" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                <RadzenButton Text="Save" Icon="save" Click="UserSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
                                 <RadzenButton Text="Remove" Icon="cancel" Disabled="true" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
                             </RadzenCard>
                             <RadzenCard Style="margin-top:10px">
@@ -185,7 +185,7 @@ else
                                             <RadzenDataGridColumn TItem="CompetenceModel" Property="LEVEL_NAME" Title="Education Level" Frozen="true" TextAlign="TextAlign.Left" />
                                             <RadzenDataGridColumn TItem="CompetenceModel" Property="ID" Title="Del" Frozen="true" Sortable="false" Filterable="false" Width="60px">
                                                 <Template Context="CompetenceModel">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => OnDelete(CompetenceModel.ID)) />
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => DeleteCompetence(CompetenceModel.ID)) />
                                                 </Template>
                                             </RadzenDataGridColumn>
                                         </Columns>
@@ -197,9 +197,6 @@ else
                         @if(UserObject.IsStudent || UserObject.IsTutor)
                         {
                             <RadzenTabsItem Text="My Lessons">
-                                <RadzenCard>
-                                    <RadzenButton Text="Add Lesson" Icon="add" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                                </RadzenCard>
                                 <RadzenCard>
                                     <RadzenDataGrid Data="@LessonEnum"
                                                     AllowFiltering="false"
@@ -220,7 +217,12 @@ else
                                                 <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_STATUS_NAME" Filterable="false" Title="Status" Frozen="true" TextAlign="TextAlign.Left" />
                                                 <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Left" />
                                                 <RadzenDataGridColumn TItem="LessonModel" Property="DATE_STOP" Filterable="false" Title="End Date" Frozen="true" TextAlign="TextAlign.Left" />
-
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="RATING_NAME" Filterable="false" Title="Rating" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_ID" Title="Details" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                                                    <Template Context="LessonModel">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenDetails(LessonModel.LESSON_ID)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
                                             </Columns>
                                     </RadzenDataGrid>
                                 </RadzenCard>
@@ -357,7 +359,7 @@ else
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
         }
     }
-    private async Task Save()
+    private async Task UserSave()
     {
         try
         {
@@ -400,46 +402,6 @@ else
         DisableSave = false;
     }
 
-    private async Task AddCompetence()
-    {
-        try
-        {
-            if (UserObject.IsNotNull() && UserObject.IsAuthenticated && CompetenceObject.IsNotNull())
-            {
-                var retval = await CompetenceService.CreateAsync(CompetenceObject);
-                if (retval.IsPositive())
-                {
-                    CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added", Duration = NotificationDuration, Style = NotificationPosition });
-                }
-                else if (retval.IsZero())
-                {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists", Duration = NotificationDuration, Style = NotificationPosition });
-                }
-                else
-                {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added", Duration = NotificationDuration, Style = NotificationPosition });
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task OnDelete(int id)
-    {
-        if (id > 0)
-        {
-            var retVal = CompetenceService.Delete(id);
-            if (retVal.IsPositive())
-            {
-                CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
-            }
-        }
-    }
-
     private void OnPasswordChange()
     {
         bool pass_error = false;
@@ -479,6 +441,53 @@ else
         else
         {
             ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = "Password not saved", Duration = NotificationDuration, Style = NotificationPosition });
+        }
+    }
+
+    private async Task AddCompetence()
+    {
+        try
+        {
+            if (UserObject.IsNotNull() && UserObject.IsAuthenticated && CompetenceObject.IsNotNull())
+            {
+                var retval = await CompetenceService.CreateAsync(CompetenceObject);
+                if (retval.IsPositive())
+                {
+                    CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added", Duration = NotificationDuration, Style = NotificationPosition });
+                }
+                else if (retval.IsZero())
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists", Duration = NotificationDuration, Style = NotificationPosition });
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added", Duration = NotificationDuration, Style = NotificationPosition });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async void OpenDetails(int lessonID) 
+    {
+        AppState.LessonInfo = await LessonService.SelectAsync(lessonID);
+        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+        NavigationManager.NavigateTo("/lesson");
+    }
+
+    private async Task DeleteCompetence(int id)
+    {
+        if (id > 0)
+        {
+            var retVal = CompetenceService.Delete(id);
+            if (retVal.IsPositive())
+            {
+                CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
+            }
         }
     }
 

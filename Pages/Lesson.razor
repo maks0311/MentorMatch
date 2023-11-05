@@ -1,7 +1,113 @@
 ﻿@page "/lesson"
 
+@using System
+@using System.Text
+@using System.Reflection
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+@inject ILessonService LessonService;
+
 <h3>Lesson</h3>
 
-@code {
+@if (AppState.IsNull())
+{
+    <p>Loading lesson...</p>
+}
+else
+{
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 
+@if ((AppState.UserInfo.IsNotNull()) || (AppState.LessonInfo.IsNotNull()))
+{
+    <RadzenCard>
+        <p>@LessonObject.LESSON_ID</p>
+    </RadzenCard>
+}
+}
+
+@code {
+    AppState AppState { get; set; } = new AppState();
+    string msg { get; set; }
+    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
+    private bool IsRendered { get; set; } = false;
+    private string AppVersion { get; set; }
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    private LessonModel LessonObject { get; set; } = new LessonModel();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                await InitializeSession();
+                await InitializeData();
+
+                IsRendered = true;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeData()
+    {
+        try
+        {
+            if (AppState.LessonInfo.IsNotNull())
+            {
+                LessonObject = await LessonService.SelectAsync(AppState.LessonInfo.LESSON_ID);
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
 }
