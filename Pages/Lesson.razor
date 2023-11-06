@@ -36,12 +36,12 @@ else
 {
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 
-@if ((AppState.UserInfo.IsNotNull()) || (AppState.LessonInfo.IsNotNull()))
-{
-    <RadzenCard>
-        <p>@LessonObject.LESSON_ID</p>
-    </RadzenCard>
-}
+    @if ((AppState.UserInfo.IsNotNull()) || (AppState.LessonInfo.IsNotNull()))
+    {
+        <RadzenCard>
+            <p>@LessonObject.LESSON_ID</p>
+        </RadzenCard>
+    }
 }
 
 @code {
