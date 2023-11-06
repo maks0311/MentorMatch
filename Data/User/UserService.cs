@@ -499,5 +499,65 @@ namespace Mentor.Data
             }
             return retVal;
         }
+
+
+        public async Task<UserModel> SelectByNickAsync(string userNick)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_NICKNAME", userNick, DbType.String);
+
+            UserModel retVal = new();
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.QueryFirstOrDefaultAsync<UserModel>("SYS_USER_SELECT_BY_NICK", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public UserModel SelectByNick(string userNick)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_NICKNAME", userNick, DbType.String);
+
+            UserModel retVal = new();
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.QueryFirstOrDefault<UserModel>("SYS_USER_SELECT_BY_NICK", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
     }
 }
