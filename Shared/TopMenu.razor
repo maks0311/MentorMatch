@@ -54,6 +54,7 @@
             else
             {
                 <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
+                <RadzenMenuItem Text="Sign Up" Icon="assignment_ind"></RadzenMenuItem>
             }
         }
         else
@@ -89,6 +90,11 @@
         if (args.Text == "Login")
         {
             NavigationManager.NavigateTo("/login");
+        }
+
+        if(args.Text == "Sign Up")
+        {
+            NavigationManager.NavigateTo("/signup");
         }
 
         if (args.Text == "Logout")

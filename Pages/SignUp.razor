@@ -1,0 +1,323 @@
+﻿@page "/signup"
+
+@implements IDisposable
+
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using System.Text;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using System.Reflection;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+@using System;
+@using System.Text.RegularExpressions;
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+@inject IUserService UserService;
+@inject IGroupService GroupService;
+
+
+
+@if (AppState.IsNull())
+{
+	<p>Loading sign up...</p>
+}
+else
+{
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
+
+<div class="row" style="margin-top:200px">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <RadzenCard Style="width:600px;">
+            <div class="row" style="padding: 10px; width:inherit; display:flex; align-items:center; font-size:20px">
+                <RadzenIcon Icon="assignment" Style="font-size: 25px; color: indigo; margin-right: 10px; cursor: pointer"></RadzenIcon> Signing up to MentorMatch
+            </div>
+            <hr class="my-12" />
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Fullname:
+                </div>
+                <div class="col-8">
+                    <RadzenTextBox @bind-Value="UserModel.USER_FULLNAME" MouseEnter="@(args => ShowTooltip(args, "Enter your login or registered e-mail address"))" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Nickname:
+                </div>
+                <div class="col-8">
+                    <RadzenTextBox @bind-Value="UserModel.USER_NICKNAME" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Email:
+                </div>
+                <div class="col-8">
+                    <RadzenTextBox @bind-Value="UserModel.USER_EMAIL" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Phone:
+                </div>
+                <div class="col-8">
+                    <RadzenTextBox @bind-Value="UserModel.USER_PHONE" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    Password:
+                </div>
+                <div class="col-8">
+                    <RadzenPassword @bind-Value="UserModel.USER_PASS" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    Repeat Password:
+                </div>
+                <div class="col-8">
+                    <RadzenPassword @bind-Value="UserPassRepeat" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Description:
+                </div>
+                <div class="col-8">
+                    <RadzenTextBox @bind-Value="UserModel.USER_DESCRIPTION" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Type:
+                </div>
+                <div class="col-8">
+                    <RadzenDropDown @bind-Value=@UserModel.GROUP_ID
+                                    TextProperty="GROUP_NAME"
+                                    ValueProperty="GROUP_ID"
+                                    TValue="int"
+                                    AllowClear="true"
+                                    Style="width:min-content"
+                                    Data=@GroupEnum/>
+                </div>
+            </div>
+
+            <div class="row" style="padding: 20px;">
+                <div class="col-4" />
+
+                @if (AppState.IsNull())
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    if (AppState.UserInfo.IsAuthenticated == false)
+                    {
+                        <div class="col-8" style="align-content:end">
+                            <RadzenButton Click=@(args => OnClick("SIGNUP")) Text="Sign Up" Style="margin-left:10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-8" style="align-content:end">
+                            <RadzenButton Click=@(args => OnClick("LOGOUT")) Text="Logout" Style="margin-left: 10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
+                        </div>
+                    }
+                }
+            </div>
+        </RadzenCard>
+    </div>
+    <div class="col-3"></div>
+</div>
+
+
+@code {
+    private AppState AppState { get; set; } = new AppState();
+    private string msg { get; set; }
+    private bool IsRendered { get; set; } = false;
+
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+
+    private UserModel UserModel { get; set; } = new UserModel();
+    private string UserPassRepeat = string.Empty;
+
+    private readonly string NamePattern = @"^[A-Za-z '-]+$";
+    private readonly string NicknamePattern = "^[a-zA-Z0-9_-]+$";
+    private const int MinNicknameLength = 3;
+    private const int MaxNicknameLength = 20;
+
+    private IEnumerable<GroupModel> GroupEnum { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeSession();
+
+            IsRendered = true;
+
+            StateHasChanged();
+            InitializeData();
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeData()
+    {
+        try
+        {
+            GroupEnum = await GroupService.SelectAllAsync();
+            //GroupEnum = GroupEnum.Where(x => x.GROUP_ID != 1);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private bool IsValidName(string name)
+    {
+        return Regex.IsMatch(name, NamePattern);
+    }
+
+    private bool IsValidNickname(string nickname)
+    {
+        if (nickname.Length < MinNicknameLength || nickname.Length > MaxNicknameLength)
+        {
+            return false;
+        }
+        return Regex.IsMatch(nickname, NicknamePattern);
+    }
+
+    private bool IsNicknameUnique(string nickname)
+    {
+        return .Contains(nickname);
+    }
+
+    private async Task OnClick(string key)
+    {
+        if (key == "SIGN UP")
+        {
+            if (string.IsNullOrEmpty(UserModel.USER_FULLNAME))
+            {
+                msg = "Your full name cannot be empty. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+            if (!IsValidName(UserModel.USER_FULLNAME))
+            {
+                msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+            if (string.IsNullOrEmpty(UserModel.USER_NICKNAME))
+            {
+                msg = "Your  nickname cannot be empty. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+            if (!IsValidNickname(UserModel.USER_NICKNAME))
+            {
+                msg = "Invalid nickname format. Nickname must be 3 to 20 characters and contain only letters, numbers, underscores, and hyphens.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+            if (!IsNicknameUnique(UserModel.USER_NICKNAME))
+            {
+                msg = "Nickname is already in use. Please choose a different nickname.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+
+
+            if (string.IsNullOrEmpty(UserModel.USER_EMAIL))
+            {
+                msg = "Your email cannot be empty. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+            if (string.IsNullOrEmpty(UserModel.USER_PASS))
+            {
+                msg = "Your password cannot be empty. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+            if (string.IsNullOrEmpty(UserPassRepeat) || UserPassRepeat != UserModel.USER_PASS)
+            {
+                msg = "Your password has to match. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+
+        }
+    }
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
+
+    public void Dispose()
+    {
+    }
+}
+}
