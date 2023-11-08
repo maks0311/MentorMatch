@@ -29,12 +29,13 @@
 
 @inject IUserService UserService;
 @inject IGroupService GroupService;
+@inject IWorkTypeService WorkTypeService;
 
 
 
 @if (AppState.IsNull())
 {
-	<p>Loading sign up...</p>
+    <p>Loading menu...</p>
 }
 else
 {
@@ -54,7 +55,7 @@ else
                     User Fullname:
                 </div>
                 <div class="col-8">
-                    <RadzenTextBox @bind-Value="UserModel.USER_FULLNAME" MouseEnter="@(args => ShowTooltip(args, "Enter your login or registered e-mail address"))" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_FULLNAME" MouseEnter="@(args => ShowTooltip(args, "Enter your login or registered e-mail address"))" Style="width:250px" />
                 </div>
             </div>
             <div class="row" style="padding: 20px; width:inherit">
@@ -62,7 +63,7 @@ else
                     User Nickname:
                 </div>
                 <div class="col-8">
-                    <RadzenTextBox @bind-Value="UserModel.USER_NICKNAME" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_NICKNAME" Style="width:250px" />
                 </div>
             </div>
             <div class="row" style="padding: 20px; width:inherit">
@@ -70,7 +71,7 @@ else
                     User Email:
                 </div>
                 <div class="col-8">
-                    <RadzenTextBox @bind-Value="UserModel.USER_EMAIL" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_EMAIL" Style="width:250px" />
                 </div>
             </div>
             <div class="row" style="padding: 20px; width:inherit">
@@ -78,7 +79,7 @@ else
                     User Phone:
                 </div>
                 <div class="col-8">
-                    <RadzenTextBox @bind-Value="UserModel.USER_PHONE" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_PHONE" Style="width:250px" />
                 </div>
             </div>
             <div class="row" style="padding: 20px; width:inherit">
@@ -86,7 +87,7 @@ else
                     Password:
                 </div>
                 <div class="col-8">
-                    <RadzenPassword @bind-Value="UserModel.USER_PASS" Style="width:250px" />
+                    <RadzenPassword @bind-Value="UserObject.USER_PASS" Style="width:250px" />
                 </div>
             </div>
             <div class="row" style="padding: 20px; width:inherit">
@@ -99,26 +100,43 @@ else
             </div>
             <div class="row" style="padding: 20px; width:inherit">
                 <div class="col-4" style="text-align:right;">
-                    User Description:
+                    User Type:
                 </div>
                 <div class="col-8">
-                    <RadzenTextBox @bind-Value="UserModel.USER_DESCRIPTION" Style="width:250px" />
+                    <RadzenDropDown @bind-Value=@UserObject.GROUP_ID
+                                    TextProperty="GROUP_NAME"
+                                    ValueProperty="GROUP_ID"
+                                    TValue="int"
+                                    AllowClear="false"
+                                    Style="width:250px"
+                                    Data=@GroupEnum />
                 </div>
             </div>
             <div class="row" style="padding: 20px; width:inherit">
                 <div class="col-4" style="text-align:right;">
-                    User Type:
+                    Work Type:
                 </div>
                 <div class="col-8">
-                    <RadzenDropDown @bind-Value=@UserModel.GROUP_ID
-                                    TextProperty="GROUP_NAME"
-                                    ValueProperty="GROUP_ID"
+                    <RadzenDropDown @bind-Value=@UserObject.WORK_TYPE_ID
+                                    TextProperty="WORK_TYPE_NAME"
+                                    ValueProperty="WORK_TYPE_ID"
                                     TValue="int"
-                                    AllowClear="true"
-                                    Style="width:min-content"
-                                    Data=@GroupEnum/>
+                                    AllowClear="false"
+                                    Style="width:250px"
+                                    Data=@WorkTypeEnum />
                 </div>
             </div>
+            <div class="row" style="padding: 20px; width: inherit">
+                <div class="col-4" style="text-align: right;">
+                    User Description:
+                </div>
+                <div class="col-8">
+                    <RadzenTextArea @bind-Value="UserObject.USER_DESCRIPTION" Style="width: 250px; height: 250px; vertical-align: top; white-space: pre-wrap; resize: none;" />
+                </div>
+            </div>
+
+
+
 
             <div class="row" style="padding: 20px;">
                 <div class="col-4" />
@@ -129,18 +147,9 @@ else
                 }
                 else
                 {
-                    if (AppState.UserInfo.IsAuthenticated == false)
-                    {
-                        <div class="col-8" style="align-content:end">
-                            <RadzenButton Click=@(args => OnClick("SIGNUP")) Text="Sign Up" Style="margin-left:10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="col-8" style="align-content:end">
-                            <RadzenButton Click=@(args => OnClick("LOGOUT")) Text="Logout" Style="margin-left: 10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
-                        </div>
-                    }
+                    <div class="col-8" style="align-content:end">
+                        <RadzenButton Click=@(args => OnClick("SIGNUP")) Text="Sign Up" Style="margin-left:10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
+                    </div>
                 }
             </div>
         </RadzenCard>
@@ -160,15 +169,18 @@ else
     private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
 
-    private UserModel UserModel { get; set; } = new UserModel();
+    private UserModel UserObject { get; set; } = new UserModel();
     private string UserPassRepeat = string.Empty;
 
-    private readonly string NamePattern = @"^[A-Za-z '-]+$";
+    private readonly string NamePattern = "^[A-Za-z '-]+$";
     private readonly string NicknamePattern = "^[a-zA-Z0-9_-]+$";
+    private readonly string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+    private readonly string phonePattern = @"^\+?\d{1,4}[-. ]?\(?\d{1,4}\)?[-. ]?\d{4,10}$";
     private const int MinNicknameLength = 3;
     private const int MaxNicknameLength = 20;
 
     private IEnumerable<GroupModel> GroupEnum { get; set; }
+    private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
 
 
     protected override void OnInitialized()
@@ -182,11 +194,11 @@ else
         if (firstRender)
         {
             await InitializeSession();
+            await InitializeData();
 
             IsRendered = true;
 
             StateHasChanged();
-            InitializeData();
         }
     }
 
@@ -210,7 +222,9 @@ else
         try
         {
             GroupEnum = await GroupService.SelectAllAsync();
-            //GroupEnum = GroupEnum.Where(x => x.GROUP_ID != 1);
+            GroupEnum = GroupEnum.Where(x => x.GROUP_ID != 1);
+
+            WorkTypeEnum = await WorkTypeService.SelectAllAsync();
         }
         catch (Exception ex)
         {
@@ -234,68 +248,123 @@ else
 
     private bool IsNicknameUnique(string nickname)
     {
-        return .Contains(nickname);
+        UserModel user = UserService.SelectByNick(nickname);
+        if (user == null)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsEmailValid(string email)
+    {
+        UserModel user = UserService.SelectByEmail(email);
+        if (user != null)
+        {
+            return false;
+        }
+        return Regex.IsMatch(email, emailPattern);
+    }
+
+    private bool IsPhoneValid(string phone)
+    {
+        return Regex.IsMatch(phone, phonePattern);
     }
 
     private async Task OnClick(string key)
     {
-        if (key == "SIGN UP")
+        if (key == "SIGNUP")
         {
-            if (string.IsNullOrEmpty(UserModel.USER_FULLNAME))
+            if (string.IsNullOrEmpty(UserObject.USER_FULLNAME))
             {
                 msg = "Your full name cannot be empty. Please try again.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
-            if (!IsValidName(UserModel.USER_FULLNAME))
+
+            if (!IsValidName(UserObject.USER_FULLNAME))
             {
                 msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
-            if (string.IsNullOrEmpty(UserModel.USER_NICKNAME))
+
+            if (string.IsNullOrEmpty(UserObject.USER_NICKNAME))
             {
                 msg = "Your  nickname cannot be empty. Please try again.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
-            if (!IsValidNickname(UserModel.USER_NICKNAME))
+
+            if (!IsValidNickname(UserObject.USER_NICKNAME))
             {
                 msg = "Invalid nickname format. Nickname must be 3 to 20 characters and contain only letters, numbers, underscores, and hyphens.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
-            if (!IsNicknameUnique(UserModel.USER_NICKNAME))
+
+            if (!IsNicknameUnique(UserObject.USER_NICKNAME))
             {
                 msg = "Nickname is already in use. Please choose a different nickname.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
 
-
-
-            if (string.IsNullOrEmpty(UserModel.USER_EMAIL))
+            if (string.IsNullOrEmpty(UserObject.USER_EMAIL))
             {
                 msg = "Your email cannot be empty. Please try again.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
-            if (string.IsNullOrEmpty(UserModel.USER_PASS))
+
+            if (!IsEmailValid(UserObject.USER_EMAIL))
+            {
+                msg = "Invalid email or already in use. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+            if (!IsPhoneValid(UserObject.USER_PHONE))
+            {
+                msg = "Invalid phone number. Please try again.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+            if (!IsPhoneValid(UserObject.USER_PHONE))
+            {
+                msg = "Invalid phone number. Please enter a valid phone number.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+            if (string.IsNullOrEmpty(UserObject.USER_PASS))
             {
                 msg = "Your password cannot be empty. Please try again.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
-            if (string.IsNullOrEmpty(UserPassRepeat) || UserPassRepeat != UserModel.USER_PASS)
+
+            if (string.IsNullOrEmpty(UserPassRepeat) || UserPassRepeat != UserObject.USER_PASS)
             {
                 msg = "Your password has to match. Please try again.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
 
-
+            UserObject.USER_ID = await UserService.CreateAsync(UserObject);
+            await UserService.PasswordUpdateAsync(UserObject.USER_ID, Encryption.EnryptString(UserObject.USER_PASS));
+            msg = "User " + UserObject.USER_NICKNAME + " created.";
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Sign up succesful", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+            NavigationManager.NavigateTo("./");
         }
     }
+
+    private async Task PasswordSave()
+    {
+        int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, Encryption.EnryptString(UserObject.USER_PASS));
+    }
+
     private void ShowNotification(NotificationMessage message)
     {
         try

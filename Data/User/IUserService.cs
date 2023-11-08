@@ -18,6 +18,8 @@ namespace Mentor.Data
         Task<UserModel> SelectAsync(int userID);
         UserModel SelectByEmail(string userEmail);
         Task<UserModel> SelectByEmailAsync(string userEmail);
+        UserModel SelectByNick(string userNick);
+        Task<UserModel> SelectByNickAsync(string userNick);
         int Update(UserModel user);
         Task<int> UpdateAsync(UserModel user);
     }

@@ -25,7 +25,6 @@ namespace Mentor.Data
             parameters.Add("USER_ID", user.USER_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("USER_FULLNAME", user.USER_FULLNAME, DbType.String);
             parameters.Add("USER_NICKNAME", user.USER_NICKNAME, DbType.String);
-            parameters.Add("USER_PASS", user.USER_PASS, DbType.String);
             parameters.Add("USER_EMAIL", user.USER_EMAIL, DbType.String);
             parameters.Add("USER_PHONE", user.USER_PHONE, DbType.String);
             parameters.Add("IS_ACTIVE", user.IS_ACTIVE, DbType.Boolean);
@@ -64,7 +63,6 @@ namespace Mentor.Data
             parameters.Add("USER_ID", user.USER_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("USER_FULLNAME", user.USER_FULLNAME, DbType.String);
             parameters.Add("USER_NICKNAME", user.USER_NICKNAME, DbType.String);
-            parameters.Add("USER_PASS", user.USER_PASS, DbType.String);
             parameters.Add("USER_EMAIL", user.USER_EMAIL, DbType.String);
             parameters.Add("USER_PHONE", user.USER_PHONE, DbType.String);
             parameters.Add("IS_ACTIVE", user.IS_ACTIVE, DbType.Boolean);
@@ -504,7 +502,7 @@ namespace Mentor.Data
         public async Task<UserModel> SelectByNickAsync(string userNick)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("USER_NICKNAME", userNick, DbType.String);
+            parameters.Add("USER_NICK", userNick, DbType.String);
 
             UserModel retVal = new();
 
@@ -533,7 +531,7 @@ namespace Mentor.Data
         public UserModel SelectByNick(string userNick)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("USER_NICKNAME", userNick, DbType.String);
+            parameters.Add("USER_NICK", userNick, DbType.String);
 
             UserModel retVal = new();
 
