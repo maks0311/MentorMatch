@@ -1,7 +1,36 @@
 ﻿@page "/search"
 
-<h3>Search</h3>
+@implements IDisposable
+
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using System.Text;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using System.Reflection;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject IConfiguration AppConfig;
+@inject ISessionStorageService SessionStorage;
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService;
+@inject NavigationManager NavigationManager;
+@inject NotificationService NotificationService;
+@inject DialogService DialogService;
+
+@inject IUserService UserService;
 
 @code {
+	private AppState AppState { get; set; } = new AppState();
+	private string msg { get; set; };
+	private bool IsRendered { get; set; } = false;
+	private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
 
 }
