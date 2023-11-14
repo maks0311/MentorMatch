@@ -1,36 +1,203 @@
-﻿@page "/search"
+@page "/search"
 
-@implements IDisposable
-
+@using System
+@using System.Text
+@using System.Reflection
 @using Dapper;
 @using System.Data.SqlClient;
 @using Radzen;
 @using Radzen.Blazor;
 @using Radzen.Blazor.Rendering;
-@using System.Text;
 @using Microsoft.Extensions.Configuration;
 @using System.Globalization;
 @using Microsoft.Extensions.Logging;
 @using Microsoft.Extensions.Logging.EventLog;
-@using System.Reflection;
 @using Blazored.SessionStorage;
 @using Mentor.Data;
 
-@inject IConfiguration AppConfig;
-@inject ISessionStorageService SessionStorage;
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
 @inject IPermissionService PermissionService;
 
-@inject TooltipService TooltipService;
-@inject NavigationManager NavigationManager;
-@inject NotificationService NotificationService;
-@inject DialogService DialogService;
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
 
-@inject IUserService UserService;
+@inject ITutorService TutorService;
+@inject ISubjectService SubjectService;
+@inject ILevelService LevelService;
+
+<h3>Search</h3>
+
+@if (AppState.IsNull())
+{
+    <p>Loading menu...</p>
+}
+else
+{
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+
+    @if ((AppState.UserInfo.IsNull()) || (AppState.UserInfo.IsAuthenticated.IsFalse()))
+    {
+        
+    }
+    else
+    {
+        <div class="row" style="margin-top:60px">
+            <div class="col-md-12">
+                <RadzenCard>
+                    <RadzenButton Text="Search" Icon="search" Click="SearchTutors" Disabled="@DisableSearch" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                </RadzenCard>
+                <RadzenCard>
+                    <RadzenRow Style="margin-bottom: 10px">
+                        <RadzenColumn Size="2"><RadzenText Text="Level"></RadzenText></RadzenColumn>
+                        <RadzenColumn Size="2"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow>
+                        <RadzenColumn Size="2">
+                            <RadzenDropDown @bind-Value=@LevelObject.LEVEL_ID
+                                    TextProperty="LEVEL_NAME"
+                                    ValueProperty="LEVEL_ID"
+                                    TValue="int"
+                                    AllowClear="false"
+                                    Style="width:min-content"
+                                    Data=@LevelEnum
+                                    AllowFiltering="true"
+                                    FilterAsYouType="true"
+                                    Change=@(args => OnDropDownChange(args, "LEVEL"))/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="2">
+                            <RadzenDropDown @bind-Value=@SubjectObject.SUBJECT_ID
+                                    TextProperty="SUBJECT_NAME"
+                                    ValueProperty="SUBJECT_ID"
+                                    TValue="int"
+                                    AllowClear="false"
+                                    Style="width:min-content"
+                                    Data=@SubjectEnum
+                                    AllowFiltering="true"
+                                    FilterAsYouType="true"
+                                    Change=@(args => OnDropDownChange(args, "SUBJECT")) />
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenCard>
+                <RadzenCard>
+                    <RadzenDataGrid Data="@TutorEnum"
+                            AllowFiltering="false"
+                            AllowMultiColumnSorting="true"
+                            ClearFilterText="true"
+                            AllowColumnResize="true"
+                            FilterMode="FilterMode.Simple"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowVirtualization="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            LogicalFilterOperator="LogicalFilterOperator.And"
+                            Visible="true">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_FULLNAME" Filterable="false" Title="Fullname" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_EMAIL" Title="Email" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_PHONE" Title="Phone" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="WORK_TYPE_NAME" Title="Work type" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_RATING" Title="Rating" Frozen="true" TextAlign="TextAlign.Left" >
+                                <Template Context="TutorModel">
+                                    <RadzenRating @bind-Value="TutorModel.TUTOR_RATING" ReadOnly="true"/>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenCard>
+            </div>
+        </div>
+    }
+}
+
+
 
 @code {
-	private AppState AppState { get; set; } = new AppState();
-	private string msg { get; set; };
-	private bool IsRendered { get; set; } = false;
-	private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+    AppState AppState { get; set; } = new AppState();
+    string msg { get; set; }
+    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
+    private bool IsRendered { get; set; } = false;
+    private string AppVersion { get; set; }
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    private bool DisableSearch { get; set; } = true;
+
+    private TutorModel TutorObject { get; set; } = new TutorModel();
+    private LevelModel LevelObject { get; set; } = new LevelModel();
+    private SubjectModel SubjectObject { get; set; } = new SubjectModel();
+    private IEnumerable<TutorModel> TutorEnum { get; set; }
+    private IEnumerable<LevelModel> LevelEnum { get; set; }
+    private IEnumerable<SubjectModel> SubjectEnum { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                await InitializeSession();
+                await InitializeData();
+
+                IsRendered = true;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeData()
+    {
+        try
+        {
+            TutorEnum = await TutorService.SelectAllAsync();
+            LevelEnum = await LevelService.SelectAllAsync();
+            SubjectEnum = await SubjectService.SelectAllAsync();
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void OnDropDownChange(object value, string key)
+    {
+        if (LevelObject.LEVEL_ID != 0 && SubjectObject.SUBJECT_ID != 0)
+        {
+            DisableSearch = false;
+        }
+    }
+
+    private async Task SearchTutors()
+    {
+        TutorEnum = await TutorService.SelectAllByCompetenceAsync(SubjectObject.SUBJECT_ID, LevelObject.LEVEL_ID);
+    }
 
 }

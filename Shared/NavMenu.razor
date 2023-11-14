@@ -1,4 +1,60 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inherits LayoutComponentBase
+
+@using System
+@using System.Text
+@using System.Reflection
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Mentor</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<RadzenPanelMenu Click="@(args => OnMenuItemClick(args))" Style="background-color: hsla(0, 0%, 0%, 0)">
+
+    @if (AppState != null)
+    {
+        <RadzenPanelMenuItem Text="Home" Icon="home" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Search Tutors" Icon="search" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
+        @if (AppState.UserInfo != null && AppState.UserInfo.IsAuthenticated)
+        {
+            
+            @if (AppState.UserInfo.IsStudent)
+            {
+                
+            }
+        }
+        <RadzenPanelMenuItem Text="About" Icon="home" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
+    }
+
+</RadzenPanelMenu>
+
+
+
+
+@*<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Mentor</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -12,15 +68,31 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
+        @if (AppState.UserInfo.IsStudent)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="search">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Search
+                </NavLink>
+            </li>
+        }
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="about">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> About
             </NavLink>
         </li>
     </ul>
-</div>
+</div>*@
 
 @code {
+    [Parameter]
+    public AppState AppState { get; set; } = new AppState();
+    [Parameter]
+    public bool IsRendered { get; set; } = false;
+    string msg { get; set; }
+    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
+    private string AppVersion { get; set; }
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -28,5 +100,23 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
+    {
+        if (args.Text == "Home")
+        {
+            NavigationManager.NavigateTo("/");
+        }
+
+        if (args.Text == "Search Tutors")
+        {
+            NavigationManager.NavigateTo("/search");
+        }
+
+        if (args.Text == "About")
+        {
+            NavigationManager.NavigateTo("/about");
+        }
     }
 }
