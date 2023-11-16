@@ -38,11 +38,48 @@ else
 
     @if ((AppState.UserInfo.IsNotNull()) || (AppState.LessonInfo.IsNotNull()))
     {
-        <RadzenCard>
-            <p>@LessonObject.LESSON_ID</p>
-        </RadzenCard>
+        <div class="row" style="margin-top:60px">
+            <div class="col-md-12">
+                <RadzenCard Style="margin-top:10px">
+                    <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                        <RadzenStack Style="width:50%">
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.SUBJECT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Lesson's status"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.LESSON_STATUS_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Tutor's name"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.TUTOR_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Student's name"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.STUDENT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Starts at"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_START Disabled='true'></RadzenDatePicker></RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Until"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_STOP Disabled='true'></RadzenDatePicker></RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenRating Style="width:inherit, font-size: 20pt" @bind-Value=@LessonObject.RATING_VALUE ReadOnly='true'></RadzenRating></RadzenColumn>
+                            </RadzenRow>
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenCard>
+            </div>
+        </div>
     }
 }
+
+
 
 @code {
     AppState AppState { get; set; } = new AppState();
@@ -51,6 +88,9 @@ else
     private bool IsRendered { get; set; } = false;
     private string AppVersion { get; set; }
     private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    private int ColumnLabelSize = 2;
+    private int ColumnControlSize = 10;
 
     private LessonModel LessonObject { get; set; } = new LessonModel();
 
@@ -111,3 +151,4 @@ else
         }
     }
 }
+
