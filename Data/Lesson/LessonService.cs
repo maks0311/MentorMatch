@@ -220,18 +220,12 @@ namespace Mentor.Data
             var parameters = new DynamicParameters();
             parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
-            parameters.Add("SUBJECT_NAME", lesson.SUBJECT_NAME, DbType.String);
             parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
-            parameters.Add("LESSON_STATUS_NAME", lesson.LESSON_STATUS_NAME, DbType.String);
             parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
-            parameters.Add("TUTOR_NAME", lesson.TUTOR_NAME, DbType.String);
             parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
-            parameters.Add("STUDENT_NAME", lesson.STUDENT_NAME, DbType.String);
             parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
             parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
             parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
-            parameters.Add("RATING_VALUE", lesson.RATING_VALUE, DbType.Int32);
-            parameters.Add("RATING_NAME", lesson.RATING_NAME, DbType.String);
 
             using (var conn = new SqlConnection(_configuration.Value))
             {
@@ -262,18 +256,12 @@ namespace Mentor.Data
             var parameters = new DynamicParameters();
             parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
-            parameters.Add("SUBJECT_NAME", lesson.SUBJECT_NAME, DbType.String);
             parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
-            parameters.Add("LESSON_STATUS_NAME", lesson.LESSON_STATUS_NAME, DbType.String);
             parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
-            parameters.Add("TUTOR_NAME", lesson.TUTOR_NAME, DbType.String);
             parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
-            parameters.Add("STUDENT_NAME", lesson.STUDENT_NAME, DbType.String);
             parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
             parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
             parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
-            parameters.Add("RATING_VALUE", lesson.RATING_VALUE, DbType.Int32);
-            parameters.Add("RATING_NAME", lesson.RATING_NAME, DbType.String);
 
             using (var conn = new SqlConnection(_configuration.Value))
             {
