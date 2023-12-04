@@ -48,10 +48,6 @@ else
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.SUBJECT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
                             <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Lesson's status"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.LESSON_STATUS_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
-                            </RadzenRow>
-                            <RadzenRow>
                                 <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Tutor's name"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.TUTOR_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
@@ -64,13 +60,29 @@ else
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_START Disabled='true'></RadzenDatePicker></RadzenColumn>
                             </RadzenRow>
                             <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Until"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Until" Style="width: 78px"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_STOP Disabled='true'></RadzenDatePicker></RadzenColumn>
                             </RadzenRow>
                             <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenRating Style="width:inherit, font-size: 20pt" @bind-Value=@LessonObject.RATING_VALUE ReadOnly='true'></RadzenRating></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Lesson's status"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.LESSON_STATUS_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
+                            @if (LessonObject.DATE_STOP < DateTime.Today && AppState.UserInfo.IsStudent && !IsLessonRated)
+                            {
+                                <RadzenRow>
+                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
+                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenRating Style="width:inherit" @bind-Value=@RatingValue></RadzenRating></RadzenColumn>
+                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenButton Click=@(args => RateLesson(RatingValue)) Style="width:inherit" Text="Confirm" ButtonStyle="ButtonStyle.Secondary"></RadzenButton></RadzenColumn>
+                                </RadzenRow>
+                            }
+                            else
+                            {
+                                <RadzenRow>
+                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
+                                    <RadzenColumn Size="@ColumnControlSize" Style="width: 106px"><RadzenRating Style="width: 123px; height: 33px; display: table; visibility: visible" @bind-Value=@LessonObject.RATING_VALUE ReadOnly='true'></RadzenRating></RadzenColumn>
+                                </RadzenRow>
+                            }
+
                         </RadzenStack>
                     </RadzenStack>
                 </RadzenCard>
@@ -91,6 +103,12 @@ else
 
     private int ColumnLabelSize = 2;
     private int ColumnControlSize = 10;
+
+    string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+    private bool IsLessonRated;
+    private int RatingValue = 0;
 
     private LessonModel LessonObject { get; set; } = new LessonModel();
 
@@ -143,6 +161,15 @@ else
             if (AppState.LessonInfo.IsNotNull())
             {
                 LessonObject = await LessonService.SelectAsync(AppState.LessonInfo.LESSON_ID);
+
+                if (LessonObject.RATING_ID == 6)
+                {
+                    IsLessonRated = false;
+                }
+                else
+                {
+                    IsLessonRated = true;
+                }
             }
         }
         catch (Exception ex)
@@ -150,5 +177,39 @@ else
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
         }
     }
-}
 
+    private async Task RateLesson(int ratingValue)
+    {
+        try
+        {
+            LessonObject.RATING_ID = ratingValue;
+            await LessonService.UpdateAsync(LessonObject);
+            IsLessonRated = true;
+            LessonObject = await LessonService.SelectAsync(AppState.LessonInfo.LESSON_ID);
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson", Detail = "Rated", Duration = NotificationDuration, Style = NotificationPosition });
+
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
+}
