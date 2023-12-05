@@ -41,10 +41,10 @@ app {
             margin-left: 1.5rem;
         }
 
-.main .top-row a:first-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .main .top-row a:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
 .sidebar {
     background-image: linear-gradient(180deg, rgb(16, 16, 66) 20%, rgb(255, 115, 0) 70%);
@@ -129,12 +129,12 @@ app {
     z-index: 1000;
 }
 
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-}
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
 
 @media (max-width: 767.98px) {
     .main .top-row:not(.auth) {
@@ -180,4 +180,20 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+}
+
+.icon-pending {
+    color: orange;
+}
+
+.icon-approved {
+    color: green;
+}
+
+.icon-cancelled {
+    color: red;
+}
+
+.icon-completed {
+    color: grey;
 }
