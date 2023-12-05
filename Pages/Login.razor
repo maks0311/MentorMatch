@@ -30,64 +30,63 @@
 
 @if (AppState.IsNull())
 {
-	<p>Loading menu</p>
+    <p>Loading menu</p>
 }
 else
 {
-	<TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 }
 
 <div class="row" style="margin-top:200px">
-	<div class="col-3"></div>
-	<div class="col-6">
-		<RadzenCard Style="width:600px;">
-			<div class="row" style="padding: 10px; width:inherit; display:flex; align-items:center; font-size:20px">
-                <RadzenIcon Icon="account_balance" Style="font-size: 50px; color: indigo; margin-right: 10px; cursor: pointer"></RadzenIcon> MentorMatch
-			</div>
-			<hr class="my-12" />
-			<div class="row" style="padding: 20px; width:inherit">
-				<div class="col-4" style="text-align:right;">
-					User Name / E-mail:
-				</div>
-				<div class="col-8">
-					<RadzenTextBox Change=@(args => OnChange(args, "USER_NAME")) MouseEnter="@(args => ShowTooltip(args, "Enter your login or registered e-mail address"))" Style="width:250px" />
-				</div>
-			</div>
-			<div class="row" style="padding: 20px; width:inherit">
-				<div class="col-4" style="width:100px; text-align:right;">
-					Password:
-				</div>
-				<div class="col-8" style="width:400px">
-					<RadzenPassword Change=@(args => OnChange(args, "USER_PASS")) MouseEnter="@(args => ShowTooltip(args, "Enter your password"))" Style="width:250px" />
-				</div>
-			</div>
+    <div class="col-3"></div>
+    <div class="col-6">
+        <RadzenCard Style="width: 600px; border-radius: 20px;">
+            <div style="padding: 10px; width: 562px; align-items: center; font-size: 20px; vertical-align: middle; text-align: center">
+                <RadzenImage Path="images/logo.png" Style="height: 75px; width: 350px; margin-bottom: 30px; border-radius: 10px; align-items: center; float: none; margin-left: px; margin-top: 15px; text-align: center"></RadzenImage>
+            </div>
+            <hr class="my-12" />
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="text-align:right;">
+                    User Name / E-mail:
+                </div>
+                <div class="col-8">
+                    <RadzenTextBox Change=@(args => OnChange(args, "USER_NAME")) MouseEnter="@(args => ShowTooltip(args, "Enter your login or registered e-mail address"))" Style="width:250px" />
+                </div>
+            </div>
+            <div class="row" style="padding: 20px; width:inherit">
+                <div class="col-4" style="width:100px; text-align:right;">
+                    Password:
+                </div>
+                <div class="col-8" style="width:400px">
+                    <RadzenPassword Change=@(args => OnChange(args, "USER_PASS")) MouseEnter="@(args => ShowTooltip(args, "Enter your password"))" Style="width:250px" />
+                </div>
+            </div>
 
-			<div class="row" style="padding: 20px;">
-				<div class="col-4" />
+            <div class="row" style="padding: 20px; text-align: right">
 
-				@if (AppState.IsNull())
-				{
-					<p><em>Loading...</em></p>
-				}
-				else
-				{
-					if (AppState.UserInfo.IsAuthenticated == false)
-					{
-						<div class="col-8" style="align-content:end">
-							<RadzenButton Click=@(args => OnClick("LOGIN")) Text="Login" Style="margin-left:10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Secondary" />
-						</div>
-					}
-					else
-					{
-						<div class="col-8" style="align-content:end">
-							<RadzenButton Click=@(args => OnClick("LOGOUT")) Text="Logout" Style="margin-left: 10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
-						</div>
-					}
-				}
-			</div>
-		</RadzenCard>
-	</div>
-	<div class="col-3"></div>
+                @if (AppState.IsNull())
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    if (AppState.UserInfo.IsAuthenticated == false)
+                    {
+                        <div class="col-8" style="align-content:end">
+                            <RadzenButton Click=@(args => OnClick("LOGIN")) Text="Login" Style="margin-left: 10px; margin-bottom: 20px; width: 150px; background-color: #FF914D; border-radius: px" ButtonStyle="ButtonStyle.Secondary" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-8" style="align-content:end">
+                            <RadzenButton Click=@(args => OnClick("LOGOUT")) Text="Logout" Style="margin-left: 10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
+                        </div>
+                    }
+                }
+            </div>
+        </RadzenCard>
+    </div>
+    <div class="col-3"></div>
 </div>
 
 
