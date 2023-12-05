@@ -26,8 +26,6 @@
 
 @inject ILessonService LessonService;
 
-<h3>Lesson</h3>
-
 @if (AppState.IsNull())
 {
     <p>Loading lesson...</p>
@@ -48,13 +46,15 @@ else
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.SUBJECT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
                             <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Tutor's name"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Tutor"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.TUTOR_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
                             <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Student's name"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Student"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.STUDENT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
+                        </RadzenStack>
+                        <RadzenStack Style="width:50%">
                             <RadzenRow>
                                 <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Starts at"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_START Disabled='true'></RadzenDatePicker></RadzenColumn>
@@ -63,16 +63,41 @@ else
                                 <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Until" Style="width: 78px"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_STOP Disabled='true'></RadzenDatePicker></RadzenColumn>
                             </RadzenRow>
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenCard>
+                <RadzenCard Style="margin-top:10px">
+                    <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                        <RadzenStack Style="width:50%">
                             <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Lesson's status"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Status"></RadzenText></RadzenColumn>
                                 <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.LESSON_STATUS_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
                             </RadzenRow>
-                            @if (LessonObject.DATE_STOP < DateTime.Today && AppState.UserInfo.IsStudent && !IsLessonRated)
+                        </RadzenStack>
+                        <RadzenStack Style="width:50%">
+                            <RadzenRow>
+                                @if (LessonObject.LESSON_STATUS_ID == 1 && AppState.UserInfo.IsTutor)
+                                {
+                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => ApproveLesson()) Style="width: 170px" Text="Approve Lesson" Icon="done" ButtonStyle="ButtonStyle.Success"></RadzenButton></RadzenColumn>
+                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => CancelLesson()) Style="width: 170px" Text="Cancel Lesson" Icon="highlight_off" ButtonStyle="ButtonStyle.Danger"></RadzenButton></RadzenColumn>
+                                }
+                                else if (LessonObject.LESSON_STATUS_ID == 2)
+                                {
+                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => CancelLesson()) Style="width: 170px" Text="Cancel Lesson" Icon="highlight_off" ButtonStyle="ButtonStyle.Danger"></RadzenButton></RadzenColumn>
+                                }
+                            </RadzenRow>
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenCard>
+                <RadzenCard Style="margin-top:10px">
+                    <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                        <RadzenStack Style="width:50%">
+                            @if (LessonObject.DATE_STOP < DateTime.Today && AppState.UserInfo.IsStudent && !IsLessonRated && LessonObject.LESSON_STATUS_ID == 4)
                             {
                                 <RadzenRow>
                                     <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
                                     <RadzenColumn Size="@ColumnLabelSize"><RadzenRating Style="width:inherit" @bind-Value=@RatingValue></RadzenRating></RadzenColumn>
-                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenButton Click=@(args => RateLesson(RatingValue)) Style="width:inherit" Text="Confirm" ButtonStyle="ButtonStyle.Secondary"></RadzenButton></RadzenColumn>
+                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => RateLesson(RatingValue)) Style="width: 170px" Icon="done" Text="Rate Lesson" ButtonStyle="ButtonStyle.Success"></RadzenButton></RadzenColumn>
                                 </RadzenRow>
                             }
                             else
@@ -82,7 +107,6 @@ else
                                     <RadzenColumn Size="@ColumnControlSize" Style="width: 106px"><RadzenRating Style="width: 123px; height: 33px; display: table; visibility: visible" @bind-Value=@LessonObject.RATING_VALUE ReadOnly='true'></RadzenRating></RadzenColumn>
                                 </RadzenRow>
                             }
-
                         </RadzenStack>
                     </RadzenStack>
                 </RadzenCard>
@@ -182,17 +206,38 @@ else
     {
         try
         {
+            if (ratingValue == 0)
+            {
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Lesson Not Rated", Detail = "Minimum rating is 1 star", Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
             LessonObject.RATING_ID = ratingValue;
             await LessonService.UpdateAsync(LessonObject);
             IsLessonRated = true;
             LessonObject = await LessonService.SelectAsync(AppState.LessonInfo.LESSON_ID);
-            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson", Detail = "Rated", Duration = NotificationDuration, Style = NotificationPosition });
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson Rated", Detail = "", Duration = NotificationDuration, Style = NotificationPosition });
 
         }
         catch (Exception ex)
         {
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
         }
+    }
+
+    private async Task ApproveLesson()
+    {
+        LessonObject.LESSON_STATUS_ID = 2;
+        await LessonService.UpdateAsync(LessonObject);
+        LessonObject = await LessonService.SelectAsync(AppState.LessonInfo.LESSON_ID);
+        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson Approved", Detail = "", Duration = NotificationDuration, Style = NotificationPosition });
+    }
+
+    private async Task CancelLesson()
+    {
+        LessonObject.LESSON_STATUS_ID = 3;
+        await LessonService.UpdateAsync(LessonObject);
+        LessonObject = await LessonService.SelectAsync(AppState.LessonInfo.LESSON_ID);
+        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson Cancelled", Detail = "", Duration = NotificationDuration, Style = NotificationPosition });
     }
 
     private void ShowNotification(NotificationMessage message)
