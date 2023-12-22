@@ -27,6 +27,8 @@
 @inject ITutorService TutorService;
 @inject ISubjectService SubjectService;
 @inject ILevelService LevelService;
+@inject IWorkTypeService WorkTypeService;
+@inject IRatingService RatingService;
 
 <h3>Search</h3>
 
@@ -83,10 +85,10 @@ else
                 </RadzenCard>
                 <RadzenCard>
                     <RadzenDataGrid Data="@TutorEnum"
-                            AllowFiltering="false"
+                            AllowFiltering="true"
                             AllowMultiColumnSorting="true"
                             ClearFilterText="true"
-                            AllowColumnResize="true"
+                            AllowColumnResize="false"
                             FilterMode="FilterMode.Simple"
                             AllowPaging="true"
                             AllowSorting="true"
@@ -95,11 +97,32 @@ else
                             LogicalFilterOperator="LogicalFilterOperator.And"
                             Visible="true">
                         <Columns>
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_FULLNAME" Filterable="false" Title="Fullname" Frozen="true" TextAlign="TextAlign.Left" />
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_EMAIL" Title="Email" Frozen="true" TextAlign="TextAlign.Left" />
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_PHONE" Title="Phone" Frozen="true" TextAlign="TextAlign.Left" />
-                            <RadzenDataGridColumn TItem="TutorModel" Property="WORK_TYPE_NAME" Title="Work type" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_FULLNAME" Title="Fullname" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_EMAIL" Filterable="false" Title="Email" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_PHONE" Filterable="false" Title="Phone" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="WORK_TYPE_NAME" FilterProperty="@WorkTypeObject.WORK_TYPE_NAME" Title="Work type" Frozen="true" TextAlign="TextAlign.Left">
+                                <FilterTemplate>
+                                    <RadzenDropDown @bind-Value=@WorkTypeObject.WORK_TYPE_ID
+                                            TextProperty="WORK_TYPE_NAME"
+                                            ValueProperty="WORK_TYPE_ID"
+                                            TValue="int"
+                                            AllowClear="true"
+                                            Style="width:100%"
+                                            Data=@WorkTypeEnum
+                                            Change="@(args => OnFilterChange(args, "WORK_TYPE"))" />
+                                </FilterTemplate>
+                            </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_RATING" Title="Rating" Frozen="true" TextAlign="TextAlign.Left" >
+                                <FilterTemplate>
+                                    <RadzenDropDown @bind-Value=@RatingObject.RATING_VALUE
+                                            TextProperty="RATING_NAME"
+                                            ValueProperty="RATING_VALUE"
+                                            TValue="int"
+                                            AllowClear="false"
+                                            Style="width:100%"
+                                            Data=@RatingEnum
+                                            Change="@(args => OnFilterChange(args, "RATING"))"/>
+                                </FilterTemplate>
                                 <Template Context="TutorModel">
                                     <RadzenRating @bind-Value="TutorModel.TUTOR_RATING" ReadOnly="true"/>
                                 </Template>
@@ -127,9 +150,14 @@ else
     private TutorModel TutorObject { get; set; } = new TutorModel();
     private LevelModel LevelObject { get; set; } = new LevelModel();
     private SubjectModel SubjectObject { get; set; } = new SubjectModel();
+    private WorkTypeModel WorkTypeObject { get; set; } = new WorkTypeModel();
+    private RatingModel RatingObject { get; set; } = new RatingModel();
+
     private IEnumerable<TutorModel> TutorEnum { get; set; }
     private IEnumerable<LevelModel> LevelEnum { get; set; }
     private IEnumerable<SubjectModel> SubjectEnum { get; set; }
+    private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
+    private IEnumerable<RatingModel> RatingEnum { get; set; }
 
     protected override void OnInitialized()
     {
@@ -180,6 +208,8 @@ else
             TutorEnum = await TutorService.SelectAllAsync();
             LevelEnum = await LevelService.SelectAllAsync();
             SubjectEnum = await SubjectService.SelectAllAsync();
+            WorkTypeEnum = await WorkTypeService.SelectAllAsync();
+            RatingEnum = await RatingService.SelectAllAsync();
         }
         catch (Exception ex)
         {
@@ -200,4 +230,16 @@ else
         TutorEnum = await TutorService.SelectAllByCompetenceAsync(SubjectObject.SUBJECT_ID, LevelObject.LEVEL_ID);
     }
 
+    private void OnFilterChange(object value, string key)
+    {
+        if(key == "WORK_TYPE")
+        {
+            TutorEnum = TutorEnum.Where(tutor => tutor.WORK_TYPE_ID == WorkTypeObject.WORK_TYPE_ID);
+        }
+
+        if(key == "RATING")
+        {
+            TutorEnum = TutorEnum.Where(tutor => tutor.TUTOR_RATING == RatingObject.RATING_VALUE);
+        }
+    }
 }

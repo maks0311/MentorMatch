@@ -16,6 +16,7 @@
 @using Microsoft.Extensions.Logging.EventLog;
 @using Blazored.SessionStorage;
 @using Mentor.Data;
+@using System.Text.RegularExpressions;
 
 @inject IConfiguration AppConfig
 @inject ISessionStorageService SessionStorage
@@ -55,7 +56,7 @@ else
                         <RadzenTabsItem Text="My Account">
                             <RadzenCard>
                                 <RadzenButton Text="Save" Icon="save" Click="UserSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                                <RadzenButton Text="Remove" Icon="cancel" Disabled="true" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+                                <RadzenButton Text="Revert Changes" Icon="cancel" Click="RevertChanges" Disabled="@DisableSave" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
                             </RadzenCard>
                             <RadzenCard Style="margin-top:10px">
                                 <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
@@ -66,11 +67,11 @@ else
                                         </RadzenRow>
                                         <RadzenRow>
                                             <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Nickname"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_NICKNAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
+                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_NICKNAME MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
                                         </RadzenRow>
                                         <RadzenRow>
                                             <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="E-mail"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_EMAIL MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
+                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_EMAIL MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
                                         </RadzenRow>
                                         <RadzenRow>
                                             <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Phone"></RadzenText></RadzenColumn>
@@ -108,12 +109,14 @@ else
                                                         Change=@(args => OnDropDownChange(args, "WORK_TYPE")) />
                                             </RadzenColumn>
                                         </RadzenRow>
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Description"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextArea @bind-Value=@UserObject.USER_DESCRIPTION MaxLength="500" Rows="5" Style="width:inherit" Change="@OnChange"></RadzenTextArea></RadzenColumn>
-                                        </RadzenRow>
                                     </RadzenStack>
                                 </RadzenStack>
+                            </RadzenCard>
+                            <RadzenCard Style="margin-top:10px">
+                                <RadzenRow>
+                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Description"></RadzenText></RadzenColumn>
+                                    <RadzenColumn Size="@ColumnControlSize"><RadzenTextArea @bind-Value=@UserObject.USER_DESCRIPTION MaxLength="500" Rows="5" Style="width:inherit" Change="@OnChange"></RadzenTextArea></RadzenColumn>
+                                </RadzenRow>
                             </RadzenCard>
                         </RadzenTabsItem>
 
@@ -214,8 +217,16 @@ else
                                             <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Center" />
                                             <RadzenDataGridColumn TItem="LessonModel" Property="STUDENT_NAME" Filterable="false" Title="Student" Frozen="true" Visible="@UserObject.IsTutor" TextAlign="TextAlign.Center" />
                                             <RadzenDataGridColumn TItem="LessonModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Center" />
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Center" />
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="DATE_STOP" Filterable="false" Title="End Date" Frozen="true" TextAlign="TextAlign.Center" />
+                                            <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Center">
+                                                <Template Context="LessonModel">
+                                                    <RadzenText Text="@LessonModel.DATE_START.ToString("g")"></RadzenText>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="LessonModel" Property="DATE_STOP" Filterable="false" Title="End Date" Frozen="true" TextAlign="TextAlign.Center">
+                                                <Template Context="LessonModel">
+                                                    <RadzenText Text="@LessonModel.DATE_STOP.ToString("g")"></RadzenText>
+                                                </Template>
+                                            </RadzenDataGridColumn>
                                             <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_STATUS_NAME" Filterable="false" Title="Status" Frozen="true" TextAlign="TextAlign.Center" Width="100px">
                                                 <Template Context="LessonModel">
                                                     <RadzenIcon Icon="@LessonModel.LESSON_STATUS_ICON" MouseEnter="@(args => ShowTooltip(args, LessonModel.LESSON_STATUS_NAME))" class="@LessonModel.LESSON_STATUS_ICON_COLOR" />
@@ -278,6 +289,10 @@ else
     private IEnumerable<SubjectModel> SubjectEnum { get; set; }
     private IEnumerable<CompetenceModel> CompetenceEnum { get; set; }
     private IEnumerable<LessonModel> LessonEnum { get; set; }
+
+    private readonly string NamePattern = "^[A-Za-z '-]+$";
+    private readonly string phonePattern = @"^\+?\d{1,4}[-. ]?\(?\d{1,4}\)?[-. ]?\d{4,10}$";
+    private readonly int DescMaxLen = 250;
 
     protected override void OnInitialized()
     {
@@ -367,12 +382,70 @@ else
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
         }
     }
+
+    private bool IsValidName(string name)
+    {
+        return Regex.IsMatch(name, NamePattern);
+    }
+
+    private bool IsPhoneValid(string phone)
+    {
+        return Regex.IsMatch(phone, phonePattern);
+    }
+
+    private bool IsDescValid(string description)
+    {
+        return UserObject.USER_DESCRIPTION.Length < 250;
+    }
+
     private async Task UserSave()
     {
         try
         {
             if (UserObject.IsNotNull() && UserObject.IsAuthenticated)
             {
+                if (string.IsNullOrEmpty(UserObject.USER_FULLNAME))
+                {
+                    msg = "Your full name cannot be empty. Please try again.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    return;
+                }
+
+                if (!IsValidName(UserObject.USER_FULLNAME))
+                {
+                    msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(UserObject.USER_NICKNAME))
+                {
+                    msg = "Your  nickname cannot be empty. Please try again.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    return;
+                }
+
+                if (!IsPhoneValid(UserObject.USER_PHONE))
+                {
+                    msg = "Invalid phone number. Please try again.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    return;
+                }
+
+                if (!IsPhoneValid(UserObject.USER_PHONE))
+                {
+                    msg = "Invalid phone number. Please enter a valid phone number.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    return;
+                }
+
+                if (!IsDescValid(UserObject.USER_DESCRIPTION))
+                {
+                    msg = "Description is too long.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    return;
+                }
+
                 var retval = await UserService.UpdateAsync(UserObject);
 
                 if (retval == 1)
@@ -388,6 +461,19 @@ else
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task RevertChanges()
+    {
+        try
+        {
+            UserObject = await UserService.SelectAsync(UserObject.USER_ID);
+            DisableSave = true;
         }
         catch (Exception ex)
         {

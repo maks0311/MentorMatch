@@ -43,6 +43,7 @@ namespace Mentor
             services.AddScoped<ICompetenceService, CompetenceService>();
             services.AddScoped<ILessonService, LessonService>();
             services.AddScoped<ITutorService, TutorService>();
+            services.AddScoped<IRatingService, RatingService>();
 
             //SQL Server Connection
             if (Globals.AdminHostNames.Contains(System.Environment.MachineName))
