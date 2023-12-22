@@ -260,6 +260,42 @@ else
         return Regex.IsMatch(phone, phonePattern);
     }
 
+    private bool IsPasswordValid(string password)
+    {
+        if (password.Length < 8)
+        {
+            return false;
+        }
+
+        if (!password.Any(char.IsUpper))
+        {
+            return false;
+        }
+
+        if (!password.Any(char.IsLower))
+        {
+            return false;
+        }
+
+        if (!password.Any(char.IsDigit))
+        {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    private bool IsWorkTypeValid(int workTypeID)
+    {
+        return workTypeID == 1 || workTypeID == 2 || workTypeID == 3;
+    }
+
+    private bool IsGroupValid(int groupID)
+    {
+        return groupID == 1 || groupID == 2 || groupID == 3;
+    }
+
     private async Task OnClick(string key)
     {
         if (key == "SIGNUP")
@@ -334,10 +370,31 @@ else
                 return;
             }
 
+            if (!IsPasswordValid(UserObject.USER_PASS))
+            {
+                msg = "Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter and one digit.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
             if (string.IsNullOrEmpty(UserPassRepeat) || UserPassRepeat != UserObject.USER_PASS)
             {
                 msg = "Your password has to match. Please try again.";
                 ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+            if (!IsGroupValid(UserObject.GROUP_ID))
+            {
+                msg = "Invalid user type selected.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                return;
+            }
+
+            if (!IsWorkTypeValid(UserObject.WORK_TYPE_ID))
+            {
+                msg = "Invalid work type selected.";
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                 return;
             }
 
