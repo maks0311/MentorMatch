@@ -348,7 +348,7 @@ namespace Mentor.Data
         public int Authenticate(string userName, string userPass)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("USER_EMAIL", userName, DbType.String);
+            parameters.Add("USER_NAME", userName, DbType.String);
             parameters.Add("USER_PASS", Encryption.EnryptString(userPass), DbType.String);
 
             int retVal = 0;
