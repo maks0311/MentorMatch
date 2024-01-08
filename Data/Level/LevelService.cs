@@ -75,5 +75,67 @@ namespace Mentor.Data
             }
             return LevelEnum;
         }
+
+        public async Task<IEnumerable<LevelModel>> SelectAllByTutorAsync(int tutorID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_ID", tutorID, DbType.Int32);
+
+            IEnumerable<LevelModel> LevelEnum;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    LevelEnum = await conn.QueryAsync<LevelModel>("SYS_LEVEL_SELECT_ALL_BY_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return LevelEnum;
+        }
+
+        public IEnumerable<LevelModel> SelectAllByTutor(int tutorID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_ID", tutorID, DbType.Int32);
+
+            IEnumerable<LevelModel> LevelEnum;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    LevelEnum = conn.Query<LevelModel>("SYS_LEVEL_SELECT_ALL_BY_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return LevelEnum;
+        }
+
+
     }
 }

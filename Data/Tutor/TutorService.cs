@@ -197,5 +197,68 @@ namespace Mentor.Data
             }
             return tutorInfoList;
         }
+        public IEnumerable<TutorModel> SearchAll(string tutorName, int subjectID, int levelID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_NAME", tutorName, DbType.String);
+            parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
+            parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+
+            IEnumerable<TutorModel> tutorInfoList;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    tutorInfoList = conn.Query<TutorModel>("SYS_TUTOR_SEARCH_ALL", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return tutorInfoList;
+        }
+
+        public async Task<IEnumerable<TutorModel>> SearchAllAsync(string tutorName, int subjectID, int levelID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_NAME", tutorName, DbType.String);
+            parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
+            parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+
+            IEnumerable<TutorModel> tutorInfoList;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    tutorInfoList = await conn.QueryAsync<TutorModel>("SYS_TUTOR_SEARCH_ALL", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return tutorInfoList;
+        }
     }
 }

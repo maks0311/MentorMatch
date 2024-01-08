@@ -19,5 +19,7 @@ namespace Mentor.Data
         Task<LessonModel> SelectAsync(int lessonID);
         int Update(LessonModel lesson);
         Task<int> UpdateAsync(LessonModel lesson);
+        int Upsert(LessonModel lesson);
+        Task<int> UpsertAsync(LessonModel lesson);
     }
 }

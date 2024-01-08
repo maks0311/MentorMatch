@@ -20,20 +20,18 @@ namespace Mentor.Data
         {
             get { return (USER_ID > 0); }
         }
-
+        public bool IsStudent
+        {
+            get { return (GROUP_ID == 3); }
+        }
+        public bool IsTutor
+        {
+            get { return (GROUP_ID == 2); }
+        }
         public bool IsAdmin
         {
             get { return (GROUP_ID == 1); }
         }
-        public bool IsStudent
-        {
-            get { return (GROUP_ID == 2); }
-        }
-        public bool IsTutor
-        {
-            get { return (GROUP_ID == 3); }
-        }
-
         public UserModel()
         {
         }

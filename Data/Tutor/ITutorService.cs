@@ -5,6 +5,8 @@ namespace Mentor.Data
 {
     public interface ITutorService
     {
+        IEnumerable<TutorModel> SearchAll(string tutorName, int subjectID, int levelID);
+        Task<IEnumerable<TutorModel>> SearchAllAsync(string tutorName, int subjectID, int levelID);
         TutorModel Select(int tutorID);
         IEnumerable<TutorModel> SelectAll();
         Task<IEnumerable<TutorModel>> SelectAllAsync();

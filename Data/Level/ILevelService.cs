@@ -7,5 +7,7 @@ namespace Mentor.Data
     {
         IEnumerable<LevelModel> SelectAll();
         Task<IEnumerable<LevelModel>> SelectAllAsync();
+        IEnumerable<LevelModel> SelectAllByTutor(int tutorID);
+        Task<IEnumerable<LevelModel>> SelectAllByTutorAsync(int tutorID);
     }
 }
