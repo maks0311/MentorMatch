@@ -23,12 +23,14 @@ namespace Mentor.Data
             var parameters = new DynamicParameters();
             parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
+            parameters.Add("LEVEL_ID", lesson.LEVEL_ID, DbType.Int32);
             parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
             parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
             parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
             parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
             parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
+            parameters.Add("TOPIC", lesson.TOPIC, DbType.String);
 
             int affectedRows;
             int retVal = 0;
@@ -62,12 +64,14 @@ namespace Mentor.Data
             var parameters = new DynamicParameters();
             parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
+            parameters.Add("LEVEL_ID", lesson.LEVEL_ID, DbType.Int32);
             parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
             parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
             parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
             parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
             parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
+            parameters.Add("TOPIC", lesson.TOPIC, DbType.String);
 
             int affectedRows;
             int retVal = 0;
@@ -220,12 +224,14 @@ namespace Mentor.Data
             var parameters = new DynamicParameters();
             parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
+            parameters.Add("LEVEL_ID", lesson.LEVEL_ID, DbType.Int32);
             parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
             parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
             parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
             parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
             parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
+            parameters.Add("TOPIC", lesson.TOPIC, DbType.String);
 
             using (var conn = new SqlConnection(_configuration.Value))
             {
@@ -256,12 +262,14 @@ namespace Mentor.Data
             var parameters = new DynamicParameters();
             parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
+            parameters.Add("LEVEL_ID", lesson.LEVEL_ID, DbType.Int32);
             parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
             parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
             parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
             parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
             parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
+            parameters.Add("TOPIC", lesson.TOPIC, DbType.String);
 
             using (var conn = new SqlConnection(_configuration.Value))
             {
@@ -270,6 +278,82 @@ namespace Mentor.Data
                 try
                 {
                     retVal = await conn.ExecuteAsync("SYS_LESSON_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> UpsertAsync(LessonModel lesson)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
+            parameters.Add("LEVEL_ID", lesson.LEVEL_ID, DbType.Int32);
+            parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
+            parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
+            parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
+            parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
+            parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
+            parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
+            parameters.Add("TOPIC", lesson.TOPIC, DbType.String);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_LESSON_UPSERT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public int Upsert(LessonModel lesson)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("LESSON_ID", lesson.LESSON_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("SUBJECT_ID", lesson.SUBJECT_ID, DbType.Int32);
+            parameters.Add("LEVEL_ID", lesson.LEVEL_ID, DbType.Int32);
+            parameters.Add("LESSON_STATUS_ID", lesson.LESSON_STATUS_ID, DbType.Int32);
+            parameters.Add("TUTOR_ID", lesson.TUTOR_ID, DbType.Int32);
+            parameters.Add("STUDENT_ID", lesson.STUDENT_ID, DbType.Int32);
+            parameters.Add("DATE_START", lesson.DATE_START, DbType.DateTime);
+            parameters.Add("DATE_STOP", lesson.DATE_STOP, DbType.DateTime);
+            parameters.Add("RATING_ID", lesson.RATING_ID, DbType.Int32);
+            parameters.Add("TOPIC", lesson.TOPIC, DbType.String);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_LESSON_UPSERT", parameters, commandType: CommandType.StoredProcedure);
                 }
                 catch (Exception ex)
                 {

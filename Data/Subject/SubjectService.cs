@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Mentor.Pages;
 
 namespace Mentor.Data
 {
@@ -61,6 +62,65 @@ namespace Mentor.Data
                         conn.Open();
 
                     SubjectEnum = conn.Query<SubjectModel>("SYS_SUBJECT_SELECT_ALL", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return SubjectEnum;
+        }
+
+        public IEnumerable<SubjectModel> SelectAllByTutor(int tutorID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_ID", tutorID, DbType.Int32);
+
+            IEnumerable<SubjectModel> SubjectEnum;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    SubjectEnum = conn.Query<SubjectModel>("SYS_SUBJECT_SELECT_ALL_BY_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return SubjectEnum;
+        }
+        public async Task<IEnumerable<SubjectModel>> SelectAllByTutorAsync(int tutorID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_ID", tutorID, DbType.Int32);
+
+            IEnumerable<SubjectModel> SubjectEnum;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    SubjectEnum = await conn.QueryAsync<SubjectModel>("SYS_SUBJECT_SELECT_ALL_BY_TUTOR", parameters, commandType: CommandType.StoredProcedure);
                 }
                 catch (Exception ex)
                 {

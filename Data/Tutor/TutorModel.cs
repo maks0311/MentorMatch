@@ -15,5 +15,11 @@ namespace Mentor.Data
         public string WORK_TYPE_NAME { get; set; } = String.Empty;
         public int TUTOR_RATING { get; set; } = 0;
         public List<CompetenceModel> Competences { get; set; } = new List<CompetenceModel>();
+
+
+        public TutorModel()
+        {
+            
+        }
     }
 }
