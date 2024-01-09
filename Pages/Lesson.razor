@@ -26,6 +26,7 @@
 
 @inject ILessonService LessonService;
 
+
 @if (AppState.IsNull())
 {
     <p>Loading lesson...</p>
@@ -33,86 +34,87 @@
 else
 {
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
 
-    @if ((AppState.UserInfo.IsNotNull()) || (AppState.LessonInfo.IsNotNull()))
-    {
-        <div class="row" style="margin-top:60px">
-            <div class="col-md-12">
-                <RadzenCard Style="margin-top:10px">
-                    <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
-                        <RadzenStack Style="width:50%">
-                            <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.SUBJECT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
-                            </RadzenRow>
-                            <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Tutor"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.TUTOR_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
-                            </RadzenRow>
-                            <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Student"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.STUDENT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
-                        <RadzenStack Style="width:50%">
-                            <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Starts at"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_START Disabled='true'></RadzenDatePicker></RadzenColumn>
-                            </RadzenRow>
-                            <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Until" Style="width: 78px"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_STOP Disabled='true'></RadzenDatePicker></RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
+@if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
+{
+    <div class="row" style="margin-top:60px">
+        <div class="col-md-12">
+            <RadzenCard Style="margin-top:10px">
+                <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                    <RadzenStack Style="width:50%">
+                        <RadzenRow>
+                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
+                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.SUBJECT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow>
+                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Tutor"></RadzenText></RadzenColumn>
+                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.TUTOR_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow>
+                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Student"></RadzenText></RadzenColumn>
+                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.STUDENT_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                        </RadzenRow>
                     </RadzenStack>
-                </RadzenCard>
-                <RadzenCard Style="margin-top:10px">
-                    <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
-                        <RadzenStack Style="width:50%">
-                            <RadzenRow>
-                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Status"></RadzenText></RadzenColumn>
-                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.LESSON_STATUS_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
-                        <RadzenStack Style="width:50%">
-                            <RadzenRow>
-                                @if (LessonObject.LESSON_STATUS_ID == 1 && AppState.UserInfo.IsTutor)
-                                {
-                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => ApproveLesson()) Style="width: 170px" Text="Approve Lesson" Icon="done" ButtonStyle="ButtonStyle.Success"></RadzenButton></RadzenColumn>
-                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => CancelLesson()) Style="width: 170px" Text="Cancel Lesson" Icon="highlight_off" ButtonStyle="ButtonStyle.Danger"></RadzenButton></RadzenColumn>
-                                }
-                                else if (LessonObject.LESSON_STATUS_ID == 2)
-                                {
-                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => CancelLesson()) Style="width: 170px" Text="Cancel Lesson" Icon="highlight_off" ButtonStyle="ButtonStyle.Danger"></RadzenButton></RadzenColumn>
-                                }
-                            </RadzenRow>
-                        </RadzenStack>
+                    <RadzenStack Style="width:50%">
+                        <RadzenRow>
+                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Starts at"></RadzenText></RadzenColumn>
+                            <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_START Disabled='true'></RadzenDatePicker></RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow>
+                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Until" Style="width: 78px"></RadzenText></RadzenColumn>
+                            <RadzenColumn Size="@ColumnControlSize"><RadzenDatePicker Style="width:inherit" @bind-Value=@LessonObject.DATE_STOP Disabled='true'></RadzenDatePicker></RadzenColumn>
+                        </RadzenRow>
                     </RadzenStack>
-                </RadzenCard>
-                <RadzenCard Style="margin-top:10px">
-                    <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
-                        <RadzenStack Style="width:50%">
-                            @if (LessonObject.DATE_STOP < DateTime.Today && AppState.UserInfo.IsStudent && !IsLessonRated && LessonObject.LESSON_STATUS_ID == 4)
+                </RadzenStack>
+            </RadzenCard>
+            <RadzenCard Style="margin-top:10px">
+                <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                    <RadzenStack Style="width:50%">
+                        <RadzenRow>
+                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Status"></RadzenText></RadzenColumn>
+                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LessonObject.LESSON_STATUS_NAME Disabled='true'></RadzenTextBox></RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                    <RadzenStack Style="width:50%">
+                        <RadzenRow>
+                            @if (LessonObject.LESSON_STATUS_ID == 1 && AppState.UserInfo.IsTutor)
                             {
-                                <RadzenRow>
-                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
-                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenRating Style="width:inherit" @bind-Value=@RatingValue></RadzenRating></RadzenColumn>
-                                    <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => RateLesson(RatingValue)) Style="width: 170px" Icon="done" Text="Rate Lesson" ButtonStyle="ButtonStyle.Success"></RadzenButton></RadzenColumn>
-                                </RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => ApproveLesson()) Style="width: 170px" Text="Approve Lesson" Icon="done" ButtonStyle="ButtonStyle.Success"></RadzenButton></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => CancelLesson()) Style="width: 170px" Text="Cancel Lesson" Icon="highlight_off" ButtonStyle="ButtonStyle.Danger"></RadzenButton></RadzenColumn>
                             }
-                            else
+                            else if (LessonObject.LESSON_STATUS_ID == 2)
                             {
-                                <RadzenRow>
-                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
-                                    <RadzenColumn Size="@ColumnControlSize" Style="width: 106px"><RadzenRating Style="width: 123px; height: 33px; display: table; visibility: visible" @bind-Value=@LessonObject.RATING_VALUE ReadOnly='true'></RadzenRating></RadzenColumn>
-                                </RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => CancelLesson()) Style="width: 170px" Text="Cancel Lesson" Icon="highlight_off" ButtonStyle="ButtonStyle.Danger"></RadzenButton></RadzenColumn>
                             }
-                        </RadzenStack>
+                        </RadzenRow>
                     </RadzenStack>
-                </RadzenCard>
-            </div>
+                </RadzenStack>
+            </RadzenCard>
+            <RadzenCard Style="margin-top:10px">
+                <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                    <RadzenStack Style="width:50%">
+                        @if (LessonObject.DATE_STOP < DateTime.Today && AppState.UserInfo.IsStudent && !IsLessonRated && LessonObject.LESSON_STATUS_ID == 4)
+                        {
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenRating Style="width:inherit" @bind-Value=@RatingValue></RadzenRating></RadzenColumn>
+                                <RadzenColumn Size="@ColumnLabelSize" Style="margin-left: 40px; margin-right: 40px"><RadzenButton Click=@(args => RateLesson(RatingValue)) Style="width: 170px" Icon="done" Text="Rate Lesson" ButtonStyle="ButtonStyle.Success"></RadzenButton></RadzenColumn>
+                            </RadzenRow>
+                        }
+                        else
+                        {
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Rating"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize" Style="width: 106px"><RadzenRating Style="width: 123px; height: 33px; display: table; visibility: visible" @bind-Value=@LessonObject.RATING_VALUE ReadOnly='true'></RadzenRating></RadzenColumn>
+                            </RadzenRow>
+                        }
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
         </div>
-    }
+    </div>
+}
 }
 
 

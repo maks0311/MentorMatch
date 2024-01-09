@@ -30,7 +30,6 @@
 @inject IWorkTypeService WorkTypeService;
 @inject IRatingService RatingService;
 
-<h3>Search</h3>
 
 @if (AppState.IsNull())
 {
@@ -39,102 +38,107 @@
 else
 {
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
 
-    @if ((AppState.UserInfo.IsNull()) || (AppState.UserInfo.IsAuthenticated.IsFalse()))
-    {
-        
-    }
-    else
-    {
-        <div class="row" style="margin-top:60px">
-            <div class="col-md-12">
-                <RadzenCard>
-                    <RadzenButton Text="Search" Icon="search" Click="SearchTutors" Disabled="@DisableSearch" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                </RadzenCard>
-                <RadzenCard>
-                    <RadzenRow Style="margin-bottom: 10px">
-                        <RadzenColumn Size="2"><RadzenText Text="Level"></RadzenText></RadzenColumn>
-                        <RadzenColumn Size="2"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
-                    </RadzenRow>
-                    <RadzenRow>
-                        <RadzenColumn Size="2">
-                            <RadzenDropDown @bind-Value=@LevelObject.LEVEL_ID
-                                    TextProperty="LEVEL_NAME"
-                                    ValueProperty="LEVEL_ID"
-                                    TValue="int"
-                                    AllowClear="false"
-                                    Style="width:min-content"
-                                    Data=@LevelEnum
-                                    AllowFiltering="true"
-                                    FilterAsYouType="true"
-                                    Change=@(args => OnDropDownChange(args, "LEVEL"))/>
-                        </RadzenColumn>
-                        <RadzenColumn Size="2">
-                            <RadzenDropDown @bind-Value=@SubjectObject.SUBJECT_ID
-                                    TextProperty="SUBJECT_NAME"
-                                    ValueProperty="SUBJECT_ID"
-                                    TValue="int"
-                                    AllowClear="false"
-                                    Style="width:min-content"
-                                    Data=@SubjectEnum
-                                    AllowFiltering="true"
-                                    FilterAsYouType="true"
-                                    Change=@(args => OnDropDownChange(args, "SUBJECT")) />
-                        </RadzenColumn>
-                    </RadzenRow>
-                </RadzenCard>
-                <RadzenCard>
+@if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
+{
+    <div class="row" style="margin-top:60px">
+        <div class="col-md-12">
+            <RadzenCard Style="margin-bottom:10px">
+                <RadzenRow>
+                    <RadzenColumn Size="2"><RadzenText Text="Tutor"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="2"><RadzenText Text="Sybject"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="2"><RadzenText Text="Level"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="8"></RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="2">
+                        <RadzenTextBox @bind-Value=@SearchTutorName Placeholder="Enter Tutor's Name/Surname" Style="width:inherit"></RadzenTextBox>
+                    </RadzenColumn>
+                    <RadzenColumn Size="2">
+                        <RadzenDropDown @bind-Value=@SearchSubjectObject.SUBJECT_ID
+                                        TextProperty="SUBJECT_NAME"
+                                        ValueProperty="SUBJECT_ID"
+                                        TValue="int"
+                                        AllowClear="true"
+                                        Style="width:inherit"
+                                        Data=@SubjectEnum
+                                        FilterAsYouType="true"
+                                        Placeholder="Select Subject" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="2">
+                        <RadzenDropDown @bind-Value=@SearchLevelObject.LEVEL_ID
+                                        TextProperty="LEVEL_NAME"
+                                        ValueProperty="LEVEL_ID"
+                                        TValue="int"
+                                        AllowClear="true"
+                                        Style="width:inherit"
+                                        Data=@LevelEnum
+                                        FilterAsYouType="true"
+                                        Placeholder="Select Level" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="6">
+                        <RadzenButton Text="Search" Icon="search" Click="SearchTutors" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenCard>
+
+            <RadzenCard>
+                @if (@TutorEnum.IsNotNull())
+                {
                     <RadzenDataGrid Data="@TutorEnum"
-                            AllowFiltering="true"
-                            AllowMultiColumnSorting="true"
-                            ClearFilterText="true"
-                            AllowColumnResize="false"
-                            FilterMode="FilterMode.Simple"
-                            AllowPaging="true"
-                            AllowSorting="true"
-                            AllowVirtualization="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            LogicalFilterOperator="LogicalFilterOperator.And"
-                            Visible="true">
+                                    AllowMultiColumnSorting="true"
+                                    ClearFilterText="true"
+                                    AllowColumnResize="false"
+                                    FilterMode="FilterMode.Simple"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    AllowFiltering="false"
+                                    AllowVirtualization="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    LogicalFilterOperator="LogicalFilterOperator.And"
+                                    Visible="@TutorEnum.Count().IsPositive()">
                         <Columns>
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_FULLNAME" Title="Fullname" Frozen="true" TextAlign="TextAlign.Left" />
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_EMAIL" Filterable="false" Title="Email" Frozen="true" TextAlign="TextAlign.Left" />
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_PHONE" Filterable="false" Title="Phone" Frozen="true" TextAlign="TextAlign.Left" />
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                                <Template Context="TutorModel">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => TutorView(TutorModel.TUTOR_ID)) />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_FULLNAME" Title="Fullname" TextAlign="TextAlign.Left" />
                             <RadzenDataGridColumn TItem="TutorModel" Property="WORK_TYPE_NAME" FilterProperty="@WorkTypeObject.WORK_TYPE_NAME" Title="Work type" Frozen="true" TextAlign="TextAlign.Left">
                                 <FilterTemplate>
                                     <RadzenDropDown @bind-Value=@WorkTypeObject.WORK_TYPE_ID
-                                            TextProperty="WORK_TYPE_NAME"
-                                            ValueProperty="WORK_TYPE_ID"
-                                            TValue="int"
-                                            AllowClear="true"
-                                            Style="width:100%"
-                                            Data=@WorkTypeEnum
-                                            Change="@(args => OnFilterChange(args, "WORK_TYPE"))" />
+                                                    TextProperty="WORK_TYPE_NAME"
+                                                    ValueProperty="WORK_TYPE_ID"
+                                                    TValue="int"
+                                                    AllowClear="true"
+                                                    Style="width:100%"
+                                                    Data=@WorkTypeEnum
+                                                    Change="@(args => OnFilterChange(args, "WORK_TYPE"))" />
                                 </FilterTemplate>
                             </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_RATING" Title="Rating" Frozen="true" TextAlign="TextAlign.Left" >
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_RATING" Title="Rating" Frozen="true" Sortable="true" TextAlign="TextAlign.Left">
                                 <FilterTemplate>
                                     <RadzenDropDown @bind-Value=@RatingObject.RATING_VALUE
-                                            TextProperty="RATING_NAME"
-                                            ValueProperty="RATING_VALUE"
-                                            TValue="int"
-                                            AllowClear="false"
-                                            Style="width:100%"
-                                            Data=@RatingEnum
-                                            Change="@(args => OnFilterChange(args, "RATING"))"/>
+                                                    TextProperty="RATING_NAME"
+                                                    ValueProperty="RATING_VALUE"
+                                                    TValue="int"
+                                                    AllowClear="false"
+                                                    Style="width:100%"
+                                                    Data=@RatingEnum
+                                                    Change="@(args => OnFilterChange(args, "RATING"))" />
                                 </FilterTemplate>
                                 <Template Context="TutorModel">
-                                    <RadzenRating @bind-Value="TutorModel.TUTOR_RATING" ReadOnly="true"/>
+                                    <RadzenRating @bind-Value="TutorModel.TUTOR_RATING" ReadOnly="true" />
                                 </Template>
                             </RadzenDataGridColumn>
                         </Columns>
                     </RadzenDataGrid>
-                </RadzenCard>
-            </div>
+                }
+            </RadzenCard>
         </div>
-    }
+    </div>
 }
-
 
 
 @code {
@@ -145,13 +149,13 @@ else
     private string AppVersion { get; set; }
     private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
 
-    private bool DisableSearch { get; set; } = true;
-
     private TutorModel TutorObject { get; set; } = new TutorModel();
-    private LevelModel LevelObject { get; set; } = new LevelModel();
-    private SubjectModel SubjectObject { get; set; } = new SubjectModel();
     private WorkTypeModel WorkTypeObject { get; set; } = new WorkTypeModel();
     private RatingModel RatingObject { get; set; } = new RatingModel();
+
+    private string SearchTutorName { get; set; } = string.Empty;
+    private SubjectModel SearchSubjectObject { get; set; } = new SubjectModel();
+    private LevelModel SearchLevelObject { get; set; } = new LevelModel();
 
     private IEnumerable<TutorModel> TutorEnum { get; set; }
     private IEnumerable<LevelModel> LevelEnum { get; set; }
@@ -205,7 +209,7 @@ else
     {
         try
         {
-            TutorEnum = await TutorService.SelectAllAsync();
+            TutorEnum = await TutorService.SearchAllAsync(string.Empty, 0, 0);
             LevelEnum = await LevelService.SelectAllAsync();
             SubjectEnum = await SubjectService.SelectAllAsync();
             WorkTypeEnum = await WorkTypeService.SelectAllAsync();
@@ -217,29 +221,35 @@ else
         }
     }
 
-    private void OnDropDownChange(object value, string key)
-    {
-        if (LevelObject.LEVEL_ID != 0 && SubjectObject.SUBJECT_ID != 0)
-        {
-            DisableSearch = false;
-        }
-    }
-
     private async Task SearchTutors()
     {
-        TutorEnum = await TutorService.SelectAllByCompetenceAsync(SubjectObject.SUBJECT_ID, LevelObject.LEVEL_ID);
+        TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID);
     }
 
     private void OnFilterChange(object value, string key)
     {
-        if(key == "WORK_TYPE")
+        if (key == "WORK_TYPE")
         {
             TutorEnum = TutorEnum.Where(tutor => tutor.WORK_TYPE_ID == WorkTypeObject.WORK_TYPE_ID);
         }
 
-        if(key == "RATING")
+        if (key == "RATING")
         {
             TutorEnum = TutorEnum.Where(tutor => tutor.TUTOR_RATING == RatingObject.RATING_VALUE);
+        }
+    }
+
+    async Task TutorView(int TutorID)
+    {
+        try
+        {
+            AppState.SetParamAsInteger("TUTOR_ID", TutorID);
+            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            NavigationManager.NavigateTo("/tutor");
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
         }
     }
 }

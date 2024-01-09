@@ -42,216 +42,213 @@
 else
 {
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
 
-    @if ((AppState.UserInfo.IsNull()) || (AppState.UserInfo.IsAuthenticated.IsFalse()))
-    {
-
-    }
-    else
-    {
-        <div class="row" style="margin-top:60px">
-            <div class="col-md-12">
-                <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
-                    <Tabs>
-                        <RadzenTabsItem Text="My Account">
-                            <RadzenCard>
-                                <RadzenButton Text="Save" Icon="save" Click="UserSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                                <RadzenButton Text="Revert Changes" Icon="cancel" Click="RevertChanges" Disabled="@DisableSave" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
-                            </RadzenCard>
-                            <RadzenCard Style="margin-top:10px">
-                                <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
-                                    <RadzenStack Style="width:50%">
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Fullname"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_FULLNAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Nickname"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_NICKNAME MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="E-mail"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_EMAIL MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Phone"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_PHONE MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@UserObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange(args, "IS_ACTIVE")) /></RadzenColumn>
-                                        </RadzenRow>
-                                    </RadzenStack>
-                                    <RadzenStack Style="width:50%">
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Group"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize">
-                                                <RadzenDropDown @bind-Value=@UserObject.GROUP_ID
-                                                        TextProperty="GROUP_NAME"
-                                                        ValueProperty="GROUP_ID"
-                                                        TValue="int"
-                                                        AllowClear="false"
-                                                        Style="width:min-content"
-                                                        Data=@GroupEnum
-                                                        Change=@(args => OnDropDownChange(args, "GROUP")) />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Work Type"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize">
-                                                <RadzenDropDown @bind-Value=@UserObject.WORK_TYPE_ID
-                                                        TextProperty="WORK_TYPE_NAME"
-                                                        ValueProperty="WORK_TYPE_ID"
-                                                        TValue="int"
-                                                        AllowClear="false"
-                                                        Style="width:min-content"
-                                                        Data=@WorkTypeEnum
-                                                        Change=@(args => OnDropDownChange(args, "WORK_TYPE")) />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                    </RadzenStack>
-                                </RadzenStack>
-                            </RadzenCard>
-                            <RadzenCard Style="margin-top:10px">
-                                <RadzenRow>
-                                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Description"></RadzenText></RadzenColumn>
-                                    <RadzenColumn Size="@ColumnControlSize"><RadzenTextArea @bind-Value=@UserObject.USER_DESCRIPTION MaxLength="500" Rows="5" Style="width:inherit" Change="@OnChange"></RadzenTextArea></RadzenColumn>
-                                </RadzenRow>
-                            </RadzenCard>
-                        </RadzenTabsItem>
-
-                        <RadzenTabsItem Text="My Password">
-                            <RadzenCard>
-                                <RadzenButton Text="Save New Password" Icon="save" Click="PasswordSave" Disabled="@DisablePasswordSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                            </RadzenCard>
-                            <RadzenCard Style="margin-top:10px">
-                                <div class="col-md-3">
-                                    <RadzenStack Orientation="Orientation.Vertical">
-                                        <RadzenPassword @bind-Value="Pass1" AutoComplete="false" Text="Password" MaxLength="50" Placeholder="Enter Password" Change="OnPasswordChange"></RadzenPassword>
-                                        <RadzenPassword @bind-Value="Pass2" AutoComplete="false" Text="Repeat Password" MaxLength="50" Placeholder="Repeat Password" Change="OnPasswordChange"></RadzenPassword>
-                                    </RadzenStack>
-                                </div>
-                            </RadzenCard>
-                        </RadzenTabsItem>
-
-                        @if (UserObject.IsTutor)
-                        {
-                            <RadzenTabsItem Text="My Competence">
-                                <RadzenCard>
-                                    <RadzenButton Text="Add Competence" Icon="add" Click="AddCompetence" Disabled="@DisableAdd" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                                </RadzenCard>
-                                <RadzenCard>
-                                    <RadzenRow Style="margin-bottom: 10px">
-                                        <RadzenColumn Size="2"><RadzenText Text="Level"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="2"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
+@if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
+{
+    <div class="row" style="margin-top:60px">
+        <div class="col-md-12">
+            <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
+                <Tabs>
+                    <RadzenTabsItem Text="My Account">
+                        <RadzenCard>
+                            <RadzenButton Text="Save" Icon="save" Click="UserSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                            <RadzenButton Text="Revert Changes" Icon="cancel" Click="RevertChanges" Disabled="@DisableSave" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+                        </RadzenCard>
+                        <RadzenCard Style="margin-top:10px">
+                            <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+                                <RadzenStack Style="width:50%">
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Fullname"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_FULLNAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
                                     </RadzenRow>
                                     <RadzenRow>
-                                        <RadzenColumn Size="2">
-                                            <RadzenDropDown @bind-Value=@CompetenceObject.LEVEL_ID
-                                                TextProperty="LEVEL_NAME"
-                                                ValueProperty="LEVEL_ID"
-                                                TValue="int"
-                                                AllowClear="false"
-                                                Style="width:min-content"
-                                                Data=@LevelEnum
-                                                AllowFiltering="true"
-                                                FilterAsYouType="true" />
-                                        </RadzenColumn>
-                                        <RadzenColumn Size="2">
-                                            <RadzenDropDown @bind-Value=@CompetenceObject.SUBJECT_ID
-                                                TextProperty="SUBJECT_NAME"
-                                                ValueProperty="SUBJECT_ID"
-                                                TValue="int"
-                                                AllowClear="false"
-                                                Style="width:min-content"
-                                                Data=@SubjectEnum
-                                                AllowFiltering="true"
-                                                FilterAsYouType="true" />
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Nickname"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_NICKNAME MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="E-mail"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_EMAIL MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Phone"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_PHONE MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@UserObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange(args, "IS_ACTIVE")) /></RadzenColumn>
+                                    </RadzenRow>
+                                </RadzenStack>
+                                <RadzenStack Style="width:50%">
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Group"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize">
+                                            <RadzenDropDown @bind-Value=@UserObject.GROUP_ID
+                                                            TextProperty="GROUP_NAME"
+                                                            ValueProperty="GROUP_ID"
+                                                            TValue="int"
+                                                            AllowClear="false"
+                                                            Style="width:min-content"
+                                                            Data=@GroupEnum
+                                                            Change=@(args => OnDropDownChange(args, "GROUP")) />
                                         </RadzenColumn>
                                     </RadzenRow>
-                                </RadzenCard>
-                                <RadzenCard>
-                                    <RadzenDataGrid Data="@CompetenceEnum"
-                                        AllowFiltering="false"
-                                        AllowMultiColumnSorting="true"
-                                        ClearFilterText="true"
-                                        AllowColumnResize="true"
-                                        FilterMode="FilterMode.Simple"
-                                        AllowPaging="true"
-                                        AllowSorting="true"
-                                        AllowVirtualization="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        LogicalFilterOperator="LogicalFilterOperator.And"
-                                        Visible="true">
-                                        <Columns>
-                                            <RadzenDataGridColumn TItem="CompetenceModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Left" />
-                                            <RadzenDataGridColumn TItem="CompetenceModel" Property="LEVEL_NAME" Title="Education Level" Frozen="true" TextAlign="TextAlign.Left" />
-                                            <RadzenDataGridColumn TItem="CompetenceModel" Property="ID" Title="Del" Frozen="true" Sortable="false" Filterable="false" Width="60px">
-                                                <Template Context="CompetenceModel">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => DeleteCompetence(CompetenceModel.ID)) />
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                        </Columns>
-                                    </RadzenDataGrid>
-                                </RadzenCard>
-                            </RadzenTabsItem>
-                        }
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Work Type"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize">
+                                            <RadzenDropDown @bind-Value=@UserObject.WORK_TYPE_ID
+                                                            TextProperty="WORK_TYPE_NAME"
+                                                            ValueProperty="WORK_TYPE_ID"
+                                                            TValue="int"
+                                                            AllowClear="false"
+                                                            Style="width:min-content"
+                                                            Data=@WorkTypeEnum
+                                                            Change=@(args => OnDropDownChange(args, "WORK_TYPE")) />
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenCard>
+                        <RadzenCard Style="margin-top:10px">
+                            <RadzenRow>
+                                <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Description"></RadzenText></RadzenColumn>
+                                <RadzenColumn Size="@ColumnControlSize"><RadzenTextArea @bind-Value=@UserObject.USER_DESCRIPTION MaxLength="500" Rows="5" Style="width:inherit" Change="@OnChange"></RadzenTextArea></RadzenColumn>
+                            </RadzenRow>
+                        </RadzenCard>
+                    </RadzenTabsItem>
 
-                        @if (UserObject.IsStudent || UserObject.IsTutor)
-                        {
-                            <RadzenTabsItem Text="My Lessons">
-                                <RadzenCard>
-                                    <RadzenDataGrid Data="@LessonEnum"
-                                        AllowFiltering="false"
-                                        AllowMultiColumnSorting="true"
-                                        ClearFilterText="true"
-                                        AllowColumnResize="true"
-                                        FilterMode="FilterMode.Simple"
-                                        AllowPaging="true"
-                                        AllowSorting="true"
-                                        AllowVirtualization="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        LogicalFilterOperator="LogicalFilterOperator.And"
-                                        Visible="true">
-                                        <Columns>
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Center" />
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="STUDENT_NAME" Filterable="false" Title="Student" Frozen="true" Visible="@UserObject.IsTutor" TextAlign="TextAlign.Center" />
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Center" />
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Center">
-                                                <Template Context="LessonModel">
-                                                    <RadzenText Text="@LessonModel.DATE_START.ToString("g")"></RadzenText>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="DATE_STOP" Filterable="false" Title="End Date" Frozen="true" TextAlign="TextAlign.Center">
-                                                <Template Context="LessonModel">
-                                                    <RadzenText Text="@LessonModel.DATE_STOP.ToString("g")"></RadzenText>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_STATUS_NAME" Filterable="false" Title="Status" Frozen="true" TextAlign="TextAlign.Center" Width="100px">
-                                                <Template Context="LessonModel">
-                                                    <RadzenIcon Icon="@LessonModel.LESSON_STATUS_ICON" MouseEnter="@(args => ShowTooltip(args, LessonModel.LESSON_STATUS_NAME))" class="@LessonModel.LESSON_STATUS_ICON_COLOR" />
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="RATING_NAME" Filterable="false" Title="Rating" Frozen="true" TextAlign="TextAlign.Center">
-                                                <Template Context="LessonModel">
-                                                    <RadzenRating @bind-Value=@LessonModel.RATING_VALUE MouseEnter="@(args => ShowTooltip(args, LessonModel.RATING_NAME))" ReadOnly='true'></RadzenRating>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_ID" Title="Details" Frozen="true" Sortable="false" Filterable="false" Width="60px">
-                                                <Template Context="LessonModel">
-                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenDetails(LessonModel.LESSON_ID)) />
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                        </Columns>
-                                    </RadzenDataGrid>
-                                </RadzenCard>
-                            </RadzenTabsItem>
-                        }
-                    </Tabs>
-                </RadzenTabs>
-            </div>
+                    <RadzenTabsItem Text="My Password">
+                        <RadzenCard>
+                            <RadzenButton Text="Save New Password" Icon="save" Click="PasswordSave" Disabled="@DisablePasswordSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                        </RadzenCard>
+                        <RadzenCard Style="margin-top:10px">
+                            <div class="col-md-3">
+                                <RadzenStack Orientation="Orientation.Vertical">
+                                    <RadzenPassword @bind-Value="Pass1" AutoComplete="false" Text="Password" MaxLength="50" Placeholder="Enter Password" Change="OnPasswordChange"></RadzenPassword>
+                                    <RadzenPassword @bind-Value="Pass2" AutoComplete="false" Text="Repeat Password" MaxLength="50" Placeholder="Repeat Password" Change="OnPasswordChange"></RadzenPassword>
+                                </RadzenStack>
+                            </div>
+                        </RadzenCard>
+                    </RadzenTabsItem>
+
+                    @if (UserObject.IsTutor || UserObject.IsAdmin)
+                    {
+                        <RadzenTabsItem Text="My Competence">
+                            <RadzenCard>
+                                <RadzenRow Style="margin-bottom: 10px">
+                                    <RadzenColumn Size="2"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
+                                    <RadzenColumn Size="2"><RadzenText Text="Level"></RadzenText></RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow>
+                                    <RadzenColumn Size="2">
+                                        <RadzenDropDown @bind-Value=@CompetenceObject.SUBJECT_ID
+                                                        TextProperty="SUBJECT_NAME"
+                                                        ValueProperty="SUBJECT_ID"
+                                                        TValue="int"
+                                                        AllowClear="false"
+                                                        Style="width:inherit"
+                                                        Data=@SubjectEnum
+                                                        AllowFiltering="true"
+                                                        FilterAsYouType="true" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="2">
+                                        <RadzenDropDown @bind-Value=@CompetenceObject.LEVEL_ID
+                                                        TextProperty="LEVEL_NAME"
+                                                        ValueProperty="LEVEL_ID"
+                                                        TValue="int"
+                                                        AllowClear="false"
+                                                        Style="width:inherit"
+                                                        Data=@LevelEnum
+                                                        AllowFiltering="true"
+                                                        FilterAsYouType="true" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="4">
+                                        <RadzenButton Text="Add Competence" Icon="add" Click="AddCompetence" Disabled="@DisableAdd" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenCard>
+                            <RadzenCard>
+                                <RadzenDataGrid Data="@CompetenceEnum"
+                                                AllowFiltering="false"
+                                                AllowMultiColumnSorting="true"
+                                                ClearFilterText="true"
+                                                AllowColumnResize="true"
+                                                FilterMode="FilterMode.Simple"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                AllowVirtualization="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                LogicalFilterOperator="LogicalFilterOperator.And"
+                                                Visible="true"
+                                                Style="width:inherit">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="CompetenceModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Left" />
+                                        <RadzenDataGridColumn TItem="CompetenceModel" Property="LEVEL_NAME" Title="Education Level" Frozen="true" TextAlign="TextAlign.Left" />
+                                        <RadzenDataGridColumn TItem="CompetenceModel" Property="ID" Title="Del" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                                            <Template Context="CompetenceModel">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => DeleteCompetence(CompetenceModel.ID)) />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </RadzenCard>
+                        </RadzenTabsItem>
+                    }
+
+                    @if (UserObject.IsStudent || UserObject.IsTutor)
+                    {
+                        <RadzenTabsItem Text="My Lessons">
+                            <RadzenCard>
+                                <RadzenDataGrid Data="@LessonEnum"
+                                                AllowFiltering="false"
+                                                AllowMultiColumnSorting="true"
+                                                ClearFilterText="true"
+                                                AllowColumnResize="true"
+                                                FilterMode="FilterMode.Simple"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                AllowVirtualization="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                LogicalFilterOperator="LogicalFilterOperator.And"
+                                                Visible="true">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Center" />
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="STUDENT_NAME" Filterable="false" Title="Student" Frozen="true" Visible="@UserObject.IsTutor" TextAlign="TextAlign.Center" />
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Center" />
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Center">
+                                            <Template Context="LessonModel">
+                                                <RadzenText Text="@LessonModel.DATE_START.ToString("g")"></RadzenText>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="DATE_STOP" Filterable="false" Title="End Date" Frozen="true" TextAlign="TextAlign.Center">
+                                            <Template Context="LessonModel">
+                                                <RadzenText Text="@LessonModel.DATE_STOP.ToString("g")"></RadzenText>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_STATUS_NAME" Filterable="false" Title="Status" Frozen="true" TextAlign="TextAlign.Center" Width="100px">
+                                            <Template Context="LessonModel">
+                                                <RadzenIcon Icon="@LessonModel.LESSON_STATUS_ICON" MouseEnter="@(args => ShowTooltip(args, LessonModel.LESSON_STATUS_NAME))" class="@LessonModel.LESSON_STATUS_ICON_COLOR" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="RATING_NAME" Filterable="false" Title="Rating" Frozen="true" TextAlign="TextAlign.Center">
+                                            <Template Context="LessonModel">
+                                                <RadzenRating @bind-Value=@LessonModel.RATING_VALUE MouseEnter="@(args => ShowTooltip(args, LessonModel.RATING_NAME))" ReadOnly='true'></RadzenRating>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_ID" Title="Details" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                                            <Template Context="LessonModel">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenDetails(LessonModel.LESSON_ID)) />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </RadzenCard>
+                        </RadzenTabsItem>
+                    }
+                </Tabs>
+            </RadzenTabs>
         </div>
-    }
+    </div>
 }
 
 
@@ -275,7 +272,6 @@ else
     }
     private int ColumnLabelSize = 2;
     private int ColumnControlSize = 10;
-    private int UserRating = 0;
 
     string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
@@ -292,7 +288,6 @@ else
 
     private readonly string NamePattern = "^[A-Za-z '-]+$";
     private readonly string phonePattern = @"^\+?\d{1,4}[-. ]?\(?\d{1,4}\)?[-. ]?\d{4,10}$";
-    private readonly int DescMaxLen = 250;
 
     protected override void OnInitialized()
     {
@@ -308,10 +303,7 @@ else
             if (firstRender)
             {
                 await InitializeSession();
-                await InitializeData();
-
                 IsRendered = true;
-
                 StateHasChanged();
             }
         }
@@ -328,6 +320,7 @@ else
             if (await SessionStorage.ContainKeyAsync("APP_STATE"))
             {
                 AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+                await InitializeData();
             }
         }
         catch (Exception ex)

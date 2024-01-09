@@ -109,7 +109,7 @@ else
         {
             if (Globals.AdminHostNames.Contains(System.Environment.MachineName))
             {
-                int UserID = UserInfoService.Authenticate("ADMIN", "123qwe!@#QWE");
+                int UserID = UserInfoService.Authenticate("admin", "123qwe!@#QWE");
                 AppState.UserInfo = await UserInfoService.SelectAsync(UserID);
                 AppState.SetParamAsInteger("USER_ID", UserID);
                 AppState.CRUD = "UPDATE";
