@@ -5,6 +5,8 @@ using System.Reflection;
 
 namespace Mentor
 {
+    public enum AvailabilityMode { SET_AVAILABLE, SET_NOT_AVAILABLE }
+
     public static class Extensions
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -59,6 +61,11 @@ namespace Mentor
                 Log.Error(MethodBase.GetCurrentMethod().Name, ex.Message, ex.InnerException.Message);
                 return false;
             }
+        }
+
+        public static int ToInt(this DayOfWeek val)
+        {
+            return (int)val;
         }
 
         public static bool IsTrue(this bool val)

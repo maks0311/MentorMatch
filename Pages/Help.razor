@@ -1,7 +1,51 @@
 ﻿@page "/help"
 
-<h3>Help</h3>
+@using System
+@using System.Text
+@using System.Reflection
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+
+@if (AppState.IsNull())
+{
+    <p>Loading menu...</p>
+}
+else
+{
+    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+}
+
+@if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
+{
+    
+}
 
 @code {
+
+    AppState AppState { get; set; } = new AppState();
+    string msg { get; set; }
+    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
+    private bool IsRendered { get; set; } = false;
+    private string AppVersion { get; set; }
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
 
 }

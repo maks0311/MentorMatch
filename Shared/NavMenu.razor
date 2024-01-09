@@ -38,7 +38,7 @@
     {
         <RadzenPanelMenuItem Text="Home" Icon="home" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Search" Icon="search" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="Calendar" Icon="date_range" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="My Calendar" Icon="date_range" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="About" Icon="help_outline" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
     }
 
@@ -72,6 +72,11 @@
         if (args.Text == "Search")
         {
             NavigationManager.NavigateTo("/search");
+        }
+
+        if (args.Text == "My Calendar")
+        {
+            NavigationManager.NavigateTo("/calendar");
         }
 
         if (args.Text == "About")

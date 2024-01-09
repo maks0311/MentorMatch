@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Mentor.Data;
+using Microsoft.AspNetCore.Components;
+
 
 namespace Mentor
 {
@@ -13,6 +15,7 @@ namespace Mentor
     {
         public UserModel UserInfo { get; set; }
         public LessonModel LessonInfo { get; set; }
+        public TutorModel TutorInfo { get; set; }
         public String CRUD { get; set; }
         public List<AppStateParams> Params { get; set; }
 
@@ -23,6 +26,8 @@ namespace Mentor
             try
             {
                 this.UserInfo = new UserModel();
+                this.LessonInfo = new LessonModel();
+                this.TutorInfo = new TutorModel();
                 this.CRUD = string.Empty;
                 this.Params = new List<AppStateParams>();
             }

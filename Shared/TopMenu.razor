@@ -40,9 +40,9 @@
 
     <RadzenMenu Click="@(args => OnMenuItemClick(args))" Style="padding-right:5px">
 
-        @if (AppState != null)
+        @if (AppState.IsNotNull())
         {
-            @if (AppState.UserInfo != null && AppState.UserInfo.IsAuthenticated)
+            @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated)
             {
                 <RadzenMenuItem Text="@AppState.UserInfo.USER_NICKNAME" Icon="person"></RadzenMenuItem>
                 @if(AppState.UserInfo.IsAdmin)
@@ -53,8 +53,8 @@
             }
             else
             {
-                <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
                 <RadzenMenuItem Text="Sign Up" Icon="assignment_ind"></RadzenMenuItem>
+                <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
             }
         }
         else
