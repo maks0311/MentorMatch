@@ -37,9 +37,9 @@
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="7">
                 <RadzenMenu Visible="@IsRendered">
-                    <RadzenMenuItem Text="Save Lesson" Icon="save" Click="LessonSave" Style="padding-right:25px;" IconColor="green" VIsible="@SaveVisible"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Accept Lesson" Icon="done" Click="LessonAccept" Style="padding-right:25px;" IconColor="green" Visible="@AcceptVisible"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Cancel Lesson" Icon="delete" Click="LessonDelete" Style="padding-right:25px;" IconColor="red" Visible="@DeleteVisible"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Save Lesson" Icon="save" Click="LessonSave" Style="padding-right:25px;" Disabled="@(!SaveVisible)"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Accept Lesson" Icon="done" Click="LessonAccept" Style="padding-right:25px;" Disabled="@(!AcceptVisible)"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Cancel Lesson" Icon="delete" Click="LessonDelete" Style="padding-right:25px;" Disabled="@(!DeleteVisible)"></RadzenMenuItem>
                 </RadzenMenu>
             </RadzenColumn>
         </RadzenRow>
@@ -52,32 +52,38 @@
         </RadzenRow>
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="6">
-                <RadzenDropDownDataGrid @bind-Value="@LessonObject.STUDENT_ID"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowFiltering="false"
-                                        AllowClear="false"
-                                        AllowSorting="false"
-                                        ShowSearch="false"
-                                        TextProperty="USER_NICKNAME"
-                                        ValueProperty="USER_ID"
-                                        Disabled=@(!UserObject.IsAdmin)
-                                        Data=@UserEnum
-                                        Change=@(args => OnDropDownChange(args, "STUDENT"))
-                                        Style="width:inherit" />
+                @if (UserEnum.IsNotNull() && UserEnum.Any())
+                {
+                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.STUDENT_ID"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowFiltering="false"
+                                            AllowClear="false"
+                                            AllowSorting="false"
+                                            ShowSearch="false"
+                                            TextProperty="USER_NICKNAME"
+                                            ValueProperty="USER_ID"
+                                            Disabled=@(!UserObject.IsAdmin)
+                                            Data=@UserEnum
+                                            Change=@(args => OnDropDownChange(args, "STUDENT"))
+                                            Style="width:inherit" />
+                }
             </RadzenColumn>
             <RadzenColumn Size="6">
-                <RadzenDropDownDataGrid @bind-Value="@LessonObject.TUTOR_ID"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowFiltering="false"
-                                        AllowClear="false"
-                                        AllowSorting="false"
-                                        ShowSearch="false"
-                                        TextProperty="USER_NICKNAME"
-                                        ValueProperty="USER_ID"
-                                        Data=@UserEnum
-                                        Disabled=@(!UserObject.IsAdmin)
-                                        Change=@(args => OnDropDownChange(args, "TUTOR"))
-                                        Style="width:inherit" />
+                @if (UserEnum.IsNotNull() && UserEnum.Any())
+                {
+                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.TUTOR_ID"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowFiltering="false"
+                                            AllowClear="false"
+                                            AllowSorting="false"
+                                            ShowSearch="false"
+                                            TextProperty="USER_NICKNAME"
+                                            ValueProperty="USER_ID"
+                                            Data=@UserEnum
+                                            Disabled=@(!UserObject.IsAdmin)
+                                            Change=@(args => OnDropDownChange(args, "TUTOR"))
+                                            Style="width:inherit" />
+                }
             </RadzenColumn>
         </RadzenRow>
     </RadzenCard>
@@ -89,32 +95,38 @@
         </RadzenRow>
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="6">
-                <RadzenDropDownDataGrid @bind-Value="@LessonObject.SUBJECT_ID"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowFiltering="false"
-                                        AllowClear="false"
-                                        AllowSorting="false"
-                                        ShowSearch="false"
-                                        TextProperty="SUBJECT_NAME"
-                                        ValueProperty="SUBJECT_ID"
-                                        Data=@SubjectEnum
-                                        Disabled="@(LessonObject.IsCreated)"
-                                        Change=@(args => OnDropDownChange(args, "SUBJECT"))
-                                        Style="width:inherit" />
+                @if (SubjectEnum.IsNotNull() && SubjectEnum.Any())
+                {
+                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.SUBJECT_ID"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowFiltering="false"
+                                            AllowClear="false"
+                                            AllowSorting="false"
+                                            ShowSearch="false"
+                                            TextProperty="SUBJECT_NAME"
+                                            ValueProperty="SUBJECT_ID"
+                                            Data=@SubjectEnumFiltered
+                                            Disabled="@(LessonObject.IsCreated)"
+                                            Change=@(args => OnDropDownChange(args, "SUBJECT"))
+                                            Style="width:inherit" />
+                }
             </RadzenColumn>
             <RadzenColumn Size="6">
-                <RadzenDropDownDataGrid @bind-Value="@LessonObject.LEVEL_ID"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowFiltering="false"
-                                        AllowClear="false"
-                                        AllowSorting="false"
-                                        ShowSearch="false"
-                                        TextProperty="LEVEL_NAME"
-                                        ValueProperty="LEVEL_ID"
-                                        Data=@LevelEnumFiltered
-                                        Disabled="@(LessonObject.IsCreated)"
-                                        Change=@(args => OnDropDownChange(args, "LEVEL"))
-                                        Style="width:inherit" />
+                @if (LevelEnum.IsNotNull() && LevelEnum.Any())
+                {
+                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.LEVEL_ID"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowFiltering="false"
+                                            AllowClear="false"
+                                            AllowSorting="false"
+                                            ShowSearch="false"
+                                            TextProperty="LEVEL_NAME"
+                                            ValueProperty="LEVEL_ID"
+                                            Data=@LevelEnumFiltered
+                                            Disabled="@(LessonObject.IsCreated)"
+                                            Change=@(args => OnDropDownChange(args, "LEVEL"))
+                                            Style="width:inherit" />
+                }
             </RadzenColumn>
         </RadzenRow>
     </RadzenCard>
@@ -134,13 +146,17 @@
 
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="4">
-                <RadzenDatePicker @bind-Value="@LessonObject.DATE_START" DateFormat="yyyy-MM-dd" />
+                <RadzenDatePicker @bind-Value="@LessonObject.DATE_START"
+                                  DateFormat="yyyy-MM-dd"
+                                  Disabled="@(!DateTimePickerEnabled)"
+                                  Change=@(OnDateChange) />
             </RadzenColumn>
             <RadzenColumn Size="4">
                 <RadzenDropDown @bind-Value=@Term.TimeStart
                                 TValue="TimeOnly"
                                 AllowClear="false"
                                 Data=@QuarterOnlyList
+                                Disabled="@(!DateTimePickerEnabled)"
                                 Change=@(args => OnDayDropDownChange(args, "TIME_START")) />
             </RadzenColumn>
             <RadzenColumn Size="4">
@@ -148,6 +164,7 @@
                                 TValue="TimeOnly"
                                 AllowClear="false"
                                 Data=@QuarterOnlyList
+                                Disabled="@(!DateTimePickerEnabled)"
                                 Change=@(args => OnDayDropDownChange(args, "TIME_STOP")) />
             </RadzenColumn>
         </RadzenRow>
@@ -164,17 +181,20 @@
                 <RadzenLabel Text="Rating" />
             </RadzenColumn>
             <RadzenColumn Size="4">
-                <RadzenDropDownDataGrid @bind-Value="@LessonObject.RATING_ID"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowFiltering="false"
-                                        AllowClear="false"
-                                        AllowSorting="false"
-                                        ShowSearch="false"
-                                        PageSize="25"
-                                        TextProperty="RATING_NAME"
-                                        ValueProperty="RATING_ID"
-                                        Data=@RatingEnum
-                                        Change=@(args => OnDropDownChange(args, "RATING")) Style="width:fit-content" />
+                @if (RatingEnum.IsNotNull() && RatingEnum.Any())
+                {
+                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.RATING_ID"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowFiltering="false"
+                                            AllowClear="false"
+                                            AllowSorting="false"
+                                            ShowSearch="false"
+                                            PageSize="25"
+                                            TextProperty="RATING_NAME"
+                                            ValueProperty="RATING_ID"
+                                            Data=@RatingEnum
+                                            Change=@(args => OnDropDownChange(args, "RATING")) Style="width:fit-content" />
+                }
             </RadzenColumn>
             <RadzenColumn Size="7" Style="margin-top:7px">
                 <RadzenRating Stars="@LessonObject.RATING_VALUE" Style="width: 123px; height: 33px; display: table; visibility: visible" ReadOnly="true"></RadzenRating>
@@ -203,15 +223,14 @@
     private IEnumerable<UserModel> UserEnum;
     private IEnumerable<LessonStatusModel> LessonStatusEnum;
     private IEnumerable<SubjectModel> SubjectEnum;
+    private IEnumerable<SubjectModel> SubjectEnumFiltered;
     private IEnumerable<LevelModel> LevelEnum;
     private IEnumerable<LevelModel> LevelEnumFiltered;
     private IEnumerable<CompetenceModel> CompetenceEnum;
     private IEnumerable<RatingModel> RatingEnum;
     private IEnumerable<TimeOnly> QuarterOnlyList = TimeHelper.GetDailyQuartersAsTimeOnly();
-    private TermItem Term { get; set; } = new TermItem();
-    private int TutorID { get; set; }
 
-    private int CalendarOwnerID { get; set; }
+    private TermItem Term { get; set; } = new TermItem();
 
     private bool SaveVisible
     {
@@ -233,6 +252,18 @@
             }
 
             return retval;
+        }
+    }
+
+    private bool DateTimePickerEnabled
+    {
+        get
+        {
+            if (LessonObject.IsNotNull())
+            {
+                return ((LessonObject.LESSON_STATUS_ID == 2) || ((LessonObject.LESSON_STATUS_ID == 1) && (!LessonObject.IsCreated)));
+            }
+            else return true;
         }
     }
 
@@ -321,19 +352,15 @@
             if (AppState.UserInfo.IsNotNull() && LessonObject.IsNotNull())
             {
                 UserObject = UserService.Select(AppState.UserInfo.USER_ID);
-                TutorID = (UserObject.IsTutor || UserObject.IsAdmin) ? UserObject.USER_ID : AppState.GetParamAsInteger("TUTOR_ID", 0);
-                CalendarOwnerID = AppState.GetParamAsInteger("CALENDAR_OWNER_ID", 0);
-
                 UserEnum = await UserService.SelectAllAsync();
                 SubjectEnum = await SubjectService.SelectAllAsync();
-                CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(TutorID);
+                CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(LessonObject.TUTOR_ID);
                 LessonStatusEnum = await LessonStatusService.SelectAllAsync();
                 RatingEnum = await RatingService.SelectAllAsync();
                 LevelEnum = await LevelService.SelectAllAsync();
-                LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, TutorID);
-                SubjectEnum = FilterSubjectList(TutorID);
 
-
+                SubjectEnumFiltered = FilterSubjectList(LessonObject.TUTOR_ID);
+                LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, LessonObject.TUTOR_ID);
             }
         }
         catch (Exception ex)
@@ -342,15 +369,15 @@
         }
     }
 
-    private IEnumerable<LevelModel> FilterLevelList(int subjectID, int tutorID)
+    private IEnumerable<LevelModel> FilterLevelList(int subject_id, int tutor_id)
     {
-        List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == TutorID && x.SUBJECT_ID == subjectID).Select(y => y.LEVEL_ID).ToList();
+        List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id && x.SUBJECT_ID == subject_id).Select(y => y.LEVEL_ID).ToList();
         return LevelEnum.Where(x => levelsOfTheSubject.Contains(x.LEVEL_ID));
     }
 
-    private IEnumerable<SubjectModel> FilterSubjectList(int tutorID)
+    private IEnumerable<SubjectModel> FilterSubjectList(int tutor_id)
     {
-        List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == TutorID).Select(y => y.SUBJECT_ID).ToList();
+        List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id).Select(y => y.SUBJECT_ID).ToList();
         return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
     }
 
@@ -362,6 +389,11 @@
             Term.TimeStart = TimeOnly.FromDateTime(LessonObject.DATE_START);
             Term.TimeStop = TimeOnly.FromDateTime(LessonObject.DATE_STOP);
         }
+    }
+
+    private void OnDateChange()
+    {
+        IsObjectLessonChanged = true;
     }
 
     async Task OnAdd()
@@ -402,7 +434,7 @@
 
         if (key == "SUBJECT")
         {
-            LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, TutorID);
+            LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, LessonObject.TUTOR_ID);
             LessonObject.LEVEL_ID = LevelEnumFiltered.First().LEVEL_ID;
         }
 
@@ -413,6 +445,14 @@
 
     private void OnDayDropDownChange(object value, string key)
     {
+        if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
+        {
+            Term.TimeStop = Term.TimeStart;
+        }
+        else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
+        {
+            Term.TimeStart = Term.TimeStop;
+        }
 
         LessonObject.DATE_START = new DateTime(LessonObject.DATE_START.Year, LessonObject.DATE_START.Month, LessonObject.DATE_START.Day, Term.TimeStart.Hour, Term.TimeStart.Minute, 0);
         LessonObject.DATE_STOP = new DateTime(LessonObject.DATE_STOP.Year, LessonObject.DATE_STOP.Month, LessonObject.DATE_STOP.Day, Term.TimeStop.Hour, Term.TimeStop.Minute, 0);
@@ -449,6 +489,8 @@
             ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Save", Detail = "Lesson Saved Successfully", Duration = NotificationDuration, Style = NotificationPosition });
             IsObjectLessonChanged = false;
             StateHasChanged();
+            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            DialogService.Close();
         }
         else
         {
@@ -482,30 +524,22 @@
 
             retval = await LessonService.UpsertAsync(LessonObject);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-
         }
 
         if (retval.IsPositive())
         {
-            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Save", Detail = "Lesson Saved Successfully", Duration = NotificationDuration, Style = NotificationPosition });
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Accept", Detail = "Lesson Accepted Successfully", Duration = NotificationDuration, Style = NotificationPosition });
             IsObjectLessonChanged = false;
             StateHasChanged();
             await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            if (CalendarOwnerID == UserObject.USER_ID)
-            {
-                NavigationManager.NavigateTo("/calendar");
-            }
-            else
-            {
-                NavigationManager.NavigateTo("/tutor");
-            }
+            DialogService.Close();
         }
         else
         {
-            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Lesson Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Accept", Detail = "Lesson Not Accepted", Duration = NotificationDuration, Style = NotificationPosition });
         }
     }
 
@@ -516,7 +550,7 @@
             LessonObject.LESSON_STATUS_ID = 3;
             await LessonService.UpsertAsync(LessonObject);
         }
-        else 
+        else
         {
             ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Cannot Be Deleted", Duration = NotificationDuration, Style = NotificationPosition });
             return;
@@ -524,21 +558,17 @@
 
         var retval = await LessonService.DeleteAsync(LessonObject.LESSON_ID);
 
-        if (retval.IsNegativeOrZero())
+        if (retval.IsPositive())
         {
-            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Not Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Delete", Detail = "Lesson Deleted Successfully", Duration = NotificationDuration, Style = NotificationPosition });
+            IsObjectLessonChanged = false;
+            StateHasChanged();
+            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            DialogService.Close();
         }
         else
         {
-            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            if (CalendarOwnerID == UserObject.USER_ID)
-            {
-                NavigationManager.NavigateTo("/calendar");
-            }
-            else
-            {
-                NavigationManager.NavigateTo("/tutor");
-            }
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Not Deleted", Duration = NotificationDuration, Style = NotificationPosition });
         }
     }
 
