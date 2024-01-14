@@ -135,5 +135,185 @@ namespace Mentor.Data
             }
             return SubjectEnum;
         }
+
+        public async Task<SubjectModel> SelectAsync(int subjectID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
+
+            SubjectModel subject;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    subject = await conn.QueryFirstOrDefaultAsync<SubjectModel>("SYS_SUBJECT_SELECT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return subject;
+        }
+
+        public SubjectModel Select(int subjectID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
+
+            SubjectModel subject;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    subject = conn.QueryFirstOrDefault<SubjectModel>("SYS_SUBJECT_SELECT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return subject;
+        }
+
+        public int Update(SubjectModel subject)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subject.SUBJECT_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("SUBJECT_NAME", subject.SUBJECT_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", subject.IS_ACTIVE, DbType.Boolean);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_SUBJECT_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> UpdateAsync(SubjectModel subject)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subject.SUBJECT_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("SUBJECT_NAME", subject.SUBJECT_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", subject.IS_ACTIVE, DbType.Boolean);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_SUBJECT_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public int Delete(int subjectID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_SUBJECT_DELETE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> DeleteAsync(int subjectID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_SUBJECT_DELETE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
     }
 }

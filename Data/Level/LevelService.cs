@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Mentor.Pages;
 
 namespace Mentor.Data
 {
@@ -16,6 +17,66 @@ namespace Mentor.Data
         public LevelService(SqlConnectionConfiguration configuration)
         {
             _configuration = configuration;
+        }
+
+        public async Task<LevelModel> SelectAsync(int levelID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+
+            LevelModel level;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    level = await conn.QueryFirstOrDefaultAsync<LevelModel>("SYS_LEVEL_SELECT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return level;
+        }
+
+        public LevelModel Select(int levelID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+
+            LevelModel level;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    level = conn.QueryFirstOrDefault<LevelModel>("SYS_LEVEL_SELECT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return level;
         }
 
         public async Task<IEnumerable<LevelModel>> SelectAllAsync()
@@ -136,6 +197,124 @@ namespace Mentor.Data
             return LevelEnum;
         }
 
+        public int Update(LevelModel level)
+        {
+            int retVal = 0;
 
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", level.LEVEL_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("LEVEL_NAME", level.LEVEL_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", level.IS_ACTIVE, DbType.Boolean);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_LEVEL_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> UpdateAsync(LevelModel level)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", level.LEVEL_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("LEVEL_NAME", level.LEVEL_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", level.IS_ACTIVE, DbType.Boolean);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_LEVEL_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public int Delete(int levelID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_LEVEL_DELETE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> DeleteAsync(int lessonID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", lessonID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_LEVEL_DELETE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
     }
 }
