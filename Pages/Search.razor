@@ -83,9 +83,9 @@ else
                 </RadzenRow>
             </RadzenCard>
 
-            <RadzenCard>
-                @if (@TutorEnum.IsNotNull())
-                {
+            @if (@TutorEnum.IsNotNull() && @TutorEnum.Any())
+            {
+                <RadzenCard>
                     <RadzenDataGrid Data="@TutorEnum"
                                     AllowMultiColumnSorting="true"
                                     ClearFilterText="true"
@@ -134,8 +134,20 @@ else
                             </RadzenDataGridColumn>
                         </Columns>
                     </RadzenDataGrid>
-                }
-            </RadzenCard>
+                </RadzenCard>
+            }
+            else
+            {
+                <RadzenCard>
+                    <RadzenRow>
+                        <RadzenColumn Size="4"></RadzenColumn>
+                        <RadzenColumn Size="4">
+                            <RadzenLabel Text="Select criteria to find best Tutors" Style="font-size:xx-large; margin-top:100px; margin-bottom:100px; text-align:center"></RadzenLabel>
+                        </RadzenColumn>
+                        <RadzenColumn Size="4"></RadzenColumn>
+                    </RadzenRow>
+                </RadzenCard>
+            }
         </div>
     </div>
 }

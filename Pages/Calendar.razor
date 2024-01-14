@@ -49,6 +49,7 @@ else
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="Calendar">
+                        <CalendarLegend/>
                         <RadzenScheduler @ref=@Scheduler
                                          Style="height:650px"
                                          TItem="LessonModel"
@@ -56,13 +57,13 @@ else
                                          StartProperty="DATE_START"
                                          EndProperty="DATE_STOP"
                                          TextProperty=@(UserObject.IsTutor ? "CAPTION_FOR_TUTOR" : "CAPTION_FOR_STUDENT")
-                                         SelectedIndex="0"
+                                         SelectedIndex="1"
                                          SlotRender=@OnSlotRender
                                          AppointmentSelect=@OnLessonSelect
                                          AppointmentRender=@OnLessonRender>
-                            <RadzenDayView MinutesPerSlot="15" TimeFormat="HH:mm" />
-                            <RadzenWeekView MinutesPerSlot="15" TimeFormat="HH:mm" />
                             <RadzenMonthView MaxAppointmentsInSlot="1" />
+                            <RadzenWeekView MinutesPerSlot="15" TimeFormat="HH:mm" />
+                            <RadzenDayView MinutesPerSlot="15" TimeFormat="HH:mm" />
                         </RadzenScheduler>
                     </RadzenTabsItem>
 
@@ -315,7 +316,7 @@ else
                 SubjectEnum = FilterSubjectList(AppState.UserInfo.USER_ID);
 
                 AppState.SetParam("CALENDAR_OWNER_ID", UserObject.USER_ID);
-                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
                 LessonCreateEnabled = (SubjectEnum.Any() && (UserObject.IsStudent || UserObject.IsAdmin));
 
@@ -337,15 +338,15 @@ else
         }
     }
 
-    private IEnumerable<LevelModel> FilterLevelList(int subjectID, int tutorID)
+    private IEnumerable<LevelModel> FilterLevelList(int subjec_id, int tutor_id)
     {
-        List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == AppState.UserInfo.USER_ID && x.SUBJECT_ID == subjectID).Select(y => y.LEVEL_ID).ToList();
+        List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == AppState.UserInfo.USER_ID && x.SUBJECT_ID == subjec_id).Select(y => y.LEVEL_ID).ToList();
         return LevelEnum.Where(x => levelsOfTheSubject.Contains(x.LEVEL_ID));
     }
 
-    private IEnumerable<SubjectModel> FilterSubjectList(int tutorID)
+    private IEnumerable<SubjectModel> FilterSubjectList(int tutor_id)
     {
-        List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == AppState.UserInfo.USER_ID).Select(y => y.SUBJECT_ID).ToList();
+        List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id).Select(y => y.SUBJECT_ID).ToList();
         return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
     }
 
@@ -353,28 +354,36 @@ else
     {
         foreach (LessonModel less in LessonEnum)
         {
-            //args.Attributes["text"] = args.Data.LESSON_STATUS_NAME;
-
-            if ((args.Data.LESSON_STATUS_ID == 1) || (args.Data.LESSON_STATUS_ID == 4) || (args.Data.LESSON_STATUS_ID == 5))
+            switch (args.Data.LESSON_STATUS_ID)
             {
-                args.Attributes["style"] = "background: orange";
-            }
-
-            if (args.Data.LESSON_STATUS_ID == 2)
-            {
-                args.Attributes["style"] = "background: green";
-            }
-
-            if ((args.Data.LESSON_STATUS_ID == 6))
-            {
-                args.Attributes["style"] = "background: grey";
+                case 1:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
+                    break;
+                case 2:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
+                    break;
+                case 3:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus3;
+                    break;
+                case 4:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
+                    break;
+                case 5:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
+                    break;
+                case 6:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
+                    break;
+                case 7:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
+                    break;
             }
         }
     }
 
     private void OnSlotRender(SchedulerSlotRenderEventArgs args)
     {
-        if(UserObject.IsTutor)
+        if (UserObject.IsTutor)
         {
             AvailabilityEnumFiltered = AvailabilityEnum.Where(x => x.DATE_START >= args.View.StartDate && x.DATE_STOP < args.View.EndDate);
 
@@ -384,7 +393,7 @@ else
                 {
                     if (args.Start.Date == av.DATE_START.Date)
                     {
-                        args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+                        args.Attributes["style"] = Globals.CalendarStyleAvailability;
                     }
                 }
             }
@@ -395,7 +404,7 @@ else
                 {
                     if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
                     {
-                        args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+                        args.Attributes["style"] = Globals.CalendarStyleAvailability;
                     }
                 }
             }
@@ -406,7 +415,7 @@ else
                 {
                     if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
                     {
-                        args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+                        args.Attributes["style"] = Globals.CalendarStyleAvailability;
                     }
                 }
             }
@@ -417,16 +426,24 @@ else
             // Highlight today in month view
             if (args.Start.Date == DateTime.Today)
             {
-                args.Attributes["style"] = "background: rgba(255,115,0,255); opacity: 0.75;";
+                args.Attributes["style"] = Globals.CalendarStyleToday;
             }
         }
-
     }
 
     private async Task OnLessonSelect(SchedulerAppointmentSelectEventArgs<LessonModel> args)
     {
         LessonObject = await LessonService.SelectAsync(args.Data.LESSON_ID);
+
         await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+        if (UserObject.IsTutor)
+        {
+            LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
+        }
+        else if (UserObject.IsStudent)
+        {
+            LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
+        }
         await Scheduler.Reload();
     }
 
@@ -455,19 +472,21 @@ else
 
     private void OnWeekDropDownChange(object value, string key, int weekday)
     {
-        var start = DailySlotList.Items[weekday - 1].TimeStart;
-        var stop = DailySlotList.Items[weekday - 1].TimeStop;
-
-        if ((key == "TIME_RECURING_START") && (start > stop))
+        if (DailySlotList.Items.Count() > 0)
         {
-            DailySlotList.Items[weekday - 1].TimeStop = DailySlotList.Items[weekday - 1].TimeStart;
-        }
-        else if ((key == "TIME_RECURING_STOP") && (stop < start))
-        {
-            DailySlotList.Items[weekday - 1].TimeStart = DailySlotList.Items[weekday - 1].TimeStop;
-        }
+            var start = DailySlotList.Items[weekday - 1].TimeStart;
+            var stop = DailySlotList.Items[weekday - 1].TimeStop;
 
-        StateHasChanged();
+            if ((key == "TIME_RECURING_START") && (start > stop))
+            {
+                DailySlotList.Items[weekday - 1].TimeStop = DailySlotList.Items[weekday - 1].TimeStart;
+            }
+            else if ((key == "TIME_RECURING_STOP") && (stop < start))
+            {
+                DailySlotList.Items[weekday - 1].TimeStart = DailySlotList.Items[weekday - 1].TimeStop;
+            }
+            StateHasChanged();
+        }
     }
 
     private async Task AddAvailable()

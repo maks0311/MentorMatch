@@ -1,0 +1,37 @@
+﻿@inherits LayoutComponentBase
+
+<RadzenCard Style="width:inherit; margin-bottom:10px; padding:10px">
+    <RadzenStack Orientation="Orientation.Horizontal"
+                 Gap="15px"
+                 JustifyContent="JustifyContent.Center"
+                 AlignItems="AlignItems.Center"
+                 Wrap="FlexWrap.NoWrap"
+                 Style="height:inherit">
+
+        <RadzenCard Style="@Globals.LegendStyleStatus1">
+            PENDING ACCEPT
+        </RadzenCard>
+        <RadzenCard Style="@Globals.LegendStyleStatus2">
+            ACCEPTED
+        </RadzenCard>
+        <RadzenCard Style="@Globals.LegendStyleStatus3">
+            CANCELLED
+        </RadzenCard>
+        <RadzenCard Style="@Globals.LegendStyleStatus4">
+            POSTPONED BY STUDENT
+        </RadzenCard>
+        <RadzenCard Style="@Globals.LegendStyleStatus5">
+            POSTPONED BY TUTOR
+        </RadzenCard>
+        <RadzenCard Style="@Globals.LegendStyleStatus6">
+            ENDED
+        </RadzenCard>
+        <RadzenCard Style="@Globals.LegendStyleStatus7">
+            UNCOMPLETED
+        </RadzenCard>
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    
+}

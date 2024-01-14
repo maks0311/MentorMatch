@@ -1,7 +1,5 @@
 ﻿@page "/tutor"
 
-@implements IDisposable
-
 @using System
 @using System.Text
 @using System.Reflection
@@ -9,7 +7,6 @@
 @using System.Data.SqlClient;
 @using Radzen;
 @using Radzen.Blazor;
-@using Radzen.Blazor.Rendering;
 @using Microsoft.Extensions.Configuration;
 @using System.Globalization;
 @using Microsoft.Extensions.Logging;
@@ -112,7 +109,8 @@ else
                         </RadzenRow>
                     </RadzenTabsItem>
 
-                    <RadzenTabsItem Text="Calendar">
+                    <RadzenTabsItem Text="Calendar" Visible="@IsCalendarVisible">
+                        <CalendarLegend/>
                         <RadzenScheduler @ref=@Scheduler
                                          Style="height:650px"
                                          TItem="LessonModel"
@@ -120,13 +118,14 @@ else
                                          StartProperty="DATE_START"
                                          EndProperty="DATE_STOP"
                                          TextProperty="CAPTION_FOR_TUTOR"
-                                         SelectedIndex="0"
+                                         SelectedIndex="1"
                                          SlotSelect=@OnSlotSelect
                                          SlotRender=@OnSlotRender
-                                         AppointmentSelect=@OnLessonSelect>
-                            <RadzenDayView MinutesPerSlot="15" TimeFormat="HH:mm" />
-                            <RadzenWeekView MinutesPerSlot="15" TimeFormat="HH:mm" />
+                                         AppointmentSelect=@OnLessonSelect
+                                         AppointmentRender="@OnLessonRender">
                             <RadzenMonthView MaxAppointmentsInSlot="1" />
+                            <RadzenWeekView MinutesPerSlot="15" TimeFormat="HH:mm" />
+                            <RadzenDayView MinutesPerSlot="15" TimeFormat="HH:mm" />
                         </RadzenScheduler>
                     </RadzenTabsItem>
 
@@ -169,6 +168,21 @@ else
     private IEnumerable<AvailabilityModel> AvailabilityEnumFiltered { get; set; }
     private IEnumerable<LevelModel> LevelEnumFiltered { get; set; }
     private IEnumerable<RatingModel> RatingEnum { get; set; }
+
+    private bool IsCalendarVisible
+    {
+        get
+        {
+            if (UserObject.IsNotNull())
+            {
+                return !UserObject.IsTutor;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
 
     protected override void OnInitialized()
     {
@@ -238,7 +252,7 @@ else
                     AvailabilityEnum = await AvailabilityService.SelectAllAsync(TutorID, TimeScopeStart, TimeScopeStop);
 
                     AppState.SetParam("CALENDAR_OWNER_ID", TutorID);
-                    AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
                 }
             }
         }
@@ -254,18 +268,17 @@ else
 
         if (args.View.Text == "Month")
         {
-
             // Highlight today in month view
             if (args.Start.Date == DateTime.Today)
             {
-                args.Attributes["style"] = "background: rgba(255,115,0,255); opacity: 0.75;";
+                args.Attributes["style"] = Globals.CalendarStyleToday;
             }
 
             foreach (AvailabilityModel av in AvailabilityEnumFiltered)
             {
                 if (args.Start.Date == av.DATE_START.Date)
                 {
-                    args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+                    args.Attributes["style"] = Globals.CalendarStyleAvailability;
                 }
             }
         }
@@ -276,7 +289,7 @@ else
             {
                 if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
                 {
-                    args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+                    args.Attributes["style"] = Globals.CalendarStyleAvailability;
                 }
             }
         }
@@ -287,7 +300,7 @@ else
             {
                 if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
                 {
-                    args.Attributes["style"] = "background: rgba(255,220,40,.2);";
+                    args.Attributes["style"] = Globals.CalendarStyleAvailability;
                 }
             }
         }
@@ -346,9 +359,48 @@ else
     private async Task OnLessonSelect(SchedulerAppointmentSelectEventArgs<LessonModel> args)
     {
         LessonObject = await LessonService.SelectAsync(args.Data.LESSON_ID);
-        await DialogService.OpenAsync<LessonEditor>("Edit Appointment", new Dictionary<string, object> { { "LessonObject", LessonObject } });
-        LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
-        await Scheduler.Reload();
+
+        if (LessonObject.IsNotNull() && (LessonObject.STUDENT_ID == UserObject.USER_ID))
+        {
+            await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+            LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
+            await Scheduler.Reload();
+        }
+        else
+        {
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "This lesson belongs to other student", Detail = "Warning", Duration = NotificationDuration, Style = NotificationPosition });
+        }
+    }
+
+    private void OnLessonRender(SchedulerAppointmentRenderEventArgs<LessonModel> args)
+    {
+        foreach (LessonModel less in LessonEnum)
+        {
+            switch (args.Data.LESSON_STATUS_ID)
+            {
+                case 1:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
+                    break;
+                case 2:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
+                    break;
+                case 3:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus3;
+                    break;
+                case 4:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
+                    break;
+                case 5:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
+                    break;
+                case 6:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
+                    break;
+                case 7:
+                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
+                    break;
+            }
+        }
     }
 
     private IEnumerable<LevelModel> FilterLevelList(int subjectID, int tutorID)
@@ -379,9 +431,5 @@ else
     {
         TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
         TooltipService.Open(elementReference, msg, options);
-    }
-
-    public void Dispose()
-    {
     }
 }
