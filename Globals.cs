@@ -9,7 +9,7 @@
 
         public static string UserNotLoggedInMessage = "User is not logged in";
 
-        public static string ColorStatus1 = "azure";
+        public static string ColorStatus1 = "coral";
         public static string ColorStatus2 = "lightgreen";
         public static string ColorStatus3 = "lightskyblue";
         public static string ColorStatus4 = "paleturquoise";
@@ -33,7 +33,7 @@
         public static string CalendarStyleToday = CalendarStylePrefix + ColorToday;
         public static string CalendarStyleAvailability = CalendarStylePrefix + ColorAvailability;
 
-        private static string LegendPrefix = "padding-top:10px; text-align: center; height: 40px; width: 200px; background-color: ";
+        private static string LegendPrefix = "overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:smaller; font-weight:bold; padding-top:5px; text-align:center; height:25px; width:max-content; background-color: ";
         public static string LegendStyleStatus1 = LegendPrefix + ColorStatus1;
         public static string LegendStyleStatus2 = LegendPrefix + ColorStatus2;
         public static string LegendStyleStatus3 = LegendPrefix + ColorStatus3;
