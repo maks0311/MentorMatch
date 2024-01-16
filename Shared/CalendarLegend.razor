@@ -1,4 +1,28 @@
-﻿@inherits LayoutComponentBase
+﻿@using System
+@using System.Text
+@using System.Reflection
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+
+@inherits LayoutComponentBase
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
 
 <RadzenCard Style="width:inherit; margin-bottom:10px; padding:10px">
     <RadzenStack Orientation="Orientation.Horizontal"
@@ -8,7 +32,7 @@
                  Wrap="FlexWrap.NoWrap"
                  Style="height:inherit">
 
-        <RadzenCard Style="@Globals.LegendStyleStatus1">
+        <RadzenCard Style="@Globals.LegendStyleStatus1" MouseEnter=@(args=>ShowTooltip(args, "Lesson Status PENDING ACCEPT"))>
             PENDING ACCEPT
         </RadzenCard>
         <RadzenCard Style="@Globals.LegendStyleStatus2">
@@ -33,5 +57,27 @@
 </RadzenCard>
 
 @code {
+    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
     
+    string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
 }

@@ -14,6 +14,9 @@
 @using Microsoft.Extensions.Logging.EventLog;
 @using Blazored.SessionStorage;
 @using Mentor.Data;
+@using System.Threading
+
+@inject IJSRuntime JS
 
 @inject IConfiguration AppConfig
 @inject ISessionStorageService SessionStorage
@@ -33,16 +36,20 @@
 </div>
 
 <RadzenPanelMenu Click="@(args => OnMenuItemClick(args))" Style="background-color: hsla(0, 0%, 0%, 0)">
-
     @if (AppState != null)
     {
         <RadzenPanelMenuItem Text="Home" Icon="home" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
         <RadzenPanelMenuItem Text="Search" Icon="search" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="My Calendar" Icon="date_range" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="My Calendar" Icon="date_range" Match="NavLinkMatch.All" Style="white-space:nowrap;"></RadzenPanelMenuItem>
+
+        <RadzenLink Path="@manual_url" Target="_blank" Style="color:white;">
+            <RadzenPanelMenuItem Text="Manual" Icon="chrome_reader_mode" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
+        </RadzenLink>
+
         <RadzenPanelMenuItem Text="About" Icon="help_outline" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
     }
-
 </RadzenPanelMenu>
+
 
 @code {
     [Parameter]
@@ -54,8 +61,8 @@
     private string AppVersion { get; set; }
     private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
     private bool collapseNavMenu = true;
-
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string manual_url = "/manual/manual.pdf";
 
     private void ToggleNavMenu()
     {
@@ -77,6 +84,11 @@
         if (args.Text == "My Calendar")
         {
             NavigationManager.NavigateTo("/calendar");
+        }
+
+        if (args.Text == "Manual")
+        {
+            //NavigationManager.NavigateTo(manual_url);
         }
 
         if (args.Text == "About")

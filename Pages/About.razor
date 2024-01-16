@@ -80,7 +80,7 @@ else
     {
         try
         {
-            AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+            AppVersion = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
 
             if (await SessionStorage.ContainKeyAsync("APP_STATE"))
             {

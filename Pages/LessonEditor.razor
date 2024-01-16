@@ -37,9 +37,9 @@
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="7">
                 <RadzenMenu Visible="@IsRendered">
-                    <RadzenMenuItem Text="Save Lesson" Icon="save" Click="LessonSave" Style="padding-right:25px;" Disabled="@(!SaveVisible)"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Accept Lesson" Icon="done" Click="LessonAccept" Style="padding-right:25px;" Disabled="@(!AcceptVisible)"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Cancel Lesson" Icon="delete" Click="LessonDelete" Style="padding-right:25px;" Disabled="@(!DeleteVisible)"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Save Lesson" Icon="save" Click="LessonSave" Style="padding-right:25px;" Disabled="@(!SaveEnabled)"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Accept Lesson" Icon="done" Click="LessonAccept" Style="padding-right:25px;" Disabled="@(!AcceptEnabled)"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Cancel Lesson" Icon="delete" Click="LessonDelete" Style="padding-right:25px;" Disabled="@(!DeleteEnabled)"></RadzenMenuItem>
                 </RadzenMenu>
             </RadzenColumn>
         </RadzenRow>
@@ -172,33 +172,18 @@
 
     <RadzenCard Style="width:inherit; margin-top:10px">
         <RadzenRow Style="margin-bottom:5px"><RadzenColumn Size="12" Style="margin-top:7px"><RadzenLabel Text="Topic" /></RadzenColumn></RadzenRow>
-        <RadzenRow Style="margin-bottom:5px"><RadzenColumn Size="12" Style="margin-top:7px"><RadzenTextArea Rows="4" @bind-Value="@LessonObject.TOPIC" Style="width:inherit" Change="@(args => OnTopicUpdate("TOPIC"))" /></RadzenColumn></RadzenRow>
+        <RadzenRow Style="margin-bottom:5px"><RadzenColumn Size="12" Style="margin-top:7px"><RadzenTextArea Rows="4" ReadOnly="@TopicIsReadOnly" @bind-Value="@LessonObject.TOPIC" Style="width:inherit" Change="@(args => OnTopicUpdate("TOPIC"))" /></RadzenColumn></RadzenRow>
     </RadzenCard>
 
     <RadzenCard Style="width:inherit; margin-top:10px" Visible="LessonObject.LESSON_STATUS_ID == 6">
         <RadzenRow Style="margin-bottom:5px">
-            <RadzenColumn Size="1" Style="margin-top:7px">
-                <RadzenLabel Text="Rating" />
+            <RadzenColumn Size="5" Style="margin-top:10px; text-align:right">
+                <RadzenLabel Text="Students' Rating" />
             </RadzenColumn>
-            <RadzenColumn Size="4">
-                @if (RatingEnum.IsNotNull() && RatingEnum.Any())
-                {
-                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.RATING_ID"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowFiltering="false"
-                                            AllowClear="false"
-                                            AllowSorting="false"
-                                            ShowSearch="false"
-                                            PageSize="25"
-                                            TextProperty="RATING_NAME"
-                                            ValueProperty="RATING_ID"
-                                            Data=@RatingEnum
-                                            Change=@(args => OnDropDownChange(args, "RATING")) Style="width:fit-content" />
-                }
+            <RadzenColumn Size="4" Style="margin-top:10px; text-align:center">
+                <RadzenRating Stars="5" Value=@LessonObject.RATING_VALUE Style="margin-left:10px; height:30px; display:table; visibility:visible" ReadOnly=@RatingIsReadOnly MouseEnter=@(args => ShowRatingTooltip(args, @LessonObject.RATING_NAME)) Change="@(args => OnRatingUpdate(args))"></RadzenRating>
             </RadzenColumn>
-            <RadzenColumn Size="7" Style="margin-top:7px">
-                <RadzenRating Stars="@LessonObject.RATING_VALUE" Style="width: 123px; height: 33px; display: table; visibility: visible" ReadOnly="true"></RadzenRating>
-            </RadzenColumn>
+            <RadzenColumn Size="3"></RadzenColumn>
         </RadzenRow>
     </RadzenCard>
 }
@@ -229,10 +214,30 @@
     private IEnumerable<CompetenceModel> CompetenceEnum;
     private IEnumerable<RatingModel> RatingEnum;
     private IEnumerable<TimeOnly> QuarterOnlyList = TimeHelper.GetDailyQuartersAsTimeOnly();
-
     private TermItem Term { get; set; } = new TermItem();
+    private int PreviousRating { get; set; } = 0;
 
-    private bool SaveVisible
+    private bool RatingIsReadOnly
+    {
+        get
+        {
+            if (LessonObject.IsNotNull() && UserObject.IsNotNull())
+                return (UserObject.IsTutor || !LessonObject.IsCreated || PreviousRating.IsPositive());
+            else return true;
+        }
+    }
+    
+    private bool TopicIsReadOnly
+    {
+        get
+        {
+            if (LessonObject.IsNotNull() && UserObject.IsNotNull())
+                return (LessonObject.LESSON_STATUS_ID == 6);
+            else return true;
+        }
+    }
+
+    private bool SaveEnabled
     {
         get
         {
@@ -245,9 +250,6 @@
                     retval = true;
                 // NEW
                 else if (LessonObject.IsCreated.IsFalse())
-                    retval = true;
-                // ENDED & NOT RATED
-                else if ((LessonObject.LESSON_STATUS_ID == 6) && (LessonObject.IsRated.IsFalse()) && UserObject.IsStudent)
                     retval = true;
             }
 
@@ -267,7 +269,7 @@
         }
     }
 
-    private bool AcceptVisible
+    private bool AcceptEnabled
     {
         get
         {
@@ -290,7 +292,7 @@
         }
     }
 
-    private bool DeleteVisible
+    private bool DeleteEnabled
     {
         get
         {
@@ -356,8 +358,8 @@
                 SubjectEnum = await SubjectService.SelectAllAsync();
                 CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(LessonObject.TUTOR_ID);
                 LessonStatusEnum = await LessonStatusService.SelectAllAsync();
-                RatingEnum = await RatingService.SelectAllAsync();
                 LevelEnum = await LevelService.SelectAllAsync();
+                RatingEnum = await RatingService.SelectAllAsync();
 
                 SubjectEnumFiltered = FilterSubjectList(LessonObject.TUTOR_ID);
                 LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, LessonObject.TUTOR_ID);
@@ -385,6 +387,7 @@
     {
         if (LessonObject.IsNotNull())
         {
+            PreviousRating = LessonObject.RATING_VALUE;
             Term.SelectedDay = LessonObject.DATE_START;
             Term.TimeStart = TimeOnly.FromDateTime(LessonObject.DATE_START);
             Term.TimeStop = TimeOnly.FromDateTime(LessonObject.DATE_STOP);
@@ -422,14 +425,6 @@
         {
             // filter LessonStatusEnum zależnie od kontakestu
             LessonStatusEnum = await LessonStatusService.SelectAllAsync();
-        }
-
-        if (key == "RATING")
-        {
-            RatingModel rating = RatingEnum.FirstOrDefault(x => x.RATING_ID == LessonObject.RATING_ID);
-
-            LessonObject.RATING_NAME = rating.RATING_NAME;
-            LessonObject.RATING_VALUE = rating.RATING_VALUE;
         }
 
         if (key == "SUBJECT")
@@ -494,7 +489,24 @@
         }
         else
         {
-            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Lesson Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+            switch (retval)
+            {
+                case -2:
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Past Lesson cannot be changed", Duration = NotificationDuration, Style = NotificationPosition });
+                    break;
+                case -3:
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Tutor is not available at selected time", Duration = NotificationDuration, Style = NotificationPosition });
+                    break;
+                case -4:
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Another studnet registered lesson at selected time", Duration = NotificationDuration, Style = NotificationPosition });
+                    break;
+                case -5:
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "You registered another lesson at selected time", Duration = NotificationDuration, Style = NotificationPosition });
+                    break;
+                default:
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Lesson not saved", Duration = NotificationDuration, Style = NotificationPosition });
+                    break;
+            }
         }
     }
 
@@ -578,6 +590,27 @@
         StateHasChanged();
     }
 
+    private async Task OnRatingUpdate(int val)
+    {
+        RatingModel rating = RatingEnum.FirstOrDefault(x => x.RATING_VALUE == val);
+
+        if (rating.IsNotNull())
+        {
+            LessonObject.RATING_ID = rating.RATING_ID;
+            LessonObject.RATING_VALUE = rating.RATING_VALUE;
+            LessonObject.RATING_NAME = rating.RATING_NAME;
+
+            var retval = await LessonService.UpdateRatingAsync(LessonObject.LESSON_ID, LessonObject.RATING_ID);
+
+            if (retval.IsPositive())
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Rating", Detail = "Lesson Rated Successfully", Duration = NotificationDuration, Style = NotificationPosition });
+            else
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Rating", Detail = "Lesson Not Rated", Duration = NotificationDuration, Style = NotificationPosition });
+        }
+
+        StateHasChanged();
+    }
+
     private void ShowNotification(NotificationMessage message)
     {
         try
@@ -587,6 +620,14 @@
         catch (Exception ex)
         {
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowRatingTooltip(ElementReference elementReference, string msg)
+    {
+        if (!RatingIsReadOnly)
+        {
+            ShowTooltip(elementReference, msg);
         }
     }
 
