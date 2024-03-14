@@ -8,9 +8,9 @@ namespace Mentor
     {
         public static IEnumerable<TimeOnly> GetDailyQuartersAsTimeOnly()
         {
-            TimeOnly time = new TimeOnly(0, 0, 0);
+            TimeOnly time = new TimeOnly(8, 0, 0);
             List<TimeOnly> tEnum = new List<TimeOnly>();
-            for (int i = 0; i < 96; i++)
+            for (int i = 0; i < 64; i++)
             {
                 tEnum.Add(time);
                 time = time.AddMinutes(15);
@@ -21,10 +21,10 @@ namespace Mentor
         
         public static List<DateTime> GetDailyQuartersAsDateTime(DateTime day)
         {
-            TimeOnly time = new TimeOnly(0, 0, 0);
+            TimeOnly time = new TimeOnly(8, 0, 0);
             List<DateTime> dtEnum = new List<DateTime>();
             
-            for (int i = 0; i < 96; i++)
+            for (int i = 0; i < 64; i++)
             {
                 DateTime dt = new DateTime(day.Year, day.Month, day.Day, time.Hour, time.Minute, 0);
                 dtEnum.Add(dt);
@@ -36,10 +36,10 @@ namespace Mentor
 
         public static List<AvailabilityModel> GetDailyQuartersAsAvailabilityList(int tutoID, DateTime day)
         {
-            TimeOnly time = new TimeOnly(0, 0, 0);
+            TimeOnly time = new TimeOnly(8, 0, 0);
             List<AvailabilityModel> avEnum = new List<AvailabilityModel>();
 
-            for (int i = 0; i < 96; i++)
+            for (int i = 0; i < 64; i++)
             {
                 DateTime dt = new DateTime(day.Year, day.Month, day.Day, time.Hour, time.Minute, 0);
 

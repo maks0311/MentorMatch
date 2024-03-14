@@ -9,16 +9,16 @@
 
         public static string UserNotLoggedInMessage = "User is not logged in";
 
-        public static string ColorStatus1 = "coral";
+        public static string ColorStatus1 = "darkorange";
         public static string ColorStatus2 = "lightgreen";
-        public static string ColorStatus3 = "lightskyblue";
-        public static string ColorStatus4 = "paleturquoise";
-        public static string ColorStatus5 = "lightpink";
-        public static string ColorStatus6 = "lavender";
+        public static string ColorStatus3 = "red";
+        public static string ColorStatus4 = "darkorange";
+        public static string ColorStatus5 = "darkorange";
+        public static string ColorStatus6 = "silver";
         public static string ColorStatus7 = "yellowgreen";
         public static string ColorInactive = "gray";
         public static string ColorToday = "lightyellow";
-        public static string ColorAvailability = "ghostwhite";
+        public static string ColorAvailability = "peachpuff";
 
         private static string CalendarStylePrefix = "background: ";
         public static string CalendarStyleLessonStatus1 = CalendarStylePrefix + ColorStatus1;
