@@ -29,7 +29,7 @@ namespace Mentor.Data
         {
             get
             {
-                return String.Format("{0} - {1}", TUTOR_NAME,SUBJECT_NAME);
+                return String.Format("{0} - {1}", TUTOR_NAME, SUBJECT_NAME);
             }
         }
         public string CAPTION_FOR_TUTOR
@@ -50,7 +50,15 @@ namespace Mentor.Data
         {
             get
             {
-                return RATING_ID == 6;
+                return RATING_ID != 6;
+            }
+        }
+
+        public bool HasEnded
+        {
+            get
+            {
+                return LESSON_STATUS_ID == 6;
             }
         }
 

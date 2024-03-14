@@ -60,12 +60,13 @@
                                             AllowClear="false"
                                             AllowSorting="false"
                                             ShowSearch="false"
-                                            TextProperty="USER_NICKNAME"
+                                            TextProperty="USER_FULLNAME"
                                             ValueProperty="USER_ID"
                                             Disabled=@(!UserObject.IsAdmin)
                                             Data=@UserEnum
                                             Change=@(args => OnDropDownChange(args, "STUDENT"))
                                             Style="width:inherit" />
+
                 }
             </RadzenColumn>
             <RadzenColumn Size="6">
@@ -77,7 +78,7 @@
                                             AllowClear="false"
                                             AllowSorting="false"
                                             ShowSearch="false"
-                                            TextProperty="USER_NICKNAME"
+                                            TextProperty="USER_FULLNAME"
                                             ValueProperty="USER_ID"
                                             Data=@UserEnum
                                             Disabled=@(!UserObject.IsAdmin)
@@ -226,7 +227,7 @@
             else return true;
         }
     }
-    
+
     private bool TopicIsReadOnly
     {
         get
@@ -251,6 +252,10 @@
                 // NEW
                 else if (LessonObject.IsCreated.IsFalse())
                     retval = true;
+                //NOT RATED
+                else if (LessonObject.HasEnded && LessonObject.IsRated && IsObjectLessonChanged)
+                    retval = true;
+
             }
 
             return retval;
@@ -300,7 +305,7 @@
 
             if (LessonObject.IsNotNull())
             {
-                retval = LessonObject.LESSON_STATUS_ID != 6;
+                retval = LessonObject.LESSON_STATUS_ID != 6 ;
             }
 
             return retval;
@@ -590,25 +595,17 @@
         StateHasChanged();
     }
 
-    private async Task OnRatingUpdate(int val)
+    private void OnRatingUpdate(int val)
     {
         RatingModel rating = RatingEnum.FirstOrDefault(x => x.RATING_VALUE == val);
 
         if (rating.IsNotNull())
         {
+            IsObjectLessonChanged = true;
             LessonObject.RATING_ID = rating.RATING_ID;
             LessonObject.RATING_VALUE = rating.RATING_VALUE;
             LessonObject.RATING_NAME = rating.RATING_NAME;
-
-            var retval = await LessonService.UpdateRatingAsync(LessonObject.LESSON_ID, LessonObject.RATING_ID);
-
-            if (retval.IsPositive())
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Rating", Detail = "Lesson Rated Successfully", Duration = NotificationDuration, Style = NotificationPosition });
-            else
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Rating", Detail = "Lesson Not Rated", Duration = NotificationDuration, Style = NotificationPosition });
         }
-
-        StateHasChanged();
     }
 
     private void ShowNotification(NotificationMessage message)

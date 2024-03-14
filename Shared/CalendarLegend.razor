@@ -32,33 +32,21 @@
                  Wrap="FlexWrap.NoWrap"
                  Style="height:inherit">
 
-        <RadzenCard Style="@Globals.LegendStyleStatus1" MouseEnter=@(args=>ShowTooltip(args, "Lesson Status PENDING ACCEPT"))>
-            PENDING ACCEPT
+        <RadzenCard Style="@Globals.LegendStyleStatus1">
+            PENDING ACCEPT / POSTPONED
         </RadzenCard>
         <RadzenCard Style="@Globals.LegendStyleStatus2">
             ACCEPTED
         </RadzenCard>
-        <RadzenCard Style="@Globals.LegendStyleStatus3">
-            CANCELLED
-        </RadzenCard>
-        <RadzenCard Style="@Globals.LegendStyleStatus4">
-            POSTPONED BY STUDENT
-        </RadzenCard>
-        <RadzenCard Style="@Globals.LegendStyleStatus5">
-            POSTPONED BY TUTOR
-        </RadzenCard>
         <RadzenCard Style="@Globals.LegendStyleStatus6">
             ENDED
-        </RadzenCard>
-        <RadzenCard Style="@Globals.LegendStyleStatus7">
-            UNCOMPLETED
         </RadzenCard>
     </RadzenStack>
 </RadzenCard>
 
 @code {
     private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-    
+
     string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
@@ -73,11 +61,5 @@
         {
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
         }
-    }
-
-    private void ShowTooltip(ElementReference elementReference, string msg)
-    {
-        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-        TooltipService.Open(elementReference, msg, options);
     }
 }
