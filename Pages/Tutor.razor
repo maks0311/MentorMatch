@@ -110,7 +110,7 @@ else
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Calendar" Visible="@IsCalendarVisible">
-                        <CalendarLegend/>
+                        <CalendarLegend />
                         <RadzenScheduler @ref=@Scheduler
                                          Style="height:650px"
                                          TItem="LessonModel"
@@ -374,7 +374,7 @@ else
 
     private void OnLessonRender(SchedulerAppointmentRenderEventArgs<LessonModel> args)
     {
-        foreach (LessonModel less in LessonEnum)
+        if (args.Data.STUDENT_ID == AppState.UserInfo.USER_ID)
         {
             switch (args.Data.LESSON_STATUS_ID)
             {
@@ -396,10 +396,11 @@ else
                 case 6:
                     args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
                     break;
-                case 7:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
-                    break;
             }
+        }
+        else
+        {
+            args.Attributes["style"] = Globals.CalendarStyleLessonInactive;
         }
     }
 
