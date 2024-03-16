@@ -293,6 +293,66 @@ namespace Mentor.Data
             return retVal;
         }
 
+        public int UpdateRating(int lesson_id, int rating_id)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("LESSON_ID", lesson_id, DbType.Int32);
+            parameters.Add("RATING_ID", rating_id, DbType.Int32);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_LESSON_RATING_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> UpdateRatingAsync(int lesson_id, int rating_id)
+        {
+            int retVal = 0;
+
+            var parameters = new DynamicParameters();
+            parameters.Add("LESSON_ID", lesson_id, DbType.Int32);
+            parameters.Add("RATING_ID", rating_id, DbType.Int32);
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_LESSON_RATING_UPDATE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
         public async Task<int> UpsertAsync(LessonModel lesson)
         {
             int retVal = 0;
@@ -315,7 +375,8 @@ namespace Mentor.Data
                     conn.Open();
                 try
                 {
-                    retVal = await conn.ExecuteAsync("SYS_LESSON_UPSERT", parameters, commandType: CommandType.StoredProcedure);
+                    await conn.ExecuteAsync("SYS_LESSON_UPSERT", parameters, commandType: CommandType.StoredProcedure);
+                    retVal = parameters.Get<int>("LESSON_ID");
                 }
                 catch (Exception ex)
                 {
@@ -353,7 +414,8 @@ namespace Mentor.Data
                     conn.Open();
                 try
                 {
-                    retVal = conn.Execute("SYS_LESSON_UPSERT", parameters, commandType: CommandType.StoredProcedure);
+                    conn.Execute("SYS_LESSON_UPSERT", parameters, commandType: CommandType.StoredProcedure);
+                    retVal = parameters.Get<int>("LESSON_ID");
                 }
                 catch (Exception ex)
                 {

@@ -19,6 +19,8 @@ namespace Mentor.Data
         Task<LessonModel> SelectAsync(int lessonID);
         int Update(LessonModel lesson);
         Task<int> UpdateAsync(LessonModel lesson);
+        int UpdateRating(int lesson_id, int rating_id);
+        Task<int> UpdateRatingAsync(int lesson_id, int rating_id);
         int Upsert(LessonModel lesson);
         Task<int> UpsertAsync(LessonModel lesson);
     }

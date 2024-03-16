@@ -62,8 +62,7 @@
             <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
         }
 
-        <RadzenMenuItem Text="Help" Icon="help"></RadzenMenuItem>
-
+        <RadzenMenuItem Text="About" Icon="help_outline"></RadzenMenuItem>
     </RadzenMenu>
 </div>
 
@@ -121,20 +120,15 @@
             NavigationManager.NavigateTo("/settings");
         }
 
-        if (args.Text == "Test")
-        {
-            NavigationManager.NavigateTo("/test");
-        }
-
         if (args.Text == "Search")
         {
             NavigationManager.NavigateTo("/search");
         }
 
-        if (args.Text == "Help")
+        if (args.Text == "About")
         {
             AppState.UserInfo = new();
-            NavigationManager.NavigateTo("/help");
+            NavigationManager.NavigateTo("/about");
         }
     }
 
