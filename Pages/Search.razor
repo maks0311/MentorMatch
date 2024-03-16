@@ -29,6 +29,7 @@
 @inject ILevelService LevelService;
 @inject IWorkTypeService WorkTypeService;
 @inject IRatingService RatingService;
+@inject ICityService CityService;
 
 
 @if (AppState.IsNull())
@@ -47,8 +48,10 @@ else
             <RadzenCard Style="margin-bottom:10px">
                 <RadzenRow>
                     <RadzenColumn Size="2"><RadzenText Text="Tutor"></RadzenText></RadzenColumn>
-                    <RadzenColumn Size="2"><RadzenText Text="Sybject"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="2"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
                     <RadzenColumn Size="2"><RadzenText Text="Level"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="2"><RadzenText Text="Work Type"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="2"><RadzenText Text="City"></RadzenText></RadzenColumn>
                     <RadzenColumn Size="8"></RadzenColumn>
                 </RadzenRow>
                 <RadzenRow>
@@ -76,6 +79,20 @@ else
                                         Data=@LevelEnum
                                         FilterAsYouType="true"
                                         Placeholder="Select Level" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="2">
+                        <RadzenCheckBox Name="@WorkTypeCheckboxName" Change=@((bool args) => OnWorkTypeCheckboxChange(args))></RadzenCheckBox>
+                    </RadzenColumn>
+                    <RadzenColumn Size="2">
+                        <RadzenDropDown @bind-Value=@SearchCityObject.CITY_ID
+                                        TextProperty="CITY_NAME"
+                                        ValueProperty="CITY_ID"
+                                        TValue="int"
+                                        AllowClear="true"
+                                        Style="width:inherit"
+                                        Data=@CityEnum
+                                        FilterAsYouType="true"
+                                        Placeholder="Select City" />
                     </RadzenColumn>
                     <RadzenColumn Size="6">
                         <RadzenButton Text="Search" Icon="search" Click="SearchTutors" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
@@ -168,12 +185,17 @@ else
     private string SearchTutorName { get; set; } = string.Empty;
     private SubjectModel SearchSubjectObject { get; set; } = new SubjectModel();
     private LevelModel SearchLevelObject { get; set; } = new LevelModel();
+    private int SearchWorkTypeObject { get; set; } = 0;
+    private CityModel SearchCityObject { get; set; } = new CityModel();
+
+    private string WorkTypeCheckboxName = "Remote";
 
     private IEnumerable<TutorModel> TutorEnum { get; set; }
     private IEnumerable<LevelModel> LevelEnum { get; set; }
     private IEnumerable<SubjectModel> SubjectEnum { get; set; }
     private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
     private IEnumerable<RatingModel> RatingEnum { get; set; }
+    private IEnumerable<CityModel> CityEnum { get; set; }
 
     protected override void OnInitialized()
     {
@@ -221,11 +243,12 @@ else
     {
         try
         {
-            TutorEnum = await TutorService.SearchAllAsync(string.Empty, 0, 0);
+            TutorEnum = await TutorService.SearchAllAsync(string.Empty, 0, 0, 0, 0);
             LevelEnum = await LevelService.SelectAllAsync();
             SubjectEnum = await SubjectService.SelectAllAsync();
             WorkTypeEnum = await WorkTypeService.SelectAllAsync();
             RatingEnum = await RatingService.SelectAllAsync();
+            CityEnum = await CityService.SelectAllAsync();
         }
         catch (Exception ex)
         {
@@ -235,7 +258,7 @@ else
 
     private async Task SearchTutors()
     {
-        TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID);
+        TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID, SearchWorkTypeObject, SearchCityObject.CITY_ID);
     }
 
     private void OnFilterChange(object value, string key)
@@ -262,6 +285,20 @@ else
         catch (Exception ex)
         {
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void OnWorkTypeCheckboxChange(bool CheckboxValue)
+    {
+        if (CheckboxValue)
+        {
+            WorkTypeCheckboxName = "Stationary";
+            SearchWorkTypeObject = 2;
+        }
+        else
+        {
+            WorkTypeCheckboxName = "Remote";
+            SearchWorkTypeObject = 1;
         }
     }
 }

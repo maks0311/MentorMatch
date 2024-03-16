@@ -197,12 +197,14 @@ namespace Mentor.Data
             }
             return tutorInfoList;
         }
-        public IEnumerable<TutorModel> SearchAll(string tutorName, int subjectID, int levelID)
+        public IEnumerable<TutorModel> SearchAll(string tutorName, int subjectID, int levelID, int worktypeID, int cityID)
         {
             var parameters = new DynamicParameters();
             parameters.Add("TUTOR_NAME", tutorName, DbType.String);
             parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
             parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+            parameters.Add("WORK_TYPE_ID", worktypeID, DbType.Int32);
+            parameters.Add("CITY_ID", cityID, DbType.Int32);
 
             IEnumerable<TutorModel> tutorInfoList;
 
@@ -229,12 +231,14 @@ namespace Mentor.Data
             return tutorInfoList;
         }
 
-        public async Task<IEnumerable<TutorModel>> SearchAllAsync(string tutorName, int subjectID, int levelID)
+        public async Task<IEnumerable<TutorModel>> SearchAllAsync(string tutorName, int subjectID, int levelID, int worktypeID, int cityID)
         {
             var parameters = new DynamicParameters();
             parameters.Add("TUTOR_NAME", tutorName, DbType.String);
             parameters.Add("SUBJECT_ID", subjectID, DbType.Int32);
             parameters.Add("LEVEL_ID", levelID, DbType.Int32);
+            parameters.Add("WORK_TYPE_ID", worktypeID, DbType.Int32);
+            parameters.Add("CITY_ID", cityID, DbType.Int32);
 
             IEnumerable<TutorModel> tutorInfoList;
 
