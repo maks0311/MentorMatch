@@ -34,6 +34,8 @@
 @inject ISubjectService SubjectService;
 @inject ICompetenceService CompetenceService;
 @inject ILessonService LessonService;
+@inject ICityService CityService;
+@inject IUserToCityService UserToCityService;
 
 @if (AppState.IsNull())
 {
@@ -74,38 +76,47 @@ else
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Phone"></RadzenText></RadzenColumn>
                                         <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_PHONE MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
                                     </RadzenRow>
+                                    @if(UserObject.IsAdmin)
+                                    {
                                     <RadzenRow>
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
                                         <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@UserObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange(args, "IS_ACTIVE")) /></RadzenColumn>
-                                    </RadzenRow>
+                                    </RadzenRow>                                         
+                                    }
                                 </RadzenStack>
                                 <RadzenStack Style="width:50%">
-                                    <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Group"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize">
-                                            <RadzenDropDown @bind-Value=@UserObject.GROUP_ID
-                                                            TextProperty="GROUP_NAME"
-                                                            ValueProperty="GROUP_ID"
-                                                            TValue="int"
-                                                            AllowClear="false"
-                                                            Style="width:min-content"
-                                                            Data=@GroupEnum
-                                                            Change=@(args => OnDropDownChange(args, "GROUP")) />
-                                        </RadzenColumn>
-                                    </RadzenRow>
-                                    <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Work Type"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize">
-                                            <RadzenDropDown @bind-Value=@UserObject.WORK_TYPE_ID
-                                                            TextProperty="WORK_TYPE_NAME"
-                                                            ValueProperty="WORK_TYPE_ID"
-                                                            TValue="int"
-                                                            AllowClear="false"
-                                                            Style="width:min-content"
-                                                            Data=@WorkTypeEnum
-                                                            Change=@(args => OnDropDownChange(args, "WORK_TYPE")) />
-                                        </RadzenColumn>
-                                    </RadzenRow>
+                                    @if(UserObject.IsAdmin)
+                                    {
+                                        <RadzenRow>
+                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Group"></RadzenText></RadzenColumn>
+                                            <RadzenColumn Size="@ColumnControlSize">
+                                                <RadzenDropDown @bind-Value=@UserObject.GROUP_ID
+                                                                TextProperty="GROUP_NAME"
+                                                                ValueProperty="GROUP_ID"
+                                                                TValue="int"
+                                                                AllowClear="false"
+                                                                Style="width:min-content"
+                                                                Data=@GroupEnum
+                                                                Change=@(args => OnDropDownChange(args, "GROUP")) />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
+                                    @if(!UserObject.IsStudent)
+                                    {
+                                        <RadzenRow>
+                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Work Type"></RadzenText></RadzenColumn>
+                                            <RadzenColumn Size="@ColumnControlSize">
+                                                <RadzenDropDown @bind-Value=@UserObject.WORK_TYPE_ID
+                                                                TextProperty="WORK_TYPE_NAME"
+                                                                ValueProperty="WORK_TYPE_ID"
+                                                                TValue="int"
+                                                                AllowClear="false"
+                                                                Style="width:min-content"
+                                                                Data=@WorkTypeEnum
+                                                                Change=@(args => OnDropDownChange(args, "WORK_TYPE")) />
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    }
                                 </RadzenStack>
                             </RadzenStack>
                         </RadzenCard>
@@ -167,7 +178,7 @@ else
                                     </RadzenColumn>
                                 </RadzenRow>
                             </RadzenCard>
-                            <RadzenCard>
+                            <RadzenCard Style="margin-top:10px">
                                 <RadzenDataGrid Data="@CompetenceEnum"
                                                 AllowFiltering="false"
                                                 AllowMultiColumnSorting="true"
@@ -191,6 +202,57 @@ else
                                         </RadzenDataGridColumn>
                                     </Columns>
                                 </RadzenDataGrid>
+                            </RadzenCard>
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="My Cities">
+                            <RadzenCard>
+                                <RadzenRow Style="margin-bottom: 10px">
+                                    <RadzenColumn Size="2"><RadzenText Text="City"></RadzenText></RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow>
+                                    <RadzenColumn Size="4">
+                                        <RadzenDropDown @bind-Value=@CityObject.CITY_ID
+                                                        TextProperty="CITY_NAME"
+                                                        ValueProperty="CITY_ID"
+                                                        TValue="int"
+                                                        AllowClear="false"
+                                                        Style="width:inherit"
+                                                        Data=@CityEnum
+                                                        AllowFiltering="true"
+                                                        FilterAsYouType="true" />
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="4">
+                                        <RadzenButton Text="Add City" Icon="add" Click="AddCity" Disabled="@DisableAdd" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenCard>
+                            <RadzenCard Style="margin-top:10px">
+                                <RadzenRow>
+                                    <RadzenColumn Size="6">
+                                        <RadzenDataGrid Data="@UserToCityEnum"
+                                                        AllowFiltering="false"
+                                                        AllowMultiColumnSorting="true"
+                                                        ClearFilterText="true"
+                                                        AllowColumnResize="true"
+                                                        FilterMode="FilterMode.Simple"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowVirtualization="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                                        Visible="true"
+                                                        Style="width:inherit">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="UserToCityModel" Property="CITY_NAME" Filterable="false" Title="City" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="UserToCityModel" Property="ID" Title="Del" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                                                    <Template Context="UserToCityModel">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => DeleteCity(UserToCityModel.ID)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenColumn>
+                                </RadzenRow>
                             </RadzenCard>
                         </RadzenTabsItem>
                     }
@@ -279,12 +341,17 @@ else
     private UserModel UserObject { get; set; } = new UserModel();
     private CompetenceModel CompetenceObject { get; set; } = new CompetenceModel();
     private LessonModel LessonObject { get; set; } = new LessonModel();
+    private UserToCityModel UserToCityObject { get; set; } = new UserToCityModel();
+    private CityModel CityObject { get; set; } = new CityModel();
+
     private IEnumerable<GroupModel> GroupEnum { get; set; }
     private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
     private IEnumerable<LevelModel> LevelEnum { get; set; }
     private IEnumerable<SubjectModel> SubjectEnum { get; set; }
     private IEnumerable<CompetenceModel> CompetenceEnum { get; set; }
     private IEnumerable<LessonModel> LessonEnum { get; set; }
+    private IEnumerable<UserToCityModel> UserToCityEnum { get; set; }
+    private IEnumerable<CityModel> CityEnum { get; set; }
 
     private readonly string NamePattern = "^[A-Za-z '-]+$";
     private readonly string phonePattern = @"^\+?\d{1,4}[-. ]?\(?\d{1,4}\)?[-. ]?\d{4,10}$";
@@ -363,6 +430,8 @@ else
                 if (UserObject.IsTutor)
                 {
                     LessonEnum = await LessonService.SelectAllByTutorAsync(UserObject.USER_ID);
+                    CityEnum = await CityService.SelectAllAsync();
+                    UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
                 }
                 else if (UserObject.IsStudent)
                 {
@@ -559,13 +628,6 @@ else
         }
     }
 
-    private async void OpenDetails(int lessonID)
-    {
-        AppState.LessonInfo = await LessonService.SelectAsync(lessonID);
-        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        NavigationManager.NavigateTo("/lesson");
-    }
-
     private async Task DeleteCompetence(int id)
     {
         if (id > 0)
@@ -576,6 +638,60 @@ else
                 CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
             }
         }
+    }
+
+    private async Task AddCity()
+    {
+        try
+        {
+            if (UserObject.IsNotNull() && UserObject.IsAuthenticated && CityObject.IsNotNull())
+            {
+                UserToCityObject.CITY_ID = CityObject.CITY_ID;
+                UserToCityObject.TUTOR_ID = UserObject.USER_ID;
+                var retval = await UserToCityService.CreateAsync(UserToCityObject);
+                if (retval.IsPositive())
+                {
+                    UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "New city added", Duration = NotificationDuration, Style = NotificationPosition });
+                }
+                else if (retval.IsZero())
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "This city already exists", Duration = NotificationDuration, Style = NotificationPosition });
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not added", Duration = NotificationDuration, Style = NotificationPosition });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task DeleteCity(int id)
+    {
+        if (id > 0)
+        {
+            var retVal = UserToCityService.Delete(id);
+            if (retVal.IsPositive())
+            {
+                UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "City deleted", Duration = NotificationDuration, Style = NotificationPosition });
+            }
+            else
+            {
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not deleted", Duration = NotificationDuration, Style = NotificationPosition });
+            }
+        }
+    }
+
+    private async void OpenDetails(int lessonID)
+    {
+        AppState.LessonInfo = await LessonService.SelectAsync(lessonID);
+        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+        NavigationManager.NavigateTo("/lesson");
     }
 
     private void ShowNotification(NotificationMessage message)

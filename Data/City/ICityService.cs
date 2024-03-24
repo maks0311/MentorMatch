@@ -6,6 +6,4 @@ public interface ICityService
 {
     IEnumerable<CityModel> SelectAll();
     Task<IEnumerable<CityModel>> SelectAllAsync();
-    IEnumerable<CityModel> SelectAllByTutor(int tutorID);
-    Task<IEnumerable<CityModel>> SelectAllByTutorAsync(int tutorID);
 }

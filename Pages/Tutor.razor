@@ -33,6 +33,7 @@
 @inject IWorkTypeService WorkTypeService;
 @inject IRatingService RatingService;
 @inject IAvailabilityService AvailabilityService
+@inject IUserToCityService UserToCityService
 
 
 @if (AppState.IsNull())
@@ -105,6 +106,30 @@ else
                                         </Columns>
                                     </RadzenDataGrid>
                                 </RadzenRow>
+                                <RadzenRow Style="margin-bottom:2px">
+                                    <RadzenText Text="Cities"></RadzenText>
+                                </RadzenRow>
+                                <RadzenRow Style="margin-bottom:12px">
+                                    <RadzenDataGrid Data="@UserToCityEnum"
+                                                    AllowMultiColumnSorting="true"
+                                                    ClearFilterText="true"
+                                                    AllowColumnResize="true"
+                                                    FilterMode="FilterMode.Simple"
+                                                    AllowFiltering="false"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowVirtualization="true"
+                                                    ShowPagingSummary="true"
+                                                    PageSize="7"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    LogicalFilterOperator="LogicalFilterOperator.And"
+                                                    Visible="true"
+                                                    Style="width:inherit">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="UserToCityModel" Property="CITY_NAME" Filterable="false" Title="City" Frozen="true" TextAlign="TextAlign.Left" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </RadzenRow>
                             </RadzenColumn>
                         </RadzenRow>
                     </RadzenTabsItem>
@@ -168,6 +193,7 @@ else
     private IEnumerable<AvailabilityModel> AvailabilityEnumFiltered { get; set; }
     private IEnumerable<LevelModel> LevelEnumFiltered { get; set; }
     private IEnumerable<RatingModel> RatingEnum { get; set; }
+    private IEnumerable<UserToCityModel> UserToCityEnum { get; set; }
 
     private bool IsCalendarVisible
     {
@@ -250,6 +276,8 @@ else
 
                     LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
                     AvailabilityEnum = await AvailabilityService.SelectAllAsync(TutorID, TimeScopeStart, TimeScopeStop);
+
+                    UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(TutorID);
 
                     AppState.SetParam("CALENDAR_OWNER_ID", TutorID);
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);

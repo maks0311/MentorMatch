@@ -352,33 +352,30 @@ else
 
     private void OnLessonRender(SchedulerAppointmentRenderEventArgs<LessonModel> args)
     {
-        foreach (LessonModel less in LessonEnum)
+        switch (args.Data.LESSON_STATUS_ID)
         {
-            switch (args.Data.LESSON_STATUS_ID)
-            {
-                case 1:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
-                    break;
-                case 2:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
-                    break;
-                case 3:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus3;
-                    break;
-                case 4:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
-                    break;
-                case 5:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
-                    break;
-                case 6:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
-                    break;
-                case 7:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
-                    break;
-            }
-        }
+            case 1:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
+                break;
+            case 2:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
+                break;
+            case 3:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus3;
+                break;
+            case 4:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
+                break;
+            case 5:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
+                break;
+            case 6:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
+                break;
+            case 7:
+                args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
+                break;
+        }        
     }
 
     private void OnSlotRender(SchedulerSlotRenderEventArgs args)
@@ -521,7 +518,8 @@ else
 
     public async Task<int> CreateDailyAvailability(AvailabilityMode mode)
     {
-        int retval = 0;
+        int retCreate = 0;
+        int retDel = 0;
         var av_new = new List<AvailabilityModel>();
 
         DateTime DayStart = DateTime.Now;
@@ -636,8 +634,7 @@ else
                 }
             }
 
-            int retDel = await AvailabilityService.DeleteAsync(AppState.UserInfo.USER_ID, start, stop);
-            int retCreate = 0;
+            retDel = await AvailabilityService.DeleteAsync(AppState.UserInfo.USER_ID, start, stop);
 
             if (retDel.IsPositiveOrZero())
             {
@@ -646,16 +643,22 @@ else
                     retCreate += await AvailabilityService.CreateAsync(AppState.UserInfo.USER_ID, item.DATE_START, item.DATE_STOP);
                 }
             }
-            retval += retCreate;
+
         }
 
-        if (retval.IsPositive())
+        if (retCreate.IsPositive())
         {
             AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
             ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
         }
 
-        return retval;
+        if(retDel.IsPositive())
+        {
+            AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Deleted", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+        }
+
+        return retCreate + retDel;
     }
 
     private void ShowNotification(NotificationMessage message)

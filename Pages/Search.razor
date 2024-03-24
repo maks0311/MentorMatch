@@ -81,7 +81,15 @@ else
                                         Placeholder="Select Level" />
                     </RadzenColumn>
                     <RadzenColumn Size="2">
-                        <RadzenCheckBox Name="@WorkTypeCheckboxName" Change=@((bool args) => OnWorkTypeCheckboxChange(args))></RadzenCheckBox>
+                        <RadzenDropDown @bind-Value=@SearchWorkTypeObject.WORK_TYPE_ID
+                                        TextProperty="WORK_TYPE_NAME"
+                                        ValueProperty="WORK_TYPE_ID"
+                                        TValue="int"
+                                        AllowClear="true"
+                                        Style="width:inherit"
+                                        Data=@WorkTypeDropdownEnum
+                                        FilterAsYouType="false"
+                                        Placeholder="Select Work Type"/>
                     </RadzenColumn>
                     <RadzenColumn Size="2">
                         <RadzenDropDown @bind-Value=@SearchCityObject.CITY_ID
@@ -90,6 +98,7 @@ else
                                         TValue="int"
                                         AllowClear="true"
                                         Style="width:inherit"
+                                        Disabled=@CityDisabled
                                         Data=@CityEnum
                                         FilterAsYouType="true"
                                         Placeholder="Select City" />
@@ -104,7 +113,7 @@ else
             {
                 <RadzenCard>
                     <RadzenDataGrid Data="@TutorEnum"
-                                    AllowMultiColumnSorting="true"
+                                    AllowMultiColumnSorting="false"
                                     ClearFilterText="true"
                                     AllowColumnResize="false"
                                     FilterMode="FilterMode.Simple"
@@ -185,17 +194,31 @@ else
     private string SearchTutorName { get; set; } = string.Empty;
     private SubjectModel SearchSubjectObject { get; set; } = new SubjectModel();
     private LevelModel SearchLevelObject { get; set; } = new LevelModel();
-    private int SearchWorkTypeObject { get; set; } = 0;
+    private WorkTypeModel SearchWorkTypeObject { get; set; } = new WorkTypeModel();
     private CityModel SearchCityObject { get; set; } = new CityModel();
-
-    private string WorkTypeCheckboxName = "Remote";
 
     private IEnumerable<TutorModel> TutorEnum { get; set; }
     private IEnumerable<LevelModel> LevelEnum { get; set; }
     private IEnumerable<SubjectModel> SubjectEnum { get; set; }
     private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
+    private IEnumerable<WorkTypeModel> WorkTypeDropdownEnum { get; set; }
     private IEnumerable<RatingModel> RatingEnum { get; set; }
     private IEnumerable<CityModel> CityEnum { get; set; }
+
+    private bool CityDisabled
+    {
+        get
+        {
+            if (SearchWorkTypeObject.WORK_TYPE_ID == 2)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
 
     protected override void OnInitialized()
     {
@@ -247,6 +270,7 @@ else
             LevelEnum = await LevelService.SelectAllAsync();
             SubjectEnum = await SubjectService.SelectAllAsync();
             WorkTypeEnum = await WorkTypeService.SelectAllAsync();
+            WorkTypeDropdownEnum = WorkTypeEnum.Where(args => args.WORK_TYPE_ID != 3);
             RatingEnum = await RatingService.SelectAllAsync();
             CityEnum = await CityService.SelectAllAsync();
         }
@@ -258,7 +282,7 @@ else
 
     private async Task SearchTutors()
     {
-        TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID, SearchWorkTypeObject, SearchCityObject.CITY_ID);
+        TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID, SearchWorkTypeObject.WORK_TYPE_ID, SearchCityObject.CITY_ID);
     }
 
     private void OnFilterChange(object value, string key)
@@ -285,20 +309,6 @@ else
         catch (Exception ex)
         {
             AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void OnWorkTypeCheckboxChange(bool CheckboxValue)
-    {
-        if (CheckboxValue)
-        {
-            WorkTypeCheckboxName = "Stationary";
-            SearchWorkTypeObject = 2;
-        }
-        else
-        {
-            WorkTypeCheckboxName = "Remote";
-            SearchWorkTypeObject = 1;
         }
     }
 }
