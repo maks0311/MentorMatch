@@ -1,7 +1,5 @@
 ﻿using Dapper;
-using Mentor.Pages;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
