@@ -48,6 +48,8 @@ namespace Mentor
             services.AddScoped<IAvailabilityService, AvailabilityService>();
             services.AddScoped<ICityService, CityService>();
             services.AddScoped<IUserToCityService, UserToCityService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IUserNotificationService, UserNotificationService>();
 
             //SQL Server Connection
             if (Globals.AdminHostNames.Contains(System.Environment.MachineName))

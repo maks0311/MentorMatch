@@ -6,6 +6,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Data\UserNotification\NotificationModel.cs" />
+	  <Compile Remove="Data\UserNotification\NotificationService.cs" />
+	  <Compile Remove="Data\UserNotification\User%27NotificationService.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="NLog" Version="5.2.8" />
