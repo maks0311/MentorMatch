@@ -7,8 +7,6 @@ namespace Mentor.Data
     {
         int Create(LessonModel lesson);
         Task<int> CreateAsync(LessonModel lesson);
-        int Delete(int lessonID);
-        Task<int> DeleteAsync(int lessonID);
         LessonModel Select(int lessonID);
         IEnumerable<LessonModel> SelectAll();
         Task<IEnumerable<LessonModel>> SelectAllAsync();

@@ -11,5 +11,9 @@ namespace Mentor.Data
         Task<int> DeleteAsync(int notificationID);
         IEnumerable<UserNotificationModel> SelectAllByUser(int userID);
         Task<IEnumerable<UserNotificationModel>> SelectAllByUserAsync(int userID);
+        int UpdateToReadStudent(int notificationID);
+        Task<int> UpdateToReadStudentAsync(int notificationID);
+        int UpdateToReadTutor(int notificationID);
+        Task<int> UpdateToReadTutorAsync(int notificationID);
     }
 }

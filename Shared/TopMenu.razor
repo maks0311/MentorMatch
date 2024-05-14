@@ -30,6 +30,8 @@
 @inject IUserService UserInfoService
 @inject IGroupService UserGroupService
 
+@inject IUserNotificationService UserNotificationService;
+
 <div class="row float-left">
     <RadzenMenu Visible="@IsRendered" Click="@GoBackJS" Style="margin-left: 16px">
         <RadzenMenuItem Text="Back" Icon="arrow_back" Style="padding-right:25px;"></RadzenMenuItem>
@@ -45,6 +47,14 @@
             @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated)
             {
                 <RadzenMenuItem Text="@AppState.UserInfo.USER_NICKNAME" Icon="person"></RadzenMenuItem>
+                @if (AnyNewNotifications)
+                {
+                    <RadzenMenuItem Text="Notifications" Icon="feedback" IconColor="red" MouseEnter="@(args => ShowTooltip(args, @NotificationsNumber + " new notifications"))"></RadzenMenuItem>
+                }
+                else
+                {
+                    <RadzenMenuItem Text="Notifications" Icon="feedback"></RadzenMenuItem>
+                }
                 @if(AppState.UserInfo.IsAdmin)
                 {
                     <RadzenMenuItem Text="Settings" Icon="settings"></RadzenMenuItem>
@@ -79,6 +89,80 @@
 
     private static NLog.ILogger AppLogger = LogManager.GetCurrentClassLogger();
 
+    private IEnumerable<UserNotificationModel> UserNotifications = new List<UserNotificationModel>();
+
+    private RadzenTabs myTabs;
+
+    private bool AnyNewNotifications
+    {
+        get
+        {
+            bool retval = false;
+            if (UserNotifications.Any())
+            {
+                retval = true;
+            }
+            return retval;
+        }
+    }
+
+    private int NotificationsNumber
+    {
+        get
+        {
+            return UserNotifications.Count();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeSession();
+
+            IsRendered = true;
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+                await InitializeData();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeData()
+    {
+        try
+        {
+            if (AppState.UserInfo.IsNotNull())
+            {
+                UserNotifications = await UserNotificationService.SelectAllByUserAsync(AppState.UserInfo.USER_ID);
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
     private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
     {
         if (args.Text == "About")
@@ -91,9 +175,25 @@
             NavigationManager.NavigateTo("/login");
         }
 
-        if(args.Text == "Sign Up")
+        if (args.Text == "Sign Up")
         {
             NavigationManager.NavigateTo("/signup");
+        }
+
+        if (args.Text == "Notifications")
+        {
+            if (AppState.UserInfo.IsTutor)
+            {
+                AppState.TabIndex = 4;
+
+            }
+            else if (AppState.UserInfo.IsStudent)
+            {
+                AppState.TabIndex = 2;
+            }
+
+            SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            NavigationManager.NavigateTo("/user");
         }
 
         if (args.Text == "Logout")

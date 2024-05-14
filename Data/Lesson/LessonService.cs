@@ -99,64 +99,6 @@ namespace Mentor.Data
             return retVal;
         }
 
-        public int Delete(int lessonID)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("LESSON_ID", lessonID, DbType.Int32);
-
-            int retVal = 0;
-
-            using (var conn = new SqlConnection(_configuration.Value))
-            {
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-                try
-                {
-                    retVal = conn.Execute("SYS_LESSON_DELETE", parameters, commandType: CommandType.StoredProcedure);
-                }
-                catch (Exception ex)
-                {
-                    AppLogger.Error(ex.Message);
-                    throw;
-                }
-                finally
-                {
-                    if (conn.State == ConnectionState.Open)
-                        conn.Close();
-                }
-            }
-            return retVal;
-        }
-
-        public async Task<int> DeleteAsync(int lessonID)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("LESSON_ID", lessonID, DbType.Int32);
-
-            int retVal = 0;
-
-            using (var conn = new SqlConnection(_configuration.Value))
-            {
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-                try
-                {
-                    retVal = await conn.ExecuteAsync("SYS_LESSON_DELETE", parameters, commandType: CommandType.StoredProcedure);
-                }
-                catch (Exception ex)
-                {
-                    AppLogger.Error(ex.Message);
-                    throw;
-                }
-                finally
-                {
-                    if (conn.State == ConnectionState.Open)
-                        conn.Close();
-                }
-            }
-            return retVal;
-        }
-
         public LessonModel Select(int lessonID)
         {
             var parameters = new DynamicParameters();
