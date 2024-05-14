@@ -116,7 +116,7 @@ namespace Mentor.Data
         public async Task<int> CreateAsync(UserNotificationModel userNotification)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("ID", 0, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("ID", userNotification.ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("NOTIFICATION_ID", userNotification.NOTIFICATION_ID, DbType.Int32);
             parameters.Add("LESSON_ID", userNotification.LESSON_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", userNotification.TUTOR_ID, DbType.Int32);
@@ -180,7 +180,7 @@ namespace Mentor.Data
         public async Task<int> DeleteAsync(int notificationID)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("NOTIFICATION_ID", notificationID, DbType.Int32);
+            parameters.Add("USER_NOTIFICATION_ID", notificationID, DbType.Int32);
 
             int retVal = 0;
 
@@ -191,6 +191,122 @@ namespace Mentor.Data
                 try
                 {
                     retVal = await conn.ExecuteAsync("SYS_USER_NOTIFICATION_DELETE", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public int UpdateToReadTutor(int notificationID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_NOTIFICATION_ID", notificationID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_USER_NOTIFICATION_UPDATE_TO_READ_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> UpdateToReadTutorAsync(int notificationID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_NOTIFICATION_ID", notificationID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_USER_NOTIFICATION_UPDATE_TO_READ_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public int UpdateToReadStudent(int notificationID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_NOTIFICATION_ID", notificationID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = conn.Execute("SYS_USER_NOTIFICATION_UPDATE_TO_READ_STUDENT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
+        public async Task<int> UpdateToReadStudentAsync(int notificationID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_NOTIFICATION_ID", notificationID, DbType.Int32);
+
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    retVal = await conn.ExecuteAsync("SYS_USER_NOTIFICATION_UPDATE_TO_READ_STUDENT", parameters, commandType: CommandType.StoredProcedure);
                 }
                 catch (Exception ex)
                 {

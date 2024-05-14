@@ -27,8 +27,8 @@
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 
-@inject IUserService UserService
-@inject IGroupService GroupService
+@inject IUserService UserService;
+@inject IGroupService GroupService;
 @inject IWorkTypeService WorkTypeService;
 @inject ILevelService LevelService;
 @inject ISubjectService SubjectService;
@@ -36,6 +36,7 @@
 @inject ILessonService LessonService;
 @inject ICityService CityService;
 @inject IUserToCityService UserToCityService;
+@inject IUserNotificationService UserNotificationService;
 
 @if (AppState.IsNull())
 {
@@ -50,7 +51,7 @@ else
 {
     <div class="row" style="margin-top:60px">
         <div class="col-md-12">
-            <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
+            <RadzenTabs RenderMode="TabRenderMode.Client" SelectedIndex="@SelectedIndex" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="My Account">
                         <RadzenCard>
@@ -179,29 +180,33 @@ else
                                 </RadzenRow>
                             </RadzenCard>
                             <RadzenCard Style="margin-top:10px">
-                                <RadzenDataGrid Data="@CompetenceEnum"
-                                                AllowFiltering="false"
-                                                AllowMultiColumnSorting="true"
-                                                ClearFilterText="true"
-                                                AllowColumnResize="true"
-                                                FilterMode="FilterMode.Simple"
-                                                AllowPaging="true"
-                                                AllowSorting="true"
-                                                AllowVirtualization="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                LogicalFilterOperator="LogicalFilterOperator.And"
-                                                Visible="true"
-                                                Style="width:inherit">
-                                    <Columns>
-                                        <RadzenDataGridColumn TItem="CompetenceModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Left" />
-                                        <RadzenDataGridColumn TItem="CompetenceModel" Property="LEVEL_NAME" Title="Education Level" Frozen="true" TextAlign="TextAlign.Left" />
-                                        <RadzenDataGridColumn TItem="CompetenceModel" Property="ID" Title="Del" Frozen="true" Sortable="false" Filterable="false" Width="60px">
-                                            <Template Context="CompetenceModel">
-                                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => DeleteCompetence(CompetenceModel.ID)) />
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                    </Columns>
-                                </RadzenDataGrid>
+                                <RadzenRow>
+                                    <RadzenColumn Size="6">
+                                        <RadzenDataGrid Data="@CompetenceEnum"
+                                                        AllowFiltering="false"
+                                                        AllowMultiColumnSorting="true"
+                                                        ClearFilterText="true"
+                                                        AllowColumnResize="true"
+                                                        FilterMode="FilterMode.Simple"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowVirtualization="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                                        Visible="true"
+                                                        Style="width:inherit">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="CompetenceModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="CompetenceModel" Property="LEVEL_NAME" Title="Education Level" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="CompetenceModel" Property="ID" Title="Del" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                                                    <Template Context="CompetenceModel">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => DeleteCompetence(CompetenceModel.ID)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenColumn>
+                                </RadzenRow>
                             </RadzenCard>
                         </RadzenTabsItem>
                         <RadzenTabsItem Text="My Cities">
@@ -259,6 +264,41 @@ else
 
                     @if (UserObject.IsStudent || UserObject.IsTutor)
                     {
+                        <RadzenTabsItem Text="My Notifications">
+                            <RadzenCard>
+                                <RadzenRow>
+                                    <RadzenColumn Size="6">
+                                        <RadzenDataGrid Data="@UserNotificationEnum"
+                                                        AllowFiltering="false"
+                                                        AllowMultiColumnSorting="true"
+                                                        ClearFilterText="true"
+                                                        AllowColumnResize="false"
+                                                        FilterMode="FilterMode.Simple"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowVirtualization="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                                        Visible="true"
+                                                        Style="width:inherit">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserNotificationModel">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="ID" Title="Delete" Frozen="true" Sortable="false" Filterable="false" Width="80px" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserNotificationModel">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => NotificationOnRead(UserNotificationModel.ID)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenCard>
+                        </RadzenTabsItem>
                         <RadzenTabsItem Text="My Lessons">
                             <RadzenCard>
                                 <RadzenDataGrid Data="@LessonEnum"
@@ -299,7 +339,7 @@ else
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_ID" Title="Details" Frozen="true" Sortable="false" Filterable="false" Width="60px">
                                             <Template Context="LessonModel">
-                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenDetails(LessonModel.LESSON_ID)) />
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(LessonModel.LESSON_ID, 0)) />
                                             </Template>
                                         </RadzenDataGridColumn>
                                     </Columns>
@@ -338,11 +378,14 @@ else
     string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
+    private int SelectedIndex { get; set; } = 0;
+
     private UserModel UserObject { get; set; } = new UserModel();
     private CompetenceModel CompetenceObject { get; set; } = new CompetenceModel();
     private LessonModel LessonObject { get; set; } = new LessonModel();
     private UserToCityModel UserToCityObject { get; set; } = new UserToCityModel();
     private CityModel CityObject { get; set; } = new CityModel();
+    private UserNotificationModel UserNotificationObject { get; set; } = new UserNotificationModel();
 
     private IEnumerable<GroupModel> GroupEnum { get; set; }
     private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
@@ -352,6 +395,7 @@ else
     private IEnumerable<LessonModel> LessonEnum { get; set; }
     private IEnumerable<UserToCityModel> UserToCityEnum { get; set; }
     private IEnumerable<CityModel> CityEnum { get; set; }
+    private IEnumerable<UserNotificationModel> UserNotificationEnum { get; set; }
 
     private readonly string NamePattern = "^[A-Za-z '-]+$";
     private readonly string phonePattern = @"^\+?\d{1,4}[-. ]?\(?\d{1,4}\)?[-. ]?\d{4,10}$";
@@ -403,6 +447,7 @@ else
             if (AppState.UserInfo.IsNotNull())
             {
                 UserObject = await UserService.SelectAsync(AppState.UserInfo.USER_ID);
+                SelectedIndex = AppState.TabIndex;
 
                 if (UserObject.IsAdmin)
                 {
@@ -419,6 +464,8 @@ else
                 LevelEnum = await LevelService.SelectAllAsync();
                 SubjectEnum = await SubjectService.SelectAllAsync();
                 CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
+                UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
+                SwapVarsInNotifications();
 
                 if (LevelEnum.IsNotNull() && LevelEnum.Any() && SubjectEnum.IsNotNull() && SubjectEnum.Any())
                 {
@@ -490,13 +537,6 @@ else
                 if (!IsPhoneValid(UserObject.USER_PHONE))
                 {
                     msg = "Invalid phone number. Please try again.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
-                    return;
-                }
-
-                if (!IsPhoneValid(UserObject.USER_PHONE))
-                {
-                    msg = "Invalid phone number. Please enter a valid phone number.";
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
                     return;
                 }
@@ -674,7 +714,7 @@ else
     {
         if (id > 0)
         {
-            var retVal = UserToCityService.Delete(id);
+            var retVal = await UserToCityService.DeleteAsync(id);
             if (retVal.IsPositive())
             {
                 UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
@@ -687,11 +727,79 @@ else
         }
     }
 
-    private async void OpenDetails(int lessonID)
+    public void ShowNotificationsTab()
     {
-        AppState.LessonInfo = await LessonService.SelectAsync(lessonID);
-        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        NavigationManager.NavigateTo("/lesson");
+        SelectedIndex = 5;
+    }
+
+    private void SwapVarsInNotifications()
+    {
+        foreach (UserNotificationModel notification in UserNotificationEnum)
+        {
+            string tutor = notification.TUTOR_NAME;
+            string student = notification.STUDENT_NAME;
+            string subject = notification.LESSON_SUBJECT;
+            string rating = notification.RATING.ToString();
+
+            if (UserObject.IsTutor)
+                tutor = "You";
+            if (UserObject.IsStudent)
+                student = "You";
+
+            string text = notification.TEXT;
+
+            text = text.Replace("{student}", student);
+            text = text.Replace("{tutor}", tutor);
+            text = text.Replace("{subject}", subject);
+            text = text.Replace("{rating}", rating);
+
+            notification.TEXT = text;
+        }
+    }
+
+    private async Task OpenLessonDetails(int lessonID, int notificationID)
+    {
+        LessonObject = await LessonService.SelectAsync(lessonID);
+
+        await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+        if (UserObject.IsTutor)
+        {
+            LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
+        }
+        else if (UserObject.IsStudent)
+        {
+            LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
+        }
+        if (notificationID.IsPositive())
+        {
+            await NotificationOnRead(notificationID);
+        }
+        UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
+        SwapVarsInNotifications();
+    }
+
+    private async Task NotificationOnRead(int notificationID)
+    {
+        int retval = 0;
+        if (UserObject.IsTutor)
+        {
+            retval = await UserNotificationService.UpdateToReadTutorAsync(notificationID);
+        }
+        else if(UserObject.IsStudent)
+        {
+            retval = await UserNotificationService.UpdateToReadStudentAsync(notificationID);
+        }
+
+        if(retval.IsPositive())
+        {
+            UserNotificationEnum = UserNotificationService.SelectAllByUser(UserObject.USER_ID);
+            SwapVarsInNotifications();
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification deleted", Duration = NotificationDuration, Style = NotificationPosition });
+        }
+        else
+        {
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not deleted", Duration = NotificationDuration, Style = NotificationPosition });
+        }
     }
 
     private void ShowNotification(NotificationMessage message)

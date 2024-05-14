@@ -7,7 +7,6 @@ using System.Text;
 using Mentor.Data;
 using Microsoft.AspNetCore.Components;
 
-
 namespace Mentor
 {
     [Serializable()]
@@ -16,6 +15,7 @@ namespace Mentor
         public UserModel UserInfo { get; set; }
         public LessonModel LessonInfo { get; set; }
         public TutorModel TutorInfo { get; set; }
+        public int TabIndex { get; set; } = 0;
         public String CRUD { get; set; }
         public List<AppStateParams> Params { get; set; }
 

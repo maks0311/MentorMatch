@@ -48,7 +48,7 @@ namespace Mentor
             services.AddScoped<IAvailabilityService, AvailabilityService>();
             services.AddScoped<ICityService, CityService>();
             services.AddScoped<IUserToCityService, UserToCityService>();
-            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationService_, NotificationService_>();
             services.AddScoped<IUserNotificationService, UserNotificationService>();
 
             //SQL Server Connection
