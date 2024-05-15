@@ -38,33 +38,31 @@ else
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 }
 
-<div class="row" style="margin-top:200px">
-    <div class="col-3"></div>
-    <div class="col-6">
+<RadzenRow Style="margin-top:200px">
+    <RadzenColumn Size="3"></RadzenColumn>
+    <RadzenColumn Size="6">
         <RadzenCard Style="width: 600px; border-radius: 20px;">
-            <div style="padding: 10px; width: 562px; align-items: center; font-size: 20px; vertical-align: middle; text-align: center">
-                <RadzenImage Path="images/logo.png" Style="height: 75px; width: 350px; margin-bottom: 30px; border-radius: 10px; align-items: center; margin-top: 15px; text-align: center"></RadzenImage>
+            <div style="padding: 10px; width: 562px; text-align: center">
+                <RadzenImage Path="images/logo.png" Style="height: 75px; width: 350px; margin-bottom: 30px; border-radius: 10px; margin-top: 30px;"></RadzenImage>
             </div>
-            <hr class="my-12" />
-            <div class="row" style="padding: 20px; width:inherit">
-                <div class="col-4" style="text-align:right;">
+            <RadzenRow Style="padding: 20px;">
+                <RadzenColumn Size="4" Style="text-align:right;">
                     User Name / E-mail:
-                </div>
-                <div class="col-8">
-                    <RadzenTextBox Change=@(args => OnChange(args, "USER_NAME")) MouseEnter="@(args => ShowTooltip(args, "Enter your login or registered e-mail address"))" Style="width:250px" />
-                </div>
-            </div>
-            <div class="row" style="padding: 20px; width:inherit">
-                <div class="col-4" style="width:100px; text-align:right;">
+                </RadzenColumn>
+                <RadzenColumn Size="8" Style="text-align:center">
+                    <RadzenTextBox Change=@(args => OnChange(args, "USER_NAME")) MouseEnter=@(args => ShowTooltip(args, "Enter your login or registered e-mail address")) Style="width:250px; align-content:end" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow Style="padding: 20px;">
+                <RadzenColumn Size="4" Style="text-align:right;">
                     Password:
-                </div>
-                <div class="col-8" style="width:400px">
-                    <RadzenPassword Change=@(args => OnChange(args, "USER_PASS")) MouseEnter="@(args => ShowTooltip(args, "Enter your password"))" Style="width:250px" />
-                </div>
-            </div>
+                </RadzenColumn>
+                <RadzenColumn Size="8" Style="text-align:center">
+                    <RadzenPassword Change=@(args => OnChange(args, "USER_PASS")) MouseEnter=@(args => ShowTooltip(args, "Enter your password")) Style="width:250px; align-content:center;" />
+                </RadzenColumn>
+            </RadzenRow>
 
-            <div class="row" style="padding: 20px; text-align: right">
-
+            <RadzenRow Style="padding: 20px; text-align: right;">
                 @if (AppState.IsNull())
                 {
                     <p><em>Loading...</em></p>
@@ -73,159 +71,20 @@ else
                 {
                     if (AppState.UserInfo.IsAuthenticated == false)
                     {
-                        <div class="col-8" style="align-content:end">
-                            <RadzenButton Click=@(args => OnClick("LOGIN")) Text="Login" Style="margin-left: 10px; margin-bottom: 20px; width: 150px; background-color: #FF914D; border-radius: px" ButtonStyle="ButtonStyle.Secondary" />
-                        </div>
+                        <RadzenColumn Size="8" Style="align-content:end">
+                            <RadzenButton Click=@(args => OnClick("LOGIN")) Text="Login" Style="margin-left: 10px; margin-bottom: 20px; margin-top:20px; width: 150px; background-color: #FF914D; border-radius: 10px; font-size:medium" />
+                        </RadzenColumn>
                     }
                     else
                     {
-                        <div class="col-8" style="align-content:end">
-                            <RadzenButton Click=@(args => OnClick("LOGOUT")) Text="Logout" Style="margin-left: 10px; margin-bottom: 20px; width: 150px" ButtonStyle="ButtonStyle.Primary" />
-                        </div>
+                        <RadzenColumn Size="8" Style="align-content:end">
+                            <RadzenButton Click=@(args => OnClick("LOGOUT")) Text="Logout" Style="margin-left: 10px; margin-bottom: 20px; width: 150px; border-radius: 10px; font-size:medium" ButtonStyle="ButtonStyle.Primary" />
+                        </RadzenColumn>
                     }
                 }
-            </div>
+            </RadzenRow>
         </RadzenCard>
-    </div>
-    <div class="col-3"></div>
-</div>
+    </RadzenColumn>
+    <RadzenColumn Size="3"></RadzenColumn>
+</RadzenRow>
 
-
-@code {
-    private AppState AppState { get; set; } = new AppState();
-    private string msg { get; set; }
-    private bool IsRendered { get; set; } = false;
-
-    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
-    private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
-    private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
-    private int LoginMinLen { get { return AppConfig.GetSection("Login").GetValue<int>("LoginMinLen"); } }
-    private int PassMinLen { get { return AppConfig.GetSection("Login").GetValue<int>("PassMinLen"); } }
-
-    private string UserName = string.Empty;
-    private string UserPass = string.Empty;
-    private int FailedLogonAttempts { get; set; } = 0;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        IsRendered = false;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await InitializeSession();
-
-            IsRendered = true;
-
-            StateHasChanged();
-        }
-    }
-
-    private async Task InitializeSession()
-    {
-        try
-        {
-            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
-            {
-                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void OnChange(string value, string key)
-    {
-        if (key == "USER_NAME")
-        {
-            UserName = value;
-        }
-
-        if (key == "USER_PASS")
-        {
-            UserPass = value;
-        }
-    }
-
-    private async Task OnClick(string key)
-    {
-        if (key == "LOGIN")
-        {
-            if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPass))
-            {
-                msg = "Username and Password cannot be empty. Please try again.";
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
-                return;
-            }
-
-            int UserID = UserService.Authenticate(UserName, UserPass);
-
-            if (UserID > 0)
-            {
-                AppState.UserInfo = await UserService.SelectAsync(UserID);
-                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-
-                NavigationManager.NavigateTo("./");
-            }
-            else
-            {
-                AppState.UserInfo = new();
-
-                switch (UserID)
-                {
-                    case 0:
-                        FailedLogonAttempts++;
-                        int MaximumFailedLogonAttempts = AppConfig.GetSection("Login").GetValue<int>("MaximumFailedLogonAttempts");
-                        msg = "Incorrect password.";
-                        break;
-                    case -1:
-                        msg = "Login failed. User [" + UserName + "] does not exist";
-                        break;
-                    case -2:
-                        msg = "Cannot login. User [" + UserName + "] is disabled";
-                        break;
-                    default:
-                        msg = "Login failed";
-                        break;
-                }
-
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
-            }
-        }
-
-        if (key == "LOGOUT")
-        {
-            AppState.UserInfo = new();
-            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        }
-    }
-
-    private void ShowNotification(NotificationMessage message)
-    {
-        try
-        {
-            NotificationService.Notify(message);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void ShowTooltip(ElementReference elementReference, string msg)
-    {
-        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-        TooltipService.Open(elementReference, msg, options);
-    }
-
-    public void Dispose()
-    {
-    }
-}
