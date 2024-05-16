@@ -46,8 +46,8 @@ else
 
 @if (LevelObject.IsNotNull())
 {
-    <div class="row" style="margin-top:60px">
-        <div class="col-md-12">
+    <RadzenRow Style="margin-top:60px">
+        <RadzenColumn Size="12">
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="Level">
@@ -65,7 +65,7 @@ else
                                     </RadzenRow>
                                     <RadzenRow>
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@LevelObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange(args, "IS_ACTIVE")) /></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@LevelObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange()) /></RadzenColumn>
                                     </RadzenRow>
                                 </RadzenStack>
                             </RadzenStack>
@@ -74,153 +74,6 @@ else
                     </RadzenTabsItem>
                 </Tabs>
             </RadzenTabs>
-        </div>
-    </div>
-}
-
-
-@code {
-    AppState AppState { get; set; } = new AppState();
-    string msg { get; set; }
-    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
-    private bool IsRendered { get; set; } = false;
-    private string AppVersion { get; set; }
-    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-    private bool DisableSave { get; set; } = true;
-    private bool DisableDelete { get; set; } = false;
-
-    string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
-    int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
-    private int ColumnLabelSize = 2;
-    private int ColumnControlSize = 10;
-
-    private LevelModel LevelObject { get; set; } = new LevelModel();
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-        IsRendered = false;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        try
-        {
-            if (firstRender)
-            {
-                await InitializeSession();
-                IsRendered = true;
-                StateHasChanged();
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task InitializeSession()
-    {
-        try
-        {
-            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
-            {
-                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
-                await InitializeData();
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task InitializeData()
-    {
-        try
-        {
-            if (AppState.IsNotNull())
-            {
-                int levelID = AppState.GetParamAsInteger("LEVEL_ID", 0);
-                LevelObject = await LevelService.SelectAsync(levelID);
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task LevelSave()
-    {
-        try
-        {
-            if (LevelObject.IsNotNull())
-            {
-                var retval = await LevelService.UpdateAsync(LevelObject);
-
-                if (retval == 1)
-                {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
-                    DisableSave = true;
-                }
-                else
-                {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task LevelDelete()
-    {
-        try
-        {
-            await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
-            DisableSave = true;
-            NavigationManager.NavigateTo("/settings");
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void OnChange()
-    {
-        DisableSave = false;
-    }
-
-    private void OnCheckBoxChange(bool? value, string name)
-    {
-        DisableSave = false;
-    }
-
-    private void ShowNotification(NotificationMessage message)
-    {
-        try
-        {
-            NotificationService.Notify(message);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void ShowTooltip(ElementReference elementReference, string msg)
-    {
-        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-        TooltipService.Open(elementReference, msg, options);
-    }
-
-    public void Dispose()
-    {
-    }
+        </RadzenColumn>
+    </RadzenRow>
 }
