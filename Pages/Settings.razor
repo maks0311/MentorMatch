@@ -45,8 +45,8 @@ else
 
 @if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
 {
-    <RadzenRow style="margin-top:60px">
-        <RadzenColumn Size="12">
+    <div class="row" style="margin-top:60px">
+        <div class="col-md-12">
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="Users">
@@ -183,8 +183,8 @@ else
 
                 </Tabs>
             </RadzenTabs>
-        </RadzenColumn>
-    </RadzenRow>
+        </div>
+    </div>
 }
 
 
