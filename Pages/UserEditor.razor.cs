@@ -1,5 +1,4 @@
 ﻿using Mentor.Data;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Radzen;
 using System.Reflection;
@@ -8,11 +7,10 @@ using System;
 
 namespace Mentor.Pages
 {
-    public partial class Level
+    public partial class UserEditor
     {
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
-
         private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
         private bool DisableSave { get; set; } = true;
         private bool DisableDelete { get; set; } = false;
@@ -23,7 +21,7 @@ namespace Mentor.Pages
         private readonly int ColumnLabelSize = 2;
         private readonly int ColumnControlSize = 10;
 
-        private LevelModel LevelObject { get; set; } = new LevelModel();
+        private UserModel UserObject { get; set; } = new UserModel();
 
         protected override void OnInitialized()
         {
@@ -70,15 +68,8 @@ namespace Mentor.Pages
             {
                 if (AppState.IsNotNull())
                 {
-                    int levelID = AppState.GetParamAsInteger("LEVEL_ID", 0);
-                    if (levelID.IsPositive())
-                    {
-                        LevelObject = await LevelService.SelectAsync(levelID);
-                    }
-                    else
-                    {
-                        DisableDelete = true;
-                    }
+                    int userID = AppState.GetParamAsInteger("USER_ID", 0);
+                    UserObject = await UserService.SelectAsync(userID);
                 }
             }
             catch (Exception ex)
@@ -87,32 +78,23 @@ namespace Mentor.Pages
             }
         }
 
-        private async Task LevelSave()
+        private async Task UserSave()
         {
             try
             {
-                if (LevelObject.IsNotNull())
+                if (UserObject.IsNotNull())
                 {
-                    var retval = 0;
-
-                    if (LevelObject.LEVEL_ID.IsPositive())
-                    {
-                        retval = await LevelService.UpdateAsync(LevelObject);
-                    }
-                    else
-                    {
-                        retval = await LevelService.CreateAsync(LevelObject);
-                    }
+                    var retval = await UserService.UpdateAsync(UserObject);
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
                         DisableSave = true;
                         NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Level", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
                     }
                 }
             }
@@ -122,11 +104,11 @@ namespace Mentor.Pages
             }
         }
 
-        private async Task LevelDelete()
+        private async Task UserDelete()
         {
             try
             {
-                await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
+                await UserService.DeleteAsync(UserObject.USER_ID);
                 DisableSave = true;
                 NavigationManager.NavigateTo("/settings");
             }
@@ -134,11 +116,6 @@ namespace Mentor.Pages
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-        }
-
-        private void OnChange()
-        {
-            DisableSave = false;
         }
 
         private void OnCheckBoxChange()

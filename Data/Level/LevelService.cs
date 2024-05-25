@@ -19,6 +19,73 @@ namespace Mentor.Data
             _configuration = configuration;
         }
 
+        public int Create(LevelModel level)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", level.LEVEL_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("LEVEL_NAME", level.LEVEL_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", level.IS_ACTIVE, DbType.Boolean);
+
+            int affectedRows;
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    affectedRows = conn.Execute("SYS_LEVEL_CREATE", parameters, commandType: CommandType.StoredProcedure);
+                    retVal = parameters.Get<int>("LEVEL_ID");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+
+        }
+
+        public async Task<int> CreateAsync(LevelModel level)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("LEVEL_ID", level.LEVEL_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("LEVEL_NAME", level.LEVEL_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", level.IS_ACTIVE, DbType.Boolean);
+
+            int affectedRows;
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    affectedRows = await conn.ExecuteAsync("SYS_LEVEL_CREATE", parameters, commandType: CommandType.StoredProcedure);
+                    retVal = parameters.Get<int>("LEVEL_ID");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+        }
+
         public async Task<LevelModel> SelectAsync(int levelID)
         {
             var parameters = new DynamicParameters();

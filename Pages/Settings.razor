@@ -20,7 +20,7 @@
 
 @inject IConfiguration AppConfig
 @inject ISessionStorageService SessionStorage
-@inject IPermissionService PermissionService;
+@inject IPermissionService PermissionService
 
 @inject TooltipService TooltipService
 @inject NavigationManager NavigationManager
@@ -28,11 +28,9 @@
 @inject DialogService DialogService
 
 @inject IUserService UserService
-@inject IGroupService GroupService
-@inject IWorkTypeService WorkTypeService;
-@inject ILevelService LevelService;
-@inject ISubjectService SubjectService;
-@inject ICompetenceService CompetenceService;
+@inject ILevelService LevelService
+@inject ISubjectService SubjectService
+@inject ICityService CityService
 
 @if (AppState.IsNull())
 {
@@ -45,15 +43,11 @@ else
 
 @if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
 {
-    <RadzenRow style="margin-top:60px">
+    <RadzenRow Style="margin-top:60px">
         <RadzenColumn Size="12">
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="Users">
-                        <RadzenCard>
-                            <RadzenButton Text="Add New" Icon="save" Click="UserAdd" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                        </RadzenCard>
-
                         <RadzenCard Style="margin-top:10px">
                             <RadzenDataGrid @ref="@UserDataGrid"
                                             Data="@UserEnum"
@@ -78,12 +72,6 @@ else
                                     <RadzenDataGridColumn TItem="UserModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="50px" TextAlign="TextAlign.Center">
                                         <Template Context="UserModel">
                                             <RadzenCheckBox @bind-Value="UserModel.IS_ACTIVE" Disabled="true" TriState="false" TValue="bool" />
-                                        </Template>
-                                    </RadzenDataGridColumn>
-
-                                    <RadzenDataGridColumn TItem="UserModel" Property="USER_ID" Visible="@AppState.UserInfo.IsAdmin" Title="Login" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
-                                        <Template Context="UserModel">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="person" Click=@(() => Impersonate(UserModel.USER_ID)) />
                                         </Template>
                                     </RadzenDataGridColumn>
 
@@ -171,7 +159,7 @@ else
 
                                     <RadzenDataGridColumn TItem="LevelModel" Property="LEVEL_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="LevelModel">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => LevelEdit(LevelModel.LEVEL_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit Subject"))" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => LevelEdit(LevelModel.LEVEL_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit Level"))" />
                                         </Template>
                                     </RadzenDataGridColumn>
 
@@ -180,202 +168,42 @@ else
                         </RadzenCard>
 
                     </RadzenTabsItem>
+                    <RadzenTabsItem Text="Cities">
+                        <RadzenCard>
+                            <RadzenButton Text="Add New" Icon="save" Click="CityAdd" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                        </RadzenCard>
 
+                        <RadzenCard Style="margin-top:10px">
+                            <RadzenDataGrid @ref="@CityDataGrid"
+                                            Data="@CityEnum"
+                                            AllowFiltering="true"
+                                            AllowMultiColumnSorting="true"
+                                            ClearFilterText="true"
+                                            AllowColumnResize="true"
+                                            FilterMode="FilterMode.Simple"
+                                            PageSize=25
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowVirtualization="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            LogicalFilterOperator="LogicalFilterOperator.And"
+                                            Visible="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="CityModel" Property="CITY_ID" Filterable="false" Title="ID" Frozen="true" Width="65px" TextAlign="TextAlign.Right" />
+                                    <RadzenDataGridColumn TItem="CityModel" Property="CITY_NAME" Title="City" TextAlign="TextAlign.Left" />
+
+                                    <RadzenDataGridColumn TItem="CityModel" Property="CITY_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
+                                        <Template Context="CityModel">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => CityEdit(CityModel.CITY_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit City"))" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+
+                                </Columns>
+                            </RadzenDataGrid>
+                        </RadzenCard>
+                    </RadzenTabsItem>
                 </Tabs>
             </RadzenTabs>
         </RadzenColumn>
     </RadzenRow>
-}
-
-
-@code {
-    AppState AppState { get; set; } = new AppState();
-    string msg { get; set; }
-    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
-    private bool IsRendered { get; set; } = false;
-    private string AppVersion { get; set; }
-    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-    private String Pass1 { get; set; } = String.Empty;
-    private String Pass2 { get; set; } = String.Empty;
-    private bool DisablePasswordSave { get; set; } = true;
-    private bool DisableAdd
-    {
-        get
-        {
-            return !(LevelEnum.IsNotNull() && LevelEnum.Any() && SubjectEnum.IsNotNull() && SubjectEnum.Any());
-        }
-    }
-    private int ColumnLabelSize = 2;
-    private int ColumnControlSize = 10;
-
-    string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
-    int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
-    private CompetenceModel CompetenceObject { get; set; } = new CompetenceModel();
-    private LessonModel LessonObject { get; set; } = new LessonModel();
-    private IEnumerable<UserModel> UserEnum { get; set; }
-    private IEnumerable<GroupModel> GroupEnum { get; set; }
-    private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
-    private IEnumerable<LevelModel> LevelEnum { get; set; }
-    private IEnumerable<SubjectModel> SubjectEnum { get; set; }
-    private IEnumerable<CompetenceModel> CompetenceEnum { get; set; }
-    private IEnumerable<LessonModel> LessonEnum { get; set; }
-
-    private RadzenDataGrid<UserModel> UserDataGrid { get; set; } = new RadzenDataGrid<UserModel>();
-    private RadzenDataGrid<SubjectModel> SubjectDataGrid { get; set; } = new RadzenDataGrid<SubjectModel>();
-    private RadzenDataGrid<LevelModel> LevelDataGrid { get; set; } = new RadzenDataGrid<LevelModel>();
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        AppVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-        IsRendered = false;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        try
-        {
-            if (firstRender)
-            {
-                await InitializeSession();
-                IsRendered = true;
-                StateHasChanged();
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task InitializeSession()
-    {
-        try
-        {
-            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
-            {
-                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
-                await InitializeData();
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async Task InitializeData()
-    {
-        try
-        {
-            if (AppState.UserInfo.IsNotNull())
-            {
-                UserEnum = await UserService.SelectAllAsync();
-                SubjectEnum = await SubjectService.SelectAllAsync();
-                LevelEnum = await LevelService.SelectAllAsync();
-                WorkTypeEnum = await WorkTypeService.SelectAllAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void OnChange()
-    {
-    }
-
-    private void OnCheckBoxChange(bool? value, string name)
-    {
-    }
-
-    private void OnDropDownChange(object value, string key)
-    {
-    }
-
-    private void UserAdd()
-    {
-    }
-
-    private async void UserEdit(int userID)
-    {
-        AppState.SetParamAsInteger("ADMIN_MODE", 1);
-        AppState.SetParamAsInteger("ADMIN_ID", AppState.UserInfo.USER_ID);
-        AppState.SetParamAsInteger("USER_ID", userID);
-        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        NavigationManager.NavigateTo("/user");
-    }
-
-    private void SubjectAdd()
-    {
-    }
-
-    private async void SubjectEdit(int subjectID)
-    {
-        AppState.SetParamAsInteger("SUBJECT_ID", subjectID);
-        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        NavigationManager.NavigateTo("/subject");
-    }
-
-    private void LevelAdd()
-    {
-    }
-
-    private async void LevelEdit(int levelID)
-    {
-        AppState.SetParamAsInteger("LEVEL_ID", levelID);
-        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        NavigationManager.NavigateTo("/level");
-    }
-
-    async Task Impersonate(int UserID)
-    {
-        try
-        {
-            await SessionStorage.ClearAsync();
-
-            // AppState.UserInfo = await UserInfoService.SelectAsync(UserID);
-            // AppState.SetPermissions(await UserPermissionService.FilterByGroupAsync(AppState.UserInfo.USER_GROUP_ID));
-            // await SessionStorage.SetItemAsync<AppSession>("APP_STATE", AppState);
-
-            string msg = (AppState.UserInfo.USER_ID > 0) ? string.Format("Logged-in successfully as: {0}", AppState.UserInfo.USER_NICKNAME) : "Not Logged-in";
-            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Impersonation", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
-            NavigationManager.NavigateTo("/");
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private async void OpenUser(int userID)
-    {
-        AppState.SetParamAsInteger("USER_ID", userID);
-        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-        NavigationManager.NavigateTo("/lesson");
-    }
-
-    private void ShowNotification(NotificationMessage message)
-    {
-        try
-        {
-            NotificationService.Notify(message);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void ShowTooltip(ElementReference elementReference, string msg)
-    {
-        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-        TooltipService.Open(elementReference, msg, options);
-    }
-
-    public void Dispose()
-    {
-    }
 }

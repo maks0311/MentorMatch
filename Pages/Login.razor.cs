@@ -4,6 +4,7 @@ using Radzen;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using Mentor.Data;
 
 namespace Mentor.Pages
 {
@@ -83,7 +84,12 @@ namespace Mentor.Pages
 
                 if (UserID > 0)
                 {
-                    AppState.UserInfo = await UserService.SelectAsync(UserID);
+                    UserModel UserObject = await UserService.SelectAsync(UserID);
+                    AppState.UserInfo = UserObject;
+                    if (UserObject.GROUP_ID == 1)
+                    {
+                        AppState.IsAdmin = true;
+                    }
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
                     NavigationManager.NavigateTo("./");

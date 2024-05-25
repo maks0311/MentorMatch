@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Mentor.Pages;
 
 namespace Mentor.Data
 {
@@ -17,6 +16,74 @@ namespace Mentor.Data
         public SubjectService(SqlConnectionConfiguration configuration)
         {
             _configuration = configuration;
+        }
+
+
+        public int Create(SubjectModel subject)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subject.SUBJECT_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("SUBJECT_NAME", subject.SUBJECT_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", subject.IS_ACTIVE, DbType.Boolean);
+
+            int affectedRows;
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    affectedRows = conn.Execute("SYS_SUBJECT_CREATE", parameters, commandType: CommandType.StoredProcedure);
+                    retVal = parameters.Get<int>("SUBJECT_ID");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
+
+        }
+
+        public async Task<int> CreateAsync(SubjectModel subject)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("SUBJECT_ID", subject.SUBJECT_ID, DbType.Int32, ParameterDirection.InputOutput);
+            parameters.Add("SUBJECT_NAME", subject.SUBJECT_NAME, DbType.String);
+            parameters.Add("IS_ACTIVE", subject.IS_ACTIVE, DbType.Boolean);
+
+            int affectedRows;
+            int retVal = 0;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                if (conn.State == ConnectionState.Closed)
+                    conn.Open();
+                try
+                {
+                    affectedRows = await conn.ExecuteAsync("SYS_SUBJECT_CREATE", parameters, commandType: CommandType.StoredProcedure);
+                    retVal = parameters.Get<int>("SUBJECT_ID");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return retVal;
         }
 
         public async Task<IEnumerable<SubjectModel>> SelectAllAsync()

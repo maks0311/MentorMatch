@@ -1,6 +1,4 @@
-﻿@page "/subject"
-
-@implements IDisposable
+﻿@page "/user_editor"
 
 @using System
 @using System.Text
@@ -27,7 +25,7 @@
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 
-@inject ISubjectService SubjectService;
+@inject IUserService UserService
 
 @if (AppState.IsNull())
 {
@@ -38,28 +36,32 @@ else
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 }
 
-@if (SubjectObject.IsNotNull())
+@if (UserObject.IsNotNull())
 {
     <RadzenRow Style="margin-top:60px">
         <RadzenColumn Size="12">
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
-                    <RadzenTabsItem Text="Subject">
+                    <RadzenTabsItem Text="User">
                         <RadzenCard>
-                            <RadzenButton Text="Save" Icon="save" Click="SubjectSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                            <RadzenButton Text="Delete" Icon="cancel" Click="SubjectDelete" Disabled="@DisableDelete" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+                            <RadzenButton Text="Save" Icon="save" Click="UserSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                            <RadzenButton Text="Delete" Icon="cancel" Click="UserDelete" Disabled="@DisableDelete" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
                         </RadzenCard>
 
                         <RadzenCard>
                             <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
                                 <RadzenStack Style="width:50%">
                                     <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Subject Name"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@SubjectObject.SUBJECT_NAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="User Nickname"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_NICKNAME MaxLength="50" Disabled="true"></RadzenTextBox></RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="User Name"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_FULLNAME MaxLength="50" Disabled="true"></RadzenTextBox></RadzenColumn>
                                     </RadzenRow>
                                     <RadzenRow>
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@SubjectObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange()) /></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@UserObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange()) /></RadzenColumn>
                                     </RadzenRow>
                                 </RadzenStack>
                             </RadzenStack>

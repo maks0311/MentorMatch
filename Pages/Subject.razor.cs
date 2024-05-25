@@ -70,7 +70,14 @@ namespace Mentor.Pages
                 if (AppState.IsNotNull())
                 {
                     int subjectID = AppState.GetParamAsInteger("SUBJECT_ID", 0);
-                    SubjectObject = await SubjectService.SelectAsync(subjectID);
+                    if (subjectID.IsPositive())
+                    {
+                        SubjectObject = await SubjectService.SelectAsync(subjectID);
+                    }
+                    else
+                    {
+                        DisableDelete = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -85,12 +92,22 @@ namespace Mentor.Pages
             {
                 if (SubjectObject.IsNotNull())
                 {
-                    var retval = await SubjectService.UpdateAsync(SubjectObject);
+                    var retval = 0;
 
-                    if (retval == 1)
+                    if (SubjectObject.SUBJECT_ID.IsPositive())
+                    {
+                        retval = await SubjectService.UpdateAsync(SubjectObject);
+                    }
+                    else
+                    {
+                        retval = await SubjectService.CreateAsync(SubjectObject);
+                    }
+
+                    if (retval.IsPositive())
                     {
                         ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
                         DisableSave = true;
+                        NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
@@ -108,9 +125,17 @@ namespace Mentor.Pages
         {
             try
             {
-                await SubjectService.DeleteAsync(SubjectObject.SUBJECT_ID);
-                DisableSave = true;
-                NavigationManager.NavigateTo("/settings");
+                var retval = await SubjectService.DeleteAsync(SubjectObject.SUBJECT_ID);
+                if (retval == 1)
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                    DisableSave = true;
+                    NavigationManager.NavigateTo("/settings");
+                }
+                if (retval == 0)
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                }
             }
             catch (Exception ex)
             {
