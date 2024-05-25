@@ -8,7 +8,7 @@ using System;
 
 namespace Mentor.Pages
 {
-    public partial class Level
+    public partial class City
     {
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
@@ -23,7 +23,7 @@ namespace Mentor.Pages
         private readonly int ColumnLabelSize = 2;
         private readonly int ColumnControlSize = 10;
 
-        private LevelModel LevelObject { get; set; } = new LevelModel();
+        private CityModel CityObject { get; set; } = new CityModel();
 
         protected override void OnInitialized()
         {
@@ -70,10 +70,10 @@ namespace Mentor.Pages
             {
                 if (AppState.IsNotNull())
                 {
-                    int levelID = AppState.GetParamAsInteger("LEVEL_ID", 0);
-                    if (levelID.IsPositive())
+                    int cityID = AppState.GetParamAsInteger("CITY_ID", 0);
+                    if (cityID.IsPositive())
                     {
-                        LevelObject = await LevelService.SelectAsync(levelID);
+                        CityObject = await CityService.SelectAsync(cityID);
                     }
                     else
                     {
@@ -87,32 +87,32 @@ namespace Mentor.Pages
             }
         }
 
-        private async Task LevelSave()
+        private async Task CitySave()
         {
             try
             {
-                if (LevelObject.IsNotNull())
+                if (CityObject.IsNotNull())
                 {
                     var retval = 0;
 
-                    if (LevelObject.LEVEL_ID.IsPositive())
+                    if (CityObject.CITY_ID.IsPositive())
                     {
-                        retval = await LevelService.UpdateAsync(LevelObject);
+                        retval = await CityService.UpdateAsync(CityObject);
                     }
                     else
                     {
-                        retval = await LevelService.CreateAsync(LevelObject);
+                        retval = await CityService.CreateAsync(CityObject);
                     }
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
                         DisableSave = true;
                         NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Level", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
                     }
                 }
             }
@@ -122,12 +122,13 @@ namespace Mentor.Pages
             }
         }
 
-        private async Task LevelDelete()
+        private async Task CityDelete()
         {
             try
             {
-                await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
+                await CityService.DeleteAsync(CityObject.CITY_ID);
                 DisableSave = true;
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Deleted", Duration = NotificationDuration, Style = NotificationPosition });
                 NavigationManager.NavigateTo("/settings");
             }
             catch (Exception ex)

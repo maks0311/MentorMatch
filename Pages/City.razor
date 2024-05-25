@@ -1,4 +1,4 @@
-﻿@page "/subject"
+﻿@page "/city"
 
 @implements IDisposable
 
@@ -27,7 +27,7 @@
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 
-@inject ISubjectService SubjectService;
+@inject ICityService CityService
 
 @if (AppState.IsNull())
 {
@@ -38,32 +38,27 @@ else
     <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 }
 
-@if (SubjectObject.IsNotNull())
+@if (CityObject.IsNotNull())
 {
     <RadzenRow Style="margin-top:60px">
         <RadzenColumn Size="12">
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
-                    <RadzenTabsItem Text="Subject">
+                    <RadzenTabsItem Text="City">
                         <RadzenCard>
-                            <RadzenButton Text="Save" Icon="save" Click="SubjectSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                            <RadzenButton Text="Delete" Icon="cancel" Click="SubjectDelete" Disabled="@DisableDelete" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+                            <RadzenButton Text="Save" Icon="save" Click="CitySave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                            <RadzenButton Text="Delete" Icon="cancel" Click="CityDelete" Disabled="@DisableDelete" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
                         </RadzenCard>
 
                         <RadzenCard>
                             <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
                                 <RadzenStack Style="width:50%">
                                     <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Subject Name"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@SubjectObject.SUBJECT_NAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
-                                    </RadzenRow>
-                                    <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@SubjectObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange()) /></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="City Name"></RadzenText></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@CityObject.CITY_NAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
                                     </RadzenRow>
                                 </RadzenStack>
                             </RadzenStack>
-
                         </RadzenCard>
                     </RadzenTabsItem>
                 </Tabs>

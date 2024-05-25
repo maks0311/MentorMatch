@@ -15,6 +15,7 @@ namespace Mentor
         public UserModel UserInfo { get; set; }
         public LessonModel LessonInfo { get; set; }
         public TutorModel TutorInfo { get; set; }
+        public bool IsAdmin { get; set; }
         public int TabIndex { get; set; } = 0;
         public String CRUD { get; set; }
         public List<AppStateParams> Params { get; set; }
@@ -28,6 +29,7 @@ namespace Mentor
                 this.UserInfo = new UserModel();
                 this.LessonInfo = new LessonModel();
                 this.TutorInfo = new TutorModel();
+                this.IsAdmin = false;
                 this.CRUD = string.Empty;
                 this.Params = new List<AppStateParams>();
             }

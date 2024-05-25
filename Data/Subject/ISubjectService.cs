@@ -5,6 +5,8 @@ namespace Mentor.Data
 {
     public interface ISubjectService
     {
+        int Create(SubjectModel subject);
+        Task<int> CreateAsync(SubjectModel subject);
         int Delete(int subjectID);
         Task<int> DeleteAsync(int subjectID);
         SubjectModel Select(int subjectID);
