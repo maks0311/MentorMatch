@@ -144,301 +144,362 @@ namespace Mentor.Pages
 
         private IEnumerable<SubjectModel> FilterSubjectList(int tutor_id)
         {
-            List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id).Select(y => y.SUBJECT_ID).ToList();
-            return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
+            try
+            {
+                List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id).Select(y => y.SUBJECT_ID).ToList();
+                return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+            return null;
+
         }
 
         private static void OnLessonRender(SchedulerAppointmentRenderEventArgs<LessonModel> args)
         {
-            switch (args.Data.LESSON_STATUS_ID)
+            try
             {
-                case 1:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
-                    break;
-                case 2:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
-                    break;
-                case 4:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
-                    break;
-                case 5:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
-                    break;
-                case 6:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
-                    break;
-                case 7:
-                    args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
-                    break;
+                switch (args.Data.LESSON_STATUS_ID)
+                {
+                    case 1:
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
+                        break;
+                    case 2:
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
+                        break;
+                    case 4:
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
+                        break;
+                    case 5:
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
+                        break;
+                    case 6:
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
+                        break;
+                    case 7:
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
+                        break;
+                }
             }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+
         }
 
         private void OnSlotRender(SchedulerSlotRenderEventArgs args)
         {
-            if (UserObject.IsTutor)
+            try 
             {
-                AvailabilityEnumFiltered = AvailabilityEnum.Where(x => x.DATE_START >= args.View.StartDate && x.DATE_STOP < args.View.EndDate);
+                if (UserObject.IsTutor)
+                {
+                    AvailabilityEnumFiltered = AvailabilityEnum.Where(x => x.DATE_START >= args.View.StartDate && x.DATE_STOP < args.View.EndDate);
+
+                    if (args.View.Text == "Month")
+                    {
+                        foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                        {
+                            if (args.Start.Date == av.DATE_START.Date)
+                            {
+                                args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                            }
+                        }
+                    }
+
+                    if (args.View.Text == "Week")
+                    {
+                        foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                        {
+                            if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
+                            {
+                                args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                            }
+                        }
+                    }
+
+                    if (args.View.Text == "Day")
+                    {
+                        foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                        {
+                            if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
+                            {
+                                args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                            }
+                        }
+                    }
+                }
 
                 if (args.View.Text == "Month")
                 {
-                    foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                    // Highlight today in month view
+                    if (args.Start.Date == DateTime.Today)
                     {
-                        if (args.Start.Date == av.DATE_START.Date)
-                        {
-                            args.Attributes["style"] = Globals.CalendarStyleAvailability;
-                        }
-                    }
-                }
-
-                if (args.View.Text == "Week")
-                {
-                    foreach (AvailabilityModel av in AvailabilityEnumFiltered)
-                    {
-                        if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
-                        {
-                            args.Attributes["style"] = Globals.CalendarStyleAvailability;
-                        }
-                    }
-                }
-
-                if (args.View.Text == "Day")
-                {
-                    foreach (AvailabilityModel av in AvailabilityEnumFiltered)
-                    {
-                        if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
-                        {
-                            args.Attributes["style"] = Globals.CalendarStyleAvailability;
-                        }
+                        args.Attributes["style"] = Globals.CalendarStyleToday;
                     }
                 }
             }
-
-            if (args.View.Text == "Month")
+            catch (Exception ex)
             {
-                // Highlight today in month view
-                if (args.Start.Date == DateTime.Today)
-                {
-                    args.Attributes["style"] = Globals.CalendarStyleToday;
-                }
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
         private async Task OnLessonSelect(SchedulerAppointmentSelectEventArgs<LessonModel> args)
         {
-            LessonObject = await LessonService.SelectAsync(args.Data.LESSON_ID);
+            try
+            {
+                LessonObject = await LessonService.SelectAsync(args.Data.LESSON_ID);
 
-            await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
-            if (UserObject.IsTutor)
-            {
-                LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
+                await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+                if (UserObject.IsTutor)
+                {
+                    LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
+                }
+                else if (UserObject.IsStudent)
+                {
+                    LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
+                }
+                await Scheduler.Reload();
             }
-            else if (UserObject.IsStudent)
+            catch (Exception ex)
             {
-                LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-            await Scheduler.Reload();
         }
 
         private void OnDayDropDownChange(string key)
         {
-            if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
+            try
             {
-                Term.TimeStop = Term.TimeStart;
-            }
-            else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
-            {
-                Term.TimeStart = Term.TimeStop;
-            }
+                if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
+                {
+                    Term.TimeStop = Term.TimeStart;
+                }
+                else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
+                {
+                    Term.TimeStart = Term.TimeStop;
+                }
 
-            if ((key == "DATE_RECURING_START") && (DailySlotList.DateStart > DailySlotList.DateStop))
-            {
-                DailySlotList.DateStop = DailySlotList.DateStart;
-            }
-            else if (key == "DATE_RECURING_STOP" && (DailySlotList.DateStop < DailySlotList.DateStart))
-            {
-                DailySlotList.DateStart = DailySlotList.DateStop;
-            }
+                if ((key == "DATE_RECURING_START") && (DailySlotList.DateStart > DailySlotList.DateStop))
+                {
+                    DailySlotList.DateStop = DailySlotList.DateStart;
+                }
+                else if (key == "DATE_RECURING_STOP" && (DailySlotList.DateStop < DailySlotList.DateStart))
+                {
+                    DailySlotList.DateStart = DailySlotList.DateStop;
+                }
 
-            StateHasChanged();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void OnWeekDropDownChange(string key, int weekday)
         {
-            if (DailySlotList.Items.Count > 0)
+            try
             {
-                var start = DailySlotList.Items[weekday - 1].TimeStart;
-                var stop = DailySlotList.Items[weekday - 1].TimeStop;
+                if (DailySlotList.Items.Count > 0)
+                {
+                    var start = DailySlotList.Items[weekday - 1].TimeStart;
+                    var stop = DailySlotList.Items[weekday - 1].TimeStop;
 
-                if ((key == "TIME_RECURING_START") && (start > stop))
-                {
-                    DailySlotList.Items[weekday - 1].TimeStop = DailySlotList.Items[weekday - 1].TimeStart;
+                    if ((key == "TIME_RECURING_START") && (start > stop))
+                    {
+                        DailySlotList.Items[weekday - 1].TimeStop = DailySlotList.Items[weekday - 1].TimeStart;
+                    }
+                    else if ((key == "TIME_RECURING_STOP") && (stop < start))
+                    {
+                        DailySlotList.Items[weekday - 1].TimeStart = DailySlotList.Items[weekday - 1].TimeStop;
+                    }
+                    StateHasChanged();
                 }
-                else if ((key == "TIME_RECURING_STOP") && (stop < start))
-                {
-                    DailySlotList.Items[weekday - 1].TimeStart = DailySlotList.Items[weekday - 1].TimeStop;
-                }
-                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
 
         public async Task<int> CreateDailyAvailability(AvailabilityMode mode)
         {
-            int retCreate = 0;
-            int retDel = 0;
-            var av_new = new List<AvailabilityModel>();
-
-            DateTime DayStart = DateTime.Now;
-            DateTime DayStop = DateTime.Now;
-
-            if (@AvMode == 1)
+            try
             {
-                DayStart = Term.SelectedDay;
-                DayStop = Term.SelectedDay;
+                int retCreate = 0;
+                int retDel = 0;
+                var av_new = new List<AvailabilityModel>();
 
-                AvailabilityModel item = new()
-                {
-                    AVAILABILITY_ID = 0,
-                    TUTOR_ID = AppState.UserInfo.USER_ID,
-                    DATE_START = new DateTime(Term.SelectedDay.Year, Term.SelectedDay.Month, Term.SelectedDay.Day, Term.TimeStart.Hour, Term.TimeStart.Minute, 0),
-                    DATE_STOP = new DateTime(Term.SelectedDay.Year, Term.SelectedDay.Month, Term.SelectedDay.Day, Term.TimeStop.Hour, Term.TimeStop.Minute, 0),
-                    IS_SELECTED = true
-                };
-                av_new.Add(item);
-            }
-            else
-            {
-                DayStart = DailySlotList.DateStart;
-                DayStop = DailySlotList.DateStop;
+                DateTime DayStart = DateTime.Now;
+                DateTime DayStop = DateTime.Now;
 
-                var days = TimeHelper.EachDay(DayStart, DayStop);
-                foreach (DateTime day_in_period in days)
+                if (@AvMode == 1)
                 {
-                    var x = day_in_period.DayOfWeek.ToInt();
-                    foreach (var daily_slot in DailySlotList.Items)
+                    DayStart = Term.SelectedDay;
+                    DayStop = Term.SelectedDay;
+
+                    AvailabilityModel item = new()
                     {
-                        if (daily_slot.Weekday == day_in_period.DayOfWeek.ToInt())
+                        AVAILABILITY_ID = 0,
+                        TUTOR_ID = AppState.UserInfo.USER_ID,
+                        DATE_START = new DateTime(Term.SelectedDay.Year, Term.SelectedDay.Month, Term.SelectedDay.Day, Term.TimeStart.Hour, Term.TimeStart.Minute, 0),
+                        DATE_STOP = new DateTime(Term.SelectedDay.Year, Term.SelectedDay.Month, Term.SelectedDay.Day, Term.TimeStop.Hour, Term.TimeStop.Minute, 0),
+                        IS_SELECTED = true
+                    };
+                    av_new.Add(item);
+                }
+                else
+                {
+                    DayStart = DailySlotList.DateStart;
+                    DayStop = DailySlotList.DateStop;
+
+                    var days = TimeHelper.EachDay(DayStart, DayStop);
+                    foreach (DateTime day_in_period in days)
+                    {
+                        var x = day_in_period.DayOfWeek.ToInt();
+                        foreach (var daily_slot in DailySlotList.Items)
                         {
-                            AvailabilityModel av_item = new()
+                            if (daily_slot.Weekday == day_in_period.DayOfWeek.ToInt())
+                            {
+                                AvailabilityModel av_item = new()
+                                {
+                                    AVAILABILITY_ID = 0,
+                                    TUTOR_ID = AppState.UserInfo.USER_ID,
+                                    DATE_START = new DateTime(day_in_period.Year, day_in_period.Month, day_in_period.Day, daily_slot.TimeStart.Hour, daily_slot.TimeStart.Minute, 0),
+                                    DATE_STOP = new DateTime(day_in_period.Year, day_in_period.Month, day_in_period.Day, daily_slot.TimeStop.Hour, daily_slot.TimeStop.Minute, 0),
+                                    IS_SELECTED = true
+                                };
+                                av_new.Add(av_item);
+                            }
+                        }
+                    }
+                }
+
+                if (!av_new.Any()) { return 0; }
+
+                // do for each day in selected period
+                foreach (DateTime day_in_period in TimeHelper.EachDay(DayStart, DayStop))
+                {
+                    List<AvailabilityModel> av_matrix = TimeHelper.GetDailyQuartersAsAvailabilityList(AppState.UserInfo.USER_ID, day_in_period);
+
+                    var start = new DateTime(day_in_period.Year, day_in_period.Month, day_in_period.Day, 0, 0, 0);
+                    var stop = start.AddDays(1);
+                    var av_prev = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, start, stop);
+
+                    foreach (var item in av_matrix)
+                    {
+                        var exists_prev = av_prev.FirstOrDefault(x => x.DATE_START <= item.DATE_START && x.DATE_STOP >= item.DATE_STOP);
+                        var exists_new = av_new.FirstOrDefault(x => x.DATE_START <= item.DATE_START && x.DATE_STOP >= item.DATE_STOP);
+
+                        if (mode == Mentor.AvailabilityMode.SET_AVAILABLE)
+                        {
+                            if (exists_prev.IsNotNull() || exists_new.IsNotNull())
+                            {
+                                item.IS_SELECTED = true;
+                            }
+                        }
+                        else
+                        {
+                            if ((exists_prev.IsNotNull() && exists_new.IsNull()))
+                            {
+                                item.IS_SELECTED = true;
+                            }
+                        }
+                    }
+
+                    List<AvailabilityModel> lst = new();
+                    bool start_found = false;
+                    bool stop_found = false;
+
+                    DateTime item_start = new();
+                    DateTime item_stop = new();
+
+                    foreach (var item in av_matrix)
+                    {
+                        if (item.IS_SELECTED.IsTrue() && start_found.IsFalse())
+                        {
+                            item_start = item.DATE_START;
+                            start_found = true;
+                        }
+
+                        if (item.IS_SELECTED.IsFalse() && start_found.IsTrue())
+                        {
+                            item_stop = item.DATE_STOP.AddMinutes(-15);
+                            stop_found = true;
+                        }
+
+                        if (start_found.IsTrue() && stop_found.IsTrue())
+                        {
+                            AvailabilityModel av = new()
                             {
                                 AVAILABILITY_ID = 0,
                                 TUTOR_ID = AppState.UserInfo.USER_ID,
-                                DATE_START = new DateTime(day_in_period.Year, day_in_period.Month, day_in_period.Day, daily_slot.TimeStart.Hour, daily_slot.TimeStart.Minute, 0),
-                                DATE_STOP = new DateTime(day_in_period.Year, day_in_period.Month, day_in_period.Day, daily_slot.TimeStop.Hour, daily_slot.TimeStop.Minute, 0),
-                                IS_SELECTED = true
+                                DATE_START = item_start,
+                                DATE_STOP = item_stop
                             };
-                            av_new.Add(av_item);
+                            lst.Add(av);
+
+                            start_found = false;
+                            stop_found = false;
                         }
                     }
-                }
-            }
 
-            if (!av_new.Any()) { return 0; }
+                    retDel = await AvailabilityService.DeleteAsync(AppState.UserInfo.USER_ID, start, stop);
 
-            // do for each day in selected period
-            foreach (DateTime day_in_period in TimeHelper.EachDay(DayStart, DayStop))
-            {
-                List<AvailabilityModel> av_matrix = TimeHelper.GetDailyQuartersAsAvailabilityList(AppState.UserInfo.USER_ID, day_in_period);
-
-                var start = new DateTime(day_in_period.Year, day_in_period.Month, day_in_period.Day, 0, 0, 0);
-                var stop = start.AddDays(1);
-                var av_prev = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, start, stop);
-
-                foreach (var item in av_matrix)
-                {
-                    var exists_prev = av_prev.FirstOrDefault(x => x.DATE_START <= item.DATE_START && x.DATE_STOP >= item.DATE_STOP);
-                    var exists_new = av_new.FirstOrDefault(x => x.DATE_START <= item.DATE_START && x.DATE_STOP >= item.DATE_STOP);
-
-                    if (mode == Mentor.AvailabilityMode.SET_AVAILABLE)
+                    if (retDel.IsPositiveOrZero())
                     {
-                        if (exists_prev.IsNotNull() || exists_new.IsNotNull())
+                        foreach (var item in lst)
                         {
-                            item.IS_SELECTED = true;
+                            retCreate += await AvailabilityService.CreateAsync(AppState.UserInfo.USER_ID, item.DATE_START, item.DATE_STOP);
                         }
                     }
-                    else
-                    {
-                        if ((exists_prev.IsNotNull() && exists_new.IsNull()))
-                        {
-                            item.IS_SELECTED = true;
-                        }
-                    }
+
                 }
 
-                List<AvailabilityModel> lst = new();
-                bool start_found = false;
-                bool stop_found = false;
-
-                DateTime item_start = new();
-                DateTime item_stop = new();
-
-                foreach (var item in av_matrix)
+                if (retCreate.IsPositive())
                 {
-                    if (item.IS_SELECTED.IsTrue() && start_found.IsFalse())
-                    {
-                        item_start = item.DATE_START;
-                        start_found = true;
-                    }
-
-                    if (item.IS_SELECTED.IsFalse() && start_found.IsTrue())
-                    {
-                        item_stop = item.DATE_STOP.AddMinutes(-15);
-                        stop_found = true;
-                    }
-
-                    if (start_found.IsTrue() && stop_found.IsTrue())
-                    {
-                        AvailabilityModel av = new()
-                        {
-                            AVAILABILITY_ID = 0,
-                            TUTOR_ID = AppState.UserInfo.USER_ID,
-                            DATE_START = item_start,
-                            DATE_STOP = item_stop
-                        };
-                        lst.Add(av);
-
-                        start_found = false;
-                        stop_found = false;
-                    }
+                    AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Saved", Detail = Msg });
                 }
 
-                retDel = await AvailabilityService.DeleteAsync(AppState.UserInfo.USER_ID, start, stop);
-
-                if (retDel.IsPositiveOrZero())
+                if (retDel.IsPositive())
                 {
-                    foreach (var item in lst)
-                    {
-                        retCreate += await AvailabilityService.CreateAsync(AppState.UserInfo.USER_ID, item.DATE_START, item.DATE_STOP);
-                    }
+                    AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Deleted", Detail = Msg });
                 }
 
+                return retCreate + retDel;
             }
-
-            if (retCreate.IsPositive())
+            catch (Exception ex)
             {
-                AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Saved", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-
-            if (retDel.IsPositive())
-            {
-                AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Deleted", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
-            }
-
-            return retCreate + retDel;
+            return 0;
         }
 
         private void ShowNotification(NotificationMessage message)
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
+        }
+
+        private void ShowTooltip(ElementReference elementReference, string msg)
+        {
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
         }
 
         public void Dispose()

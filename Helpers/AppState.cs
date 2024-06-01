@@ -212,5 +212,11 @@ namespace Mentor
                 return false;
             }
         }
+
+        public void DeleteParam(string key)
+        {
+            AppStateParams param = Params.Find(args => args.Key == key);
+            Params.Remove(param);
+        }
     }
 }

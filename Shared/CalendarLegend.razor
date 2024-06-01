@@ -49,17 +49,4 @@
 
     string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
-
-    private void ShowNotification(NotificationMessage message)
-    {
-        try
-        {
-            NotificationService.Notify(message);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
     }
-}

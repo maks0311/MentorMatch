@@ -11,13 +11,12 @@ namespace Mentor.Pages
     public partial class Login
     {
         private AppState AppState { get; set; } = new AppState();
-        private string msg { get; set; }
+        private string Msg { get; set; }
+        string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+        int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
         private bool IsRendered { get; set; } = false;
 
         private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
-        private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
-        private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
         private string UserName = string.Empty;
         private string UserPass = string.Empty;
@@ -30,13 +29,19 @@ namespace Mentor.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
+            try {
+                if (firstRender)
+                {
+                    await InitializeSession();
+
+                    IsRendered = true;
+
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
             {
-                await InitializeSession();
-
-                IsRendered = true;
-
-                StateHasChanged();
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -57,71 +62,82 @@ namespace Mentor.Pages
 
         private void OnChange(string value, string key)
         {
-            if (key == "USER_NAME")
-            {
-                UserName = value;
-            }
+            try {
+                if (key == "USER_NAME")
+                {
+                    UserName = value;
+                }
 
-            if (key == "USER_PASS")
+                if (key == "USER_PASS")
+                {
+                    UserPass = value;
+                }
+            }
+            catch (Exception ex)
             {
-                UserPass = value;
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
         private async Task OnClick(string key)
         {
-
-            if (key == "LOGIN")
-            {
-                if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPass))
+            try {
+                if (key == "LOGIN")
                 {
-                    msg = "Username and Password cannot be empty. Please try again.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
-                    return;
-                }
-
-                int UserID = UserService.Authenticate(UserName, UserPass);
-
-                if (UserID > 0)
-                {
-                    UserModel UserObject = await UserService.SelectAsync(UserID);
-                    AppState.UserInfo = UserObject;
-                    if (UserObject.GROUP_ID == 1)
+                    if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPass))
                     {
-                        AppState.IsAdmin = true;
+                        Msg = "Username and Password cannot be empty. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = Msg });
+                        return;
                     }
-                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
-                    NavigationManager.NavigateTo("./");
+                    int UserID = UserService.Authenticate(UserName, UserPass);
+
+                    if (UserID > 0)
+                    {
+                        UserModel UserObject = await UserService.SelectAsync(UserID);
+                        AppState.UserInfo = UserObject;
+                        if (UserObject.GROUP_ID == 1)
+                        {
+                            AppState.IsAdmin = true;
+                        }
+                        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+
+                        NavigationManager.NavigateTo("./");
+                    }
+                    else
+                    {
+                        AppState.UserInfo = new();
+
+                        switch (UserID)
+                        {
+                            case 0:
+                                Msg = "Incorrect password.";
+                                break;
+                            case -1:
+                                Msg = "Login failed. User [" + UserName + "] does not exist";
+                                break;
+                            case -2:
+                                Msg = "Cannot login. User [" + UserName + "] is disabled";
+                                break;
+                            default:
+                                Msg = "Login failed";
+                                break;
+                        }
+
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = Msg });
+                    }
                 }
-                else
+
+                if (key == "LOGOUT")
                 {
                     AppState.UserInfo = new();
-
-                    switch (UserID)
-                    {
-                        case 0:
-                            msg = "Incorrect password.";
-                            break;
-                        case -1:
-                            msg = "Login failed. User [" + UserName + "] does not exist";
-                            break;
-                        case -2:
-                            msg = "Cannot login. User [" + UserName + "] is disabled";
-                            break;
-                        default:
-                            msg = "Login failed";
-                            break;
-                    }
-
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
                 }
             }
-
-            if (key == "LOGOUT")
+            catch (Exception ex)
             {
-                AppState.UserInfo = new();
-                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -129,6 +145,8 @@ namespace Mentor.Pages
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)

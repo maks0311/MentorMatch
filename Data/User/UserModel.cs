@@ -12,7 +12,7 @@ namespace Mentor.Data
         public string USER_PHONE { get; set; } = String.Empty;
         public string USER_PASS { get; set; } = String.Empty;
         public string USER_DESCRIPTION { get; set; } = String.Empty;
-        public bool IS_ACTIVE { get; set; } = false;
+        public bool IS_ACTIVE { get; set; } = true;
         public int GROUP_ID { get; set; } = 0;
         public string GROUP_NAME { get; set; } = String.Empty;
         public int WORK_TYPE_ID { get; set; } = 0;

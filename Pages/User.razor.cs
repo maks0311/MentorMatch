@@ -4,8 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Radzen;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -35,7 +35,7 @@ namespace Mentor.Pages
 
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
+        private bool AreNotificationsRead { get; set; } = false;
         private int SelectedIndex { get; set; } = 0;
 
         private UserModel UserObject { get; set; } = new UserModel();
@@ -104,7 +104,6 @@ namespace Mentor.Pages
                 if (AppState.UserInfo.IsNotNull())
                 {
                     UserObject = await UserService.SelectAsync(AppState.UserInfo.USER_ID);
-                    SelectedIndex = AppState.TabIndex;
 
                     if (UserObject.IsAdmin)
                     {
@@ -123,6 +122,9 @@ namespace Mentor.Pages
                     CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
                     UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
                     SwapVarsInNotifications();
+                    SelectedIndex = AppState.TabIndex;
+                    AppState.TabIndex = 0;
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
                     if (LevelEnum.IsNotNull() && LevelEnum.Any() && SubjectEnum.IsNotNull() && SubjectEnum.Any())
                     {
@@ -173,35 +175,35 @@ namespace Mentor.Pages
                     if (string.IsNullOrEmpty(UserObject.USER_FULLNAME))
                     {
                         Msg = "Your full name cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
                         return;
                     }
 
                     if (!IsValidName(UserObject.USER_FULLNAME))
                     {
                         Msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserObject.USER_NICKNAME))
                     {
                         Msg = "Your  nickname cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
                         Msg = "Invalid phone number. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
                         return;
                     }
 
                     if (!IsDescValid(UserObject.USER_DESCRIPTION))
                     {
                         Msg = "Description is too long.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg, Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
                         return;
                     }
 
@@ -212,12 +214,12 @@ namespace Mentor.Pages
                         AppState.UserInfo = UserObject;
                         await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved"});
                         DisableSave = true;
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved"});
                     }
                 }
             }
@@ -257,43 +259,56 @@ namespace Mentor.Pages
 
         private void OnPasswordChange()
         {
-            bool pass_error = false;
-            string msg = string.Empty;
+            try {
+                bool pass_error = false;
+                string msg = string.Empty;
 
-            if (String.IsNullOrEmpty(Pass1) || String.IsNullOrEmpty(Pass2))
-            {
-                pass_error = true;
+                if (String.IsNullOrEmpty(Pass1) || String.IsNullOrEmpty(Pass2))
+                {
+                    pass_error = true;
+                }
+
+                if (Pass1.Length < 6 && pass_error.IsFalse())
+                {
+                    pass_error = true;
+                    msg = "Password too short, should contain at least 6 characters.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg});
+                }
+
+                if (!Pass1.Equals(Pass2, StringComparison.InvariantCulture) && pass_error.IsFalse())
+                {
+                    pass_error = true;
+                    msg = "Password and its repetition are not identical, enter them again please.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg});
+                }
+
+                DisablePasswordSave = pass_error;
             }
-
-            if (Pass1.Length < 6 && pass_error.IsFalse())
+            catch (Exception ex)
             {
-                pass_error = true;
-                msg = "Password too short, should contain at least 6 characters.";
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-
-            if (!Pass1.Equals(Pass2, StringComparison.InvariantCulture) && pass_error.IsFalse())
-            {
-                pass_error = true;
-                msg = "Password and its repetition are not identical, enter them again please.";
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg, Duration = NotificationDuration, Style = NotificationPosition });
-            }
-
-            DisablePasswordSave = pass_error;
         }
 
         private async Task PasswordSave()
         {
-            int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, Encryption.EnryptString(Pass1));
+            try
+            {
+                int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, Encryption.EnryptString(Pass1));
 
-            if (retval.IsPositive())
-            {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Password", Detail = "Password saved correctly", Duration = NotificationDuration, Style = NotificationPosition });
-                DisablePasswordSave = true;
+                if (retval.IsPositive())
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Password", Detail = "Password saved correctly"});
+                    DisablePasswordSave = true;
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = "Password not saved"});
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = "Password not saved", Duration = NotificationDuration, Style = NotificationPosition });
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -307,15 +322,15 @@ namespace Mentor.Pages
                     if (retval.IsPositive())
                     {
                         CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added"});
                     }
                     else if (retval.IsZero())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists"});
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added"});
                     }
                 }
             }
@@ -327,13 +342,20 @@ namespace Mentor.Pages
 
         private async Task DeleteCompetence(int id)
         {
-            if (id > 0)
+            try
             {
-                var retVal = CompetenceService.Delete(id);
-                if (retVal.IsPositive())
+                if (id > 0)
                 {
-                    CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
+                    var retVal = CompetenceService.Delete(id);
+                    if (retVal.IsPositive())
+                    {
+                        CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -349,15 +371,15 @@ namespace Mentor.Pages
                     if (retval.IsPositive())
                     {
                         UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "New city added", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "New city added"});
                     }
                     else if (retval.IsZero())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "This city already exists", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "This city already exists"});
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not added", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not added"});
                     }
                 }
             }
@@ -369,100 +391,124 @@ namespace Mentor.Pages
 
         private async Task DeleteCity(int id)
         {
-            if (id > 0)
+            try
             {
-                var retVal = await UserToCityService.DeleteAsync(id);
-                if (retVal.IsPositive())
+                if (id > 0)
                 {
-                    UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "City deleted", Duration = NotificationDuration, Style = NotificationPosition });
-                }
-                else
-                {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                    var retVal = await UserToCityService.DeleteAsync(id);
+                    if (retVal.IsPositive())
+                    {
+                        UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "City deleted"});
+                    }
+                    else
+                    {
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not deleted" });
+                    }
                 }
             }
-        }
-
-        public void ShowNotificationsTab()
-        {
-            SelectedIndex = 5;
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void SwapVarsInNotifications()
         {
-            foreach (UserNotificationModel notification in UserNotificationEnum)
+            try
             {
-                string tutor = notification.TUTOR_NAME;
-                string student = notification.STUDENT_NAME;
-                string subject = notification.LESSON_SUBJECT;
-                string rating = notification.RATING.ToString();
+                foreach (UserNotificationModel notification in UserNotificationEnum)
+                {
+                    string tutor = notification.TUTOR_NAME;
+                    string student = notification.STUDENT_NAME;
+                    string subject = notification.LESSON_SUBJECT;
+                    string rating = notification.RATING.ToString();
 
-                if (UserObject.IsTutor)
-                    tutor = "You";
-                if (UserObject.IsStudent)
-                    student = "You";
+                    if (UserObject.IsTutor)
+                        tutor = "You";
+                    if (UserObject.IsStudent)
+                        student = "You";
 
-                string text = notification.TEXT;
+                    string text = notification.TEXT;
 
-                text = text.Replace("{student}", student);
-                text = text.Replace("{tutor}", tutor);
-                text = text.Replace("{subject}", subject);
-                text = text.Replace("{rating}", rating);
+                    text = text.Replace("{student}", student);
+                    text = text.Replace("{tutor}", tutor);
+                    text = text.Replace("{subject}", subject);
+                    text = text.Replace("{rating}", rating);
 
-                notification.TEXT = text;
+                    notification.TEXT = text;
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
         private async Task OpenLessonDetails(int lessonID, int notificationID)
         {
-            LessonObject = await LessonService.SelectAsync(lessonID);
+            try
+            {
+                LessonObject = await LessonService.SelectAsync(lessonID);
 
-            await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
-            if (UserObject.IsTutor)
-            {
-                LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
+                await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+                if (UserObject.IsTutor)
+                {
+                    LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
+                }
+                else if (UserObject.IsStudent)
+                {
+                    LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
+                }
+                if (notificationID.IsPositive())
+                {
+                    await NotificationOnRead(notificationID);
+                }
+                UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
+                SwapVarsInNotifications();
             }
-            else if (UserObject.IsStudent)
+            catch (Exception ex)
             {
-                LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-            if (notificationID.IsPositive())
-            {
-                await NotificationOnRead(notificationID);
-            }
-            UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
-            SwapVarsInNotifications();
         }
 
         private async Task NotificationOnRead(int notificationID)
         {
-            int retval = 0;
-            if (UserObject.IsTutor)
+            try
             {
-                retval = await UserNotificationService.UpdateToReadTutorAsync(notificationID);
-            }
-            else if (UserObject.IsStudent)
-            {
-                retval = await UserNotificationService.UpdateToReadStudentAsync(notificationID);
-            }
+                int retval = 0;
+                if (UserObject.IsTutor)
+                {
+                    retval = await UserNotificationService.UpdateToReadTutorAsync(notificationID);
+                }
+                else if (UserObject.IsStudent)
+                {
+                    retval = await UserNotificationService.UpdateToReadStudentAsync(notificationID);
+                }
 
-            if (retval.IsPositive())
-            {
-                UserNotificationEnum = UserNotificationService.SelectAllByUser(UserObject.USER_ID);
-                SwapVarsInNotifications();
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                if (retval.IsPositive())
+                {
+                    UserNotificationEnum = UserNotificationService.SelectAllByUser(UserObject.USER_ID);
+                    SwapVarsInNotifications();
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification deleted"});
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not deleted"});
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
-
         private void ShowNotification(NotificationMessage message)
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)
@@ -471,14 +517,32 @@ namespace Mentor.Pages
             }
         }
 
+        private void NotificationsOnRead()
+        {
+            AreNotificationsRead = true;
+        }
+
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
             TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
             TooltipService.Open(elementReference, msg, options);
         }
-
         public void Dispose()
         {
+            if(AreNotificationsRead)
+            {
+                foreach (UserNotificationModel notification in UserNotificationEnum)
+                {
+                    if (UserObject.IsTutor)
+                    {
+                        UserNotificationService.UpdateToReadTutor(notification.ID);
+                    }
+                    else if (UserObject.IsStudent)
+                    {
+                        UserNotificationService.UpdateToReadStudent(notification.ID);
+                    }
+                }
+            }
         }
     }
 }

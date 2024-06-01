@@ -22,7 +22,7 @@ namespace Mentor.Data
         public DateTime DATE_STOP { get; set; } = DateTime.MinValue;
         public int RATING_ID { get; set; } = 6;
         public int RATING_VALUE { get; set; } = 0;
-        public string RATING_NAME { get; set; } = string.Empty;
+        public string RATING_NAME { get; set; } = "Not Rated Yet";
         public string TOPIC { get; set; } = string.Empty;
 
         public string CAPTION_FOR_STUDENT

@@ -101,24 +101,6 @@ else
         SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
     }
 
-    private void ShowNotification(NotificationMessage message)
-    {
-        try
-        {
-            NotificationService.Notify(message);
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
-    }
-
-    private void ShowTooltip(ElementReference elementReference, string msg)
-    {
-                TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-        TooltipService.Open(elementReference, msg, options);
-    }
-
     public void Dispose()
     {
 

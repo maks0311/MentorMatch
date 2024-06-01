@@ -1,6 +1,4 @@
 ﻿using Mentor.Data;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Configuration;
 using Radzen.Blazor;
 using Radzen;
 using System.Collections.Generic;
@@ -8,6 +6,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Configuration;
 
 namespace Mentor.Pages
 {
@@ -19,10 +19,8 @@ namespace Mentor.Pages
         private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
 
         RadzenScheduler<LessonModel> Scheduler;
-
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
         private DateTime TimeScopeStart { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
         private DateTime TimeScopeStop { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 0, 0, 0).AddMonths(2);
 
@@ -38,7 +36,6 @@ namespace Mentor.Pages
         private IEnumerable<AvailabilityModel> AvailabilityEnum { get; set; }
         private IEnumerable<AvailabilityModel> AvailabilityEnumFiltered { get; set; }
         private IEnumerable<LevelModel> LevelEnumFiltered { get; set; }
-        private IEnumerable<RatingModel> RatingEnum { get; set; }
         private IEnumerable<UserToCityModel> UserToCityEnum { get; set; }
 
         private bool IsCalendarVisible
@@ -113,7 +110,6 @@ namespace Mentor.Pages
                         SubjectEnum = await SubjectService.SelectAllAsync();
                         LessonStatusEnum = await LessonStatusService.SelectAllAsync();
                         CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(TutorID);
-                        RatingEnum = await RatingService.SelectAllAsync();
 
                         LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID);
                         SubjectEnum = FilterSubjectList();
@@ -136,111 +132,132 @@ namespace Mentor.Pages
 
         private void OnSlotRender(SchedulerSlotRenderEventArgs args)
         {
-            AvailabilityEnumFiltered = AvailabilityEnum.Where(x => x.DATE_START >= args.View.StartDate && x.DATE_STOP < args.View.EndDate);
-
-            if (args.View.Text == "Month")
+            try
             {
-                // Highlight today in month view
-                if (args.Start.Date == DateTime.Today)
+                AvailabilityEnumFiltered = AvailabilityEnum.Where(x => x.DATE_START >= args.View.StartDate && x.DATE_STOP < args.View.EndDate);
+
+                if (args.View.Text == "Month")
                 {
-                    args.Attributes["style"] = Globals.CalendarStyleToday;
+                    // Highlight today in month view
+                    if (args.Start.Date == DateTime.Today)
+                    {
+                        args.Attributes["style"] = Globals.CalendarStyleToday;
+                    }
+
+                    foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                    {
+                        if (args.Start.Date == av.DATE_START.Date)
+                        {
+                            args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                        }
+                    }
                 }
 
-                foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                if (args.View.Text == "Week")
                 {
-                    if (args.Start.Date == av.DATE_START.Date)
+                    foreach (AvailabilityModel av in AvailabilityEnumFiltered)
                     {
-                        args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                        if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
+                        {
+                            args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                        }
+                    }
+                }
+
+                if (args.View.Text == "Day")
+                {
+                    foreach (AvailabilityModel av in AvailabilityEnumFiltered)
+                    {
+                        if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
+                        {
+                            args.Attributes["style"] = Globals.CalendarStyleAvailability;
+                        }
                     }
                 }
             }
-
-            if (args.View.Text == "Week")
+            catch (Exception ex)
             {
-                foreach (AvailabilityModel av in AvailabilityEnumFiltered)
-                {
-                    if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
-                    {
-                        args.Attributes["style"] = Globals.CalendarStyleAvailability;
-                    }
-                }
-            }
-
-            if (args.View.Text == "Day")
-            {
-                foreach (AvailabilityModel av in AvailabilityEnumFiltered)
-                {
-                    if (args.Start.Date == av.DATE_START.Date && args.Start.TimeOfDay >= av.DATE_START.TimeOfDay && args.Start.TimeOfDay < av.DATE_STOP.TimeOfDay)
-                    {
-                        args.Attributes["style"] = Globals.CalendarStyleAvailability;
-                    }
-                }
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
         private async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
         {
-            // when selected not-available slot
-            if (AvailabilityEnum.Where(x => x.DATE_START <= args.Start && x.DATE_STOP >= args.End).Count().IsZero()) { return; }
-
-            // when selected past slot
-            if (args.Start < DateTime.Now)
+            try
             {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Availability", Detail = "Only future lesson can be registered", Duration = NotificationDuration, Style = NotificationPosition });
-                return;
+                // when selected not-available slot
+                if (AvailabilityEnum.Where(x => x.DATE_START <= args.Start && x.DATE_STOP >= args.End).Count().IsZero()) 
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Availability", Detail = "Select available time" });
+                    return; 
+                }
+
+                // when selected past slot
+                if (args.Start < DateTime.Now)
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Availability", Detail = "Only future lesson can be registered" });
+                    return;
+                }
+
+                var tutor = UserService.Select(TutorID);
+                var student = UserService.Select(UserObject.USER_ID);
+                var status = LessonStatusEnum.OrderBy(x => x.LESSON_STATUS_ID).FirstOrDefault();
+                var subject = SubjectEnum.OrderBy(x => x.SUBJECT_ID).FirstOrDefault();
+
+                LevelEnumFiltered = FilterLevelList(subject.SUBJECT_ID);
+
+                var level = LevelEnumFiltered.OrderBy(x => x.LEVEL_ID).FirstOrDefault();
+
+                if (tutor.IsNull() || student.IsNull() || status.IsNull() || subject.IsNull() || level.IsNull()) { return; }
+
+                LessonModel lesson = new()
+                {
+                    TUTOR_ID = tutor.USER_ID,
+                    TUTOR_NAME = tutor.USER_NICKNAME,
+                    STUDENT_ID = student.USER_ID,
+                    STUDENT_NAME = student.USER_NICKNAME,
+                    DATE_START = args.Start,
+                    DATE_STOP = args.End,
+                    LESSON_STATUS_ID = status.LESSON_STATUS_ID,
+                    LESSON_STATUS_NAME = status.LESSON_STATUS_NAME,
+                    LESSON_STATUS_ICON = status.LESSON_STATUS_ICON,
+                    LESSON_STATUS_ICON_COLOR = status.LESSON_STATUS_ICON_COLOR,
+                    SUBJECT_ID = subject.SUBJECT_ID,
+                    SUBJECT_NAME = subject.SUBJECT_NAME,
+                    LEVEL_ID = level.LEVEL_ID,
+                    LEVEL_NAME = level.LEVEL_NAME
+                };
+
+                await DialogService.OpenAsync<LessonEditor>("Add New Lesson", new Dictionary<string, object> { { "LessonObject", lesson } });
+                LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
+                await Scheduler.Reload();
             }
-
-            var tutor = UserService.Select(TutorID);
-            var student = UserService.Select(UserObject.USER_ID);
-            var status = LessonStatusEnum.OrderBy(x => x.LESSON_STATUS_ID).FirstOrDefault();
-            var rating = RatingEnum.OrderBy(x => x.RATING_ID).FirstOrDefault();
-            var subject = SubjectEnum.OrderBy(x => x.SUBJECT_ID).FirstOrDefault();
-
-            LevelEnumFiltered = FilterLevelList(subject.SUBJECT_ID);
-
-            var level = LevelEnumFiltered.OrderBy(x => x.LEVEL_ID).FirstOrDefault();
-
-            if (tutor.IsNull() || student.IsNull() || status.IsNull() || rating.IsNull() || subject.IsNull() || level.IsNull()) { return; }
-
-            LessonModel lesson = new()
+            catch (Exception ex)
             {
-                TUTOR_ID = tutor.USER_ID,
-                TUTOR_NAME = tutor.USER_NICKNAME,
-                STUDENT_ID = student.USER_ID,
-                STUDENT_NAME = student.USER_NICKNAME,
-                DATE_START = args.Start,
-                DATE_STOP = args.End,
-                RATING_ID = rating.RATING_ID,
-                RATING_NAME = rating.RATING_NAME,
-                RATING_VALUE = rating.RATING_VALUE,
-                LESSON_STATUS_ID = status.LESSON_STATUS_ID,
-                LESSON_STATUS_NAME = status.LESSON_STATUS_NAME,
-                LESSON_STATUS_ICON = status.LESSON_STATUS_ICON,
-                LESSON_STATUS_ICON_COLOR = status.LESSON_STATUS_ICON_COLOR,
-                SUBJECT_ID = subject.SUBJECT_ID,
-                SUBJECT_NAME = subject.SUBJECT_NAME,
-                LEVEL_ID = level.LEVEL_ID,
-                LEVEL_NAME = level.LEVEL_NAME
-            };
-
-            await DialogService.OpenAsync<LessonEditor>("Add New Lesson", new Dictionary<string, object> { { "LessonObject", lesson } });
-            LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
-            await Scheduler.Reload();
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private async Task OnLessonSelect(SchedulerAppointmentSelectEventArgs<LessonModel> args)
         {
-            LessonObject = await LessonService.SelectAsync(args.Data.LESSON_ID);
+            try
+            {
+                LessonObject = await LessonService.SelectAsync(args.Data.LESSON_ID);
 
-            if (LessonObject.IsNotNull() && (LessonObject.STUDENT_ID == UserObject.USER_ID))
-            {
-                await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
-                LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
-                await Scheduler.Reload();
+                if (LessonObject.IsNotNull() && (LessonObject.STUDENT_ID == UserObject.USER_ID))
+                {
+                    await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+                    LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
+                    await Scheduler.Reload();
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "This lesson belongs to other student", Detail = "Warning" });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "This lesson belongs to other student", Detail = "Warning", Duration = NotificationDuration, Style = NotificationPosition });
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -278,20 +295,37 @@ namespace Mentor.Pages
 
         private IEnumerable<LevelModel> FilterLevelList(int subjectID)
         {
-            List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == TutorID && x.SUBJECT_ID == subjectID).Select(y => y.LEVEL_ID).ToList();
-            return LevelEnum.Where(x => levelsOfTheSubject.Contains(x.LEVEL_ID));
+            try
+            {
+                List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == TutorID && x.SUBJECT_ID == subjectID).Select(y => y.LEVEL_ID).ToList();
+                return LevelEnum.Where(x => levelsOfTheSubject.Contains(x.LEVEL_ID));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+            return null;
         }
 
         private IEnumerable<SubjectModel> FilterSubjectList()
         {
-            List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == TutorID).Select(y => y.SUBJECT_ID).ToList();
-            return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
+            try
+            {
+                List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == TutorID).Select(y => y.SUBJECT_ID).ToList();
+                return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+            return null;
         }
-
         private void ShowNotification(NotificationMessage message)
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)

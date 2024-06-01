@@ -105,13 +105,13 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Saved"});
                         DisableSave = true;
                         NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Saved"});
                     }
                 }
             }
@@ -128,13 +128,13 @@ namespace Mentor.Pages
                 var retval = await SubjectService.DeleteAsync(SubjectObject.SUBJECT_ID);
                 if (retval == 1)
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Deleted"});
                     DisableSave = true;
                     NavigationManager.NavigateTo("/settings");
                 }
                 if (retval == 0)
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Deleted"});
                 }
             }
             catch (Exception ex)
@@ -157,6 +157,8 @@ namespace Mentor.Pages
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)
@@ -165,6 +167,11 @@ namespace Mentor.Pages
             }
         }
 
+        private void ShowTooltip(ElementReference elementReference, string msg)
+        {
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
+        }
         public void Dispose()
         {
         }
