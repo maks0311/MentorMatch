@@ -4,6 +4,7 @@ using Radzen;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.Components;
 
 namespace Mentor.Pages
 {
@@ -88,13 +89,13 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved"});
                         DisableSave = true;
                         NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User"});
                     }
                 }
             }
@@ -122,11 +123,12 @@ namespace Mentor.Pages
         {
             DisableSave = false;
         }
-
         private void ShowNotification(NotificationMessage message)
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)
@@ -135,6 +137,11 @@ namespace Mentor.Pages
             }
         }
 
+        private void ShowTooltip(ElementReference elementReference, string msg)
+        {
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
+        }
         public void Dispose()
         {
         }

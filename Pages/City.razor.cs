@@ -106,13 +106,13 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "Saved" });
                         DisableSave = true;
                         NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Not Saved"});
                     }
                 }
             }
@@ -128,7 +128,7 @@ namespace Mentor.Pages
             {
                 await CityService.DeleteAsync(CityObject.CITY_ID);
                 DisableSave = true;
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Deleted"});
                 NavigationManager.NavigateTo("/settings");
             }
             catch (Exception ex)
@@ -142,21 +142,24 @@ namespace Mentor.Pages
             DisableSave = false;
         }
 
-        private void OnCheckBoxChange()
-        {
-            DisableSave = false;
-        }
-
         private void ShowNotification(NotificationMessage message)
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
+        }
+
+        private void ShowTooltip(ElementReference elementReference, string msg)
+        {
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
         }
 
         public void Dispose()

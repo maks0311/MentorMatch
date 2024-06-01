@@ -198,14 +198,30 @@ namespace Mentor.Pages
 
         private IEnumerable<LevelModel> FilterLevelList(int subject_id, int tutor_id)
         {
-            List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id && x.SUBJECT_ID == subject_id).Select(y => y.LEVEL_ID).ToList();
-            return LevelEnum.Where(x => levelsOfTheSubject.Contains(x.LEVEL_ID));
+            try
+            {
+                List<int> levelsOfTheSubject = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id && x.SUBJECT_ID == subject_id).Select(y => y.LEVEL_ID).ToList();
+                return LevelEnum.Where(x => levelsOfTheSubject.Contains(x.LEVEL_ID));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+            return null;
         }
 
         private IEnumerable<SubjectModel> FilterSubjectList(int tutor_id)
         {
-            List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id).Select(y => y.SUBJECT_ID).ToList();
-            return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
+            try
+            {
+                List<int> tutorSubjects = CompetenceEnum.Where(x => x.TUTOR_ID == tutor_id).Select(y => y.SUBJECT_ID).ToList();
+                return SubjectEnum.Where(x => tutorSubjects.Contains(x.SUBJECT_ID));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+            return null;
         }
 
         protected override void OnParametersSet()
@@ -224,103 +240,119 @@ namespace Mentor.Pages
             IsObjectLessonChanged = true;
         }
 
-        private async Task OnDropDownChange(string key)
+        private void OnDropDownChange(string key)
         {
-            if (key == "SUBJECT")
+            try
             {
-                LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, LessonObject.TUTOR_ID);
-                LessonObject.LEVEL_ID = LevelEnumFiltered.First().LEVEL_ID;
+                if (key == "SUBJECT")
+                {
+                    LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, LessonObject.TUTOR_ID);
+                    LessonObject.LEVEL_ID = LevelEnumFiltered.First().LEVEL_ID;
+                }
+
+                IsObjectLessonChanged = true;
+
+                StateHasChanged();
             }
-
-            IsObjectLessonChanged = true;
-
-            StateHasChanged();
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void OnDayDropDownChange(string key)
         {
-            if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
+            try
             {
-                Term.TimeStop = Term.TimeStart;
+                if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
+                {
+                    Term.TimeStop = Term.TimeStart;
+                }
+                else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
+                {
+                    Term.TimeStart = Term.TimeStop;
+                }
+
+                LessonObject.DATE_START = new DateTime(LessonObject.DATE_START.Year, LessonObject.DATE_START.Month, LessonObject.DATE_START.Day, Term.TimeStart.Hour, Term.TimeStart.Minute, 0);
+                LessonObject.DATE_STOP = new DateTime(LessonObject.DATE_STOP.Year, LessonObject.DATE_STOP.Month, LessonObject.DATE_STOP.Day, Term.TimeStop.Hour, Term.TimeStop.Minute, 0);
+
+                IsObjectLessonChanged = true;
+                StateHasChanged();
             }
-            else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
+            catch (Exception ex)
             {
-                Term.TimeStart = Term.TimeStop;
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-
-            LessonObject.DATE_START = new DateTime(LessonObject.DATE_START.Year, LessonObject.DATE_START.Month, LessonObject.DATE_START.Day, Term.TimeStart.Hour, Term.TimeStart.Minute, 0);
-            LessonObject.DATE_STOP = new DateTime(LessonObject.DATE_STOP.Year, LessonObject.DATE_STOP.Month, LessonObject.DATE_STOP.Day, Term.TimeStop.Hour, Term.TimeStop.Minute, 0);
-
-            IsObjectLessonChanged = true;
-            StateHasChanged();
         }
 
 
         private async Task LessonSave()
         {
-            // NEW => PENDING ACCEPT
-            if (LessonObject.IsCreated.IsFalse())
+            try
             {
-                LessonObject.LESSON_STATUS_ID = 1;
-                UserNotificationObject.NOTIFICATION_ID = 1;
-            }
-
-            // ACCEPTED => POSTPONED BY STUDENT
-            if (LessonObject.LESSON_STATUS_ID == 2 && UserObject.IsStudent)
-            {
-                LessonObject.LESSON_STATUS_ID = 4;
-                UserNotificationObject.NOTIFICATION_ID = 6;
-            }
-
-            // ACCEPTED => POSTPONED BY TUTOR
-            if (LessonObject.LESSON_STATUS_ID == 2 && UserObject.IsTutor)
-            {
-                LessonObject.LESSON_STATUS_ID = 5;
-                UserNotificationObject.NOTIFICATION_ID = 7;
-            }
-
-            var retval = await LessonService.UpsertAsync(LessonObject);
-
-            if (retval.IsPositive())
-            {
-                UserNotificationObject.LESSON_ID = retval;
-                UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
-                UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
-                _ = await UserNotificationService.CreateAsync(UserNotificationObject);
-
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Save", Detail = "Lesson Saved Successfully", Duration = NotificationDuration, Style = NotificationPosition });
-                IsObjectLessonChanged = false;
-                StateHasChanged();
-                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                DialogService.Close();
-            }
-            else
-            {
-                switch (retval)
+                // NEW => PENDING ACCEPT
+                if (LessonObject.IsCreated.IsFalse())
                 {
-                    case -2:
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Past Lesson cannot be changed", Duration = NotificationDuration, Style = NotificationPosition });
-                        break;
-                    case -3:
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Tutor is not available at selected time", Duration = NotificationDuration, Style = NotificationPosition });
-                        break;
-                    case -4:
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Another student registered lesson at selected time", Duration = NotificationDuration, Style = NotificationPosition });
-                        break;
-                    case -5:
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "You registered another lesson at selected time", Duration = NotificationDuration, Style = NotificationPosition });
-                        break;
-                    default:
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Lesson not saved", Duration = NotificationDuration, Style = NotificationPosition });
-                        break;
+                    LessonObject.LESSON_STATUS_ID = 1;
+                    UserNotificationObject.NOTIFICATION_ID = 1;
                 }
+
+                // ACCEPTED => POSTPONED BY STUDENT
+                if (LessonObject.LESSON_STATUS_ID == 2 && UserObject.IsStudent)
+                {
+                    LessonObject.LESSON_STATUS_ID = 4;
+                    UserNotificationObject.NOTIFICATION_ID = 6;
+                }
+
+                // ACCEPTED => POSTPONED BY TUTOR
+                if (LessonObject.LESSON_STATUS_ID == 2 && UserObject.IsTutor)
+                {
+                    LessonObject.LESSON_STATUS_ID = 5;
+                    UserNotificationObject.NOTIFICATION_ID = 7;
+                }
+
+                var retval = await LessonService.UpsertAsync(LessonObject);
+
+                if (retval.IsPositive())
+                {
+                    UserNotificationObject.LESSON_ID = retval;
+                    UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
+                    UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
+                    _ = await UserNotificationService.CreateAsync(UserNotificationObject);
+
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Save", Detail = "Lesson Saved Successfully" });
+                    IsObjectLessonChanged = false;
+                    StateHasChanged();
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                    DialogService.Close();
+                }
+                else
+                {
+                    switch (retval)
+                    {
+                        case -3:
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Tutor is not available at selected time" });
+                            break;
+                        case -4:
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Another student registered lesson at selected time" });
+                            break;
+                        case -5:
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "You registered another lesson at selected time" });
+                            break;
+                        default:
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Lesson not saved" });
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
         private async Task LessonAccept()
         {
-            int retval = 0;
-
             try
             {
                 // PENDING => ACCEPTED
@@ -344,72 +376,80 @@ namespace Mentor.Pages
                     UserNotificationObject.NOTIFICATION_ID = 2; //change ID
                 }
 
-                retval = await LessonService.UpsertAsync(LessonObject);
+                var retval = await LessonService.UpsertAsync(LessonObject);
+
+                if (retval.IsPositive())
+                {
+                    UserNotificationObject.LESSON_ID = retval;
+                    UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
+                    UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
+
+                    await UserNotificationService.CreateAsync(UserNotificationObject);
+
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Accept", Detail = "Lesson Accepted Successfully" });
+                    IsObjectLessonChanged = false;
+                    StateHasChanged();
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                    DialogService.Close();
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Accept", Detail = "Lesson Not Accepted" });
+                }
             }
             catch (Exception ex)
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
 
-            if (retval.IsPositive())
-            {
-                UserNotificationObject.LESSON_ID = retval;
-                UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
-                UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
-
-                await UserNotificationService.CreateAsync(UserNotificationObject);
-
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Accept", Detail = "Lesson Accepted Successfully", Duration = NotificationDuration, Style = NotificationPosition });
-                IsObjectLessonChanged = false;
-                StateHasChanged();
-                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                DialogService.Close();
-            }
-            else
-            {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Accept", Detail = "Lesson Not Accepted", Duration = NotificationDuration, Style = NotificationPosition });
-            }
+            
         }
 
         private async Task LessonDelete()
         {
-            int retval;
-            if (LessonObject.LESSON_STATUS_ID != 6)
-            {
-                LessonObject.LESSON_STATUS_ID = 3;
-                retval = await LessonService.UpsertAsync(LessonObject);
-            }
-            else
-            {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Cannot Be Deleted", Duration = NotificationDuration, Style = NotificationPosition });
-                return;
-            }
-
-            if (retval.IsPositive())
-            {
-                if (UserObject.IsTutor)
+            try {
+                int retval;
+                if (LessonObject.LESSON_STATUS_ID != 6)
                 {
-                    UserNotificationObject.NOTIFICATION_ID = 5;
+                    LessonObject.LESSON_STATUS_ID = 3;
+                    retval = await LessonService.UpsertAsync(LessonObject);
                 }
-                else if (UserObject.IsStudent)
+                else
                 {
-                    UserNotificationObject.NOTIFICATION_ID = 4;
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Cannot Be Deleted" });
+                    return;
                 }
-                UserNotificationObject.LESSON_ID = retval;
-                UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
-                UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
 
-                await UserNotificationService.CreateAsync(UserNotificationObject);
+                if (retval.IsPositive())
+                {
+                    if (UserObject.IsTutor)
+                    {
+                        UserNotificationObject.NOTIFICATION_ID = 5;
+                    }
+                    else if (UserObject.IsStudent)
+                    {
+                        UserNotificationObject.NOTIFICATION_ID = 4;
+                    }
+                    UserNotificationObject.LESSON_ID = retval;
+                    UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
+                    UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
 
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Delete", Detail = "Lesson Deleted Successfully", Duration = NotificationDuration, Style = NotificationPosition });
-                IsObjectLessonChanged = false;
-                StateHasChanged();
-                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                DialogService.Close();
+                    await UserNotificationService.CreateAsync(UserNotificationObject);
+
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Delete", Detail = "Lesson Deleted Successfully" });
+                    IsObjectLessonChanged = false;
+                    StateHasChanged();
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                    DialogService.Close();
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Not Deleted" });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Not Deleted", Duration = NotificationDuration, Style = NotificationPosition });
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -421,24 +461,19 @@ namespace Mentor.Pages
 
         private void OnRatingUpdate(int val)
         {
-            RatingModel rating = RatingEnum.FirstOrDefault(x => x.RATING_VALUE == val);
-
-            if (rating.IsNotNull())
-            {
-                IsObjectLessonChanged = true;
-                LessonObject.RATING_ID = rating.RATING_ID;
-                LessonObject.RATING_VALUE = rating.RATING_VALUE;
-                LessonObject.RATING_NAME = rating.RATING_NAME;
-
-                UserNotificationObject.NOTIFICATION_ID = 9;
-            }
-        }
-
-        private void ShowNotification(NotificationMessage message)
-        {
             try
             {
-                NotificationService.Notify(message);
+                RatingModel rating = RatingEnum.FirstOrDefault(x => x.RATING_VALUE == val);
+
+                if (rating.IsNotNull())
+                {
+                    IsObjectLessonChanged = true;
+                    LessonObject.RATING_ID = rating.RATING_ID;
+                    LessonObject.RATING_VALUE = rating.RATING_VALUE;
+                    LessonObject.RATING_NAME = rating.RATING_NAME;
+
+                    UserNotificationObject.NOTIFICATION_ID = 9;
+                }
             }
             catch (Exception ex)
             {
@@ -454,9 +489,23 @@ namespace Mentor.Pages
             }
         }
 
+        private void ShowNotification(NotificationMessage message)
+        {
+            try
+            {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
+                NotificationService.Notify(message);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+        }
+
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new() { Duration = NotificationDuration };
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
             TooltipService.Open(elementReference, msg, options);
         }
 

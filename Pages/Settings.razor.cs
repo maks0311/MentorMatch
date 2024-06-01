@@ -5,8 +5,6 @@ using Radzen;
 using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -18,6 +16,7 @@ namespace Mentor.Pages
         private bool IsRendered { get; set; } = false;
 
         private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+        string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
         private IEnumerable<UserModel> UserEnum { get; set; }
@@ -90,9 +89,15 @@ namespace Mentor.Pages
 
         private async void UserEdit(int userID)
         {
-            AppState.SetParamAsInteger("USER_ID", userID);
-            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            NavigationManager.NavigateTo("/user_editor");
+            try {
+                AppState.SetParamAsInteger("USER_ID", userID);
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                NavigationManager.NavigateTo("/user_editor");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void SubjectAdd()
@@ -102,9 +107,16 @@ namespace Mentor.Pages
 
         private async void SubjectEdit(int subjectID)
         {
-            AppState.SetParamAsInteger("SUBJECT_ID", subjectID);
-            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            NavigationManager.NavigateTo("/subject");
+            try
+            {
+                AppState.SetParamAsInteger("SUBJECT_ID", subjectID);
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                NavigationManager.NavigateTo("/subject");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void LevelAdd()
@@ -114,9 +126,16 @@ namespace Mentor.Pages
 
         private async void LevelEdit(int levelID)
         {
-            AppState.SetParamAsInteger("LEVEL_ID", levelID);
-            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            NavigationManager.NavigateTo("/level");
+            try
+            {
+                AppState.SetParamAsInteger("LEVEL_ID", levelID);
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                NavigationManager.NavigateTo("/level");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void CityAdd()
@@ -126,14 +145,35 @@ namespace Mentor.Pages
 
         private async void CityEdit(int cityID)
         {
-            AppState.SetParamAsInteger("CITY_ID", cityID);
-            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            NavigationManager.NavigateTo("/city");
+            try
+            {
+                AppState.SetParamAsInteger("CITY_ID", cityID);
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                NavigationManager.NavigateTo("/city");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+        }
+
+        private void ShowNotification(NotificationMessage message)
+        {
+            try
+            {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
+                NotificationService.Notify(message);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new() { Duration = NotificationDuration };
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
             TooltipService.Open(elementReference, msg, options);
         }
 

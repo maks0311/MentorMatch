@@ -265,7 +265,7 @@ else
                     @if (UserObject.IsStudent || UserObject.IsTutor)
                     {
                         <RadzenTabsItem Text="My Notifications">
-                            <RadzenCard>
+                            <RadzenCard MouseEnter="@NotificationsOnRead">
                                 <RadzenRow>
                                     <RadzenColumn Size="6">
                                         <RadzenDataGrid Data="@UserNotificationEnum"

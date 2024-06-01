@@ -20,12 +20,12 @@
 
 @inject ISessionStorageService SessionStorage
 @inject IConfiguration AppConfig
+@inject IJSRuntime JSRuntime;
 
 @inject TooltipService TooltipService
 @inject NavigationManager NavigationManager
 @inject NotificationService NotificationService
 @inject DialogService DialogService
-@inject IJSRuntime JSRuntime;
 
 @inject IUserService UserInfoService
 @inject IGroupService UserGroupService
@@ -190,8 +190,8 @@
             else if (AppState.UserInfo.IsStudent)
             {
                 AppState.TabIndex = 2;
-            }
 
+            }
             SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
             NavigationManager.NavigateTo("/user");
         }
@@ -207,10 +207,6 @@
         {
             if (args.Text == AppState.UserInfo.USER_NICKNAME)
             {
-                AppState.CRUD = "UPDATE";
-                AppState.SetParamAsInteger("USER_ID", AppState.UserInfo.USER_ID);
-                SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-
                 NavigationManager.NavigateTo("/user");
             }
         }
@@ -232,22 +228,29 @@
         }
     }
 
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            message.Style = NotificationPosition;
+            message.Duration = NotificationDuration;
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
     private void ShowTooltip(ElementReference elementReference, string msg)
     {
         TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
         TooltipService.Open(elementReference, msg, options);
     }
 
+
     public void Dispose()
     {
-        try
-        {
-
-        }
-        catch (Exception ex)
-        {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-        }
     }
 
     private async void GoBackJS()

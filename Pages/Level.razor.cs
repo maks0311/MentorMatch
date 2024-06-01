@@ -106,13 +106,13 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level", Detail = "Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level", Detail = "Saved" });
                         DisableSave = true;
                         NavigationManager.NavigateTo("/settings");
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Level", Detail = "Not Saved", Duration = NotificationDuration, Style = NotificationPosition });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Level", Detail = "Not Saved" });
                     }
                 }
             }
@@ -150,6 +150,8 @@ namespace Mentor.Pages
         {
             try
             {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
                 NotificationService.Notify(message);
             }
             catch (Exception ex)
@@ -158,6 +160,11 @@ namespace Mentor.Pages
             }
         }
 
+        private void ShowTooltip(ElementReference elementReference, string msg)
+        {
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
+        }
         public void Dispose()
         {
         }

@@ -1,10 +1,12 @@
 ﻿using Mentor.Data;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Components;
+using Radzen;
+using Microsoft.Extensions.Configuration;
 
 namespace Mentor.Pages
 {
@@ -13,6 +15,8 @@ namespace Mentor.Pages
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
         private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+        string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+        int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
         private WorkTypeModel WorkTypeObject { get; set; } = new WorkTypeModel();
         private RatingModel RatingObject { get; set; } = new RatingModel();
@@ -107,19 +111,33 @@ namespace Mentor.Pages
 
         private async Task SearchTutors()
         {
-            TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID, SearchWorkTypeObject.WORK_TYPE_ID, SearchCityObject.CITY_ID);
+            try
+            {
+                TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID, SearchWorkTypeObject.WORK_TYPE_ID, SearchCityObject.CITY_ID);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private void OnFilterChange(string key)
         {
-            if (key == "WORK_TYPE")
+            try
             {
-                TutorEnum = TutorEnum.Where(tutor => tutor.WORK_TYPE_ID == WorkTypeObject.WORK_TYPE_ID);
-            }
+                if (key == "WORK_TYPE")
+                {
+                    TutorEnum = TutorEnum.Where(tutor => tutor.WORK_TYPE_ID == WorkTypeObject.WORK_TYPE_ID);
+                }
 
-            if (key == "RATING")
+                if (key == "RATING")
+                {
+                    TutorEnum = TutorEnum.Where(tutor => tutor.TUTOR_RATING == RatingObject.RATING_VALUE);
+                }
+            }
+            catch (Exception ex)
             {
-                TutorEnum = TutorEnum.Where(tutor => tutor.TUTOR_RATING == RatingObject.RATING_VALUE);
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
 
@@ -135,6 +153,26 @@ namespace Mentor.Pages
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
+        }
+
+        private void ShowNotification(NotificationMessage message)
+        {
+            try
+            {
+                message.Style = NotificationPosition;
+                message.Duration = NotificationDuration;
+                NotificationService.Notify(message);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+        }
+
+        private void ShowTooltip(ElementReference elementReference, string msg)
+        {
+            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
         }
     }
 }
