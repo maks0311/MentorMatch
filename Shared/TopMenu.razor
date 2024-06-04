@@ -4,6 +4,7 @@
 
 @using Dapper;
 @using System.Data.SqlClient;
+@using Mentor.Pages
 @using NLog;
 @using Radzen;
 @using System.Threading;
@@ -55,7 +56,7 @@
                 {
                     <RadzenMenuItem Text="Notifications" Icon="feedback"></RadzenMenuItem>
                 }
-                @if(AppState.UserInfo.IsAdmin)
+                @if (AppState.UserInfo.IsAdmin)
                 {
                     <RadzenMenuItem Text="Settings" Icon="settings"></RadzenMenuItem>
                 }
@@ -89,7 +90,7 @@
 
     private static NLog.ILogger AppLogger = LogManager.GetCurrentClassLogger();
 
-    private IEnumerable<UserNotificationModel> UserNotifications = new List<UserNotificationModel>();
+    private IEnumerable<UserNotificationModel> NewUserNotifications = new List<UserNotificationModel>();
 
     private RadzenTabs myTabs;
 
@@ -98,7 +99,7 @@
         get
         {
             bool retval = false;
-            if (UserNotifications.Any())
+            if (NewUserNotifications.Any())
             {
                 retval = true;
             }
@@ -110,7 +111,7 @@
     {
         get
         {
-            return UserNotifications.Count();
+            return NewUserNotifications.Count();
         }
     }
 
@@ -154,7 +155,7 @@
         {
             if (AppState.UserInfo.IsNotNull())
             {
-                UserNotifications = await UserNotificationService.SelectAllByUserAsync(AppState.UserInfo.USER_ID);
+                NewUserNotifications = await UserNotificationService.SelectAllNewByUserAsync(AppState.UserInfo.USER_ID);
             }
         }
         catch (Exception ex)
@@ -163,7 +164,7 @@
         }
     }
 
-    private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
+    private async Task OnMenuItemClick(Radzen.MenuItemEventArgs args)
     {
         if (args.Text == "About")
         {
@@ -182,24 +183,17 @@
 
         if (args.Text == "Notifications")
         {
-            if (AppState.UserInfo.IsTutor)
-            {
-                AppState.TabIndex = 4;
-
-            }
-            else if (AppState.UserInfo.IsStudent)
-            {
-                AppState.TabIndex = 2;
-
-            }
-            SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-            NavigationManager.NavigateTo("/user");
+            string style = "min-width:fit-content;min-height:fit-content;height:fit-content;width:fit-content;";
+            var newOptions = new DialogOptions();
+            newOptions.Style += style;
+            await DialogService.OpenAsync<Notifications>(String.Format("New notifications - {0}", NewUserNotifications.Count()), new Dictionary<string, object> { }, newOptions);
+            NewUserNotifications = await UserNotificationService.SelectAllNewByUserAsync(AppState.UserInfo.USER_ID);
         }
 
         if (args.Text == "Logout")
         {
             AppState.UserInfo = new();
-            SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
             NavigationManager.NavigateTo("./");
         }
 

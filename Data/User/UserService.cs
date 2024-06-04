@@ -349,7 +349,7 @@ namespace Mentor.Data
         {
             var parameters = new DynamicParameters();
             parameters.Add("USER_NAME", userName, DbType.String);
-            parameters.Add("USER_PASS", Encryption.EnryptString(userPass), DbType.String);
+            parameters.Add("USER_PASS", EncryptionHelper.EncryptString(Globals.key, userPass), DbType.String);
 
             int retVal = 0;
 

@@ -9,6 +9,8 @@
 
         public static string UserNotLoggedInMessage = "User is not logged in";
 
+        public static readonly string key = "b14ca5898a4e4133bbce2ea2315a2000";
+
         public static string ColorStatus1 = "darkorange";
         public static string ColorStatus2 = "lightgreen";
         public static string ColorStatus3 = "red";

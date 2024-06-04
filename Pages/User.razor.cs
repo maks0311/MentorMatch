@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Radzen;
+using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,8 +36,6 @@ namespace Mentor.Pages
 
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-        private bool AreNotificationsRead { get; set; } = false;
-        private int SelectedIndex { get; set; } = 0;
 
         private UserModel UserObject { get; set; } = new UserModel();
         private CompetenceModel CompetenceObject { get; set; } = new CompetenceModel();
@@ -122,7 +121,6 @@ namespace Mentor.Pages
                     CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
                     UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
                     SwapVarsInNotifications();
-                    SelectedIndex = AppState.TabIndex;
                     AppState.TabIndex = 0;
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
@@ -175,7 +173,7 @@ namespace Mentor.Pages
                     if (string.IsNullOrEmpty(UserObject.USER_FULLNAME))
                     {
                         Msg = "Your full name cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
                         return;
                     }
 
@@ -189,21 +187,21 @@ namespace Mentor.Pages
                     if (string.IsNullOrEmpty(UserObject.USER_NICKNAME))
                     {
                         Msg = "Your  nickname cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
                         Msg = "Invalid phone number. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
                         return;
                     }
 
                     if (!IsDescValid(UserObject.USER_DESCRIPTION))
                     {
                         Msg = "Description is too long.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
                         return;
                     }
 
@@ -214,12 +212,12 @@ namespace Mentor.Pages
                         AppState.UserInfo = UserObject;
                         await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved" });
                         DisableSave = true;
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved" });
                     }
                 }
             }
@@ -259,7 +257,8 @@ namespace Mentor.Pages
 
         private void OnPasswordChange()
         {
-            try {
+            try
+            {
                 bool pass_error = false;
                 string msg = string.Empty;
 
@@ -272,14 +271,14 @@ namespace Mentor.Pages
                 {
                     pass_error = true;
                     msg = "Password too short, should contain at least 6 characters.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg });
                 }
 
                 if (!Pass1.Equals(Pass2, StringComparison.InvariantCulture) && pass_error.IsFalse())
                 {
                     pass_error = true;
                     msg = "Password and its repetition are not identical, enter them again please.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg });
                 }
 
                 DisablePasswordSave = pass_error;
@@ -294,16 +293,16 @@ namespace Mentor.Pages
         {
             try
             {
-                int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, Encryption.EnryptString(Pass1));
+                int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, EncryptionHelper.EncryptString(Globals.key, Pass1));
 
                 if (retval.IsPositive())
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Password", Detail = "Password saved correctly"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Password", Detail = "Password saved correctly" });
                     DisablePasswordSave = true;
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = "Password not saved"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = "Password not saved" });
                 }
             }
             catch (Exception ex)
@@ -322,15 +321,15 @@ namespace Mentor.Pages
                     if (retval.IsPositive())
                     {
                         CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added" });
                     }
                     else if (retval.IsZero())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists" });
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added" });
                     }
                 }
             }
@@ -371,15 +370,15 @@ namespace Mentor.Pages
                     if (retval.IsPositive())
                     {
                         UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "New city added"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "New city added" });
                     }
                     else if (retval.IsZero())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "This city already exists"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "This city already exists" });
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not added"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not added" });
                     }
                 }
             }
@@ -399,7 +398,7 @@ namespace Mentor.Pages
                     if (retVal.IsPositive())
                     {
                         UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "City deleted"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "City deleted" });
                     }
                     else
                     {
@@ -491,11 +490,11 @@ namespace Mentor.Pages
                 {
                     UserNotificationEnum = UserNotificationService.SelectAllByUser(UserObject.USER_ID);
                     SwapVarsInNotifications();
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification deleted"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification marked as read" });
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not deleted"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not marked as read" });
                 }
             }
             catch (Exception ex)
@@ -503,6 +502,43 @@ namespace Mentor.Pages
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
+
+        private void OnRenderNotification(DataGridCellRenderEventArgs<UserNotificationModel> args)
+        {
+            try
+            {
+                if (UserObject.IsTutor)
+                {
+                    if (args.Data.TUTOR_READ)
+                    {
+                        args.Attributes.Add("style", $"background-color: #f6f7fa");
+                    }
+                    else
+                    {
+                        args.Attributes.Add("style", $"background-color: white;");
+
+                    }
+                }
+                else
+                {
+                    if (args.Data.STUDENT_READ)
+                    {
+                        args.Attributes.Add("style", $"background-color: #f6f7fa;");
+                    }
+                    else
+                    {
+                        args.Attributes.Add("style", $"background-color: white;");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+
+
+        }
+
         private void ShowNotification(NotificationMessage message)
         {
             try
@@ -517,11 +553,6 @@ namespace Mentor.Pages
             }
         }
 
-        private void NotificationsOnRead()
-        {
-            AreNotificationsRead = true;
-        }
-
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
             TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
@@ -529,20 +560,7 @@ namespace Mentor.Pages
         }
         public void Dispose()
         {
-            if(AreNotificationsRead)
-            {
-                foreach (UserNotificationModel notification in UserNotificationEnum)
-                {
-                    if (UserObject.IsTutor)
-                    {
-                        UserNotificationService.UpdateToReadTutor(notification.ID);
-                    }
-                    else if (UserObject.IsStudent)
-                    {
-                        UserNotificationService.UpdateToReadStudent(notification.ID);
-                    }
-                }
-            }
+
         }
     }
 }

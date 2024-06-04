@@ -78,6 +78,66 @@ namespace Mentor.Data
             return NotificationEnum;
         }
 
+        public IEnumerable<UserNotificationModel> SelectAllNewByUser(int userID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_ID", userID, DbType.Int32);
+
+            IEnumerable<UserNotificationModel> NotificationEnum;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    NotificationEnum = conn.Query<UserNotificationModel>("SYS_USER_NOTIFICATION_SELECT_ALL_NEW_BY_USER", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return NotificationEnum;
+        }
+
+        public async Task<IEnumerable<UserNotificationModel>> SelectAllNewByUserAsync(int userID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("USER_ID", userID, DbType.Int32);
+
+            IEnumerable<UserNotificationModel> NotificationEnum;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    NotificationEnum = await conn.QueryAsync<UserNotificationModel>("SYS_USER_NOTIFICATION_SELECT_ALL_NEW_BY_USER", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return NotificationEnum;
+        }
+
         public int Create(UserNotificationModel userNotification)
         {
             var parameters = new DynamicParameters();

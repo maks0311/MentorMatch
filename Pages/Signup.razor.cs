@@ -219,63 +219,63 @@ namespace Mentor.Pages
                     if (!IsEmailValid(UserObject.USER_EMAIL))
                     {
                         msg = "Invalid email or already in use. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication" });
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
                         msg = "Invalid phone number. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
                         msg = "Invalid phone number. Please enter a valid phone number.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserObject.USER_PASS))
                     {
                         msg = "Your password cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
                         return;
                     }
 
                     if (!IsPasswordValid(UserObject.USER_PASS))
                     {
                         msg = "Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter and one digit.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserPassRepeat) || UserPassRepeat != UserObject.USER_PASS)
                     {
                         msg = "Your password has to match. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
                         return;
                     }
 
                     if (!IsGroupValid(UserObject.GROUP_ID))
                     {
                         msg = "Invalid user type selected.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg });
                         return;
                     }
 
                     if (!IsWorkTypeValid(UserObject.WORK_TYPE_ID))
                     {
                         msg = "Invalid work type selected.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg });
                         return;
                     }
 
                     UserObject.USER_ID = await UserService.CreateAsync(UserObject);
-                    await UserService.PasswordUpdateAsync(UserObject.USER_ID, Encryption.EnryptString(UserObject.USER_PASS));
+                    await UserService.PasswordUpdateAsync(UserObject.USER_ID, EncryptionHelper.EncryptString(Globals.key, UserObject.USER_PASS));
                     msg = "User " + UserObject.USER_NICKNAME + " created.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Sign up succesful", Detail = msg});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Sign up succesful", Detail = msg });
                     NavigationManager.NavigateTo("./");
                 }
             }
