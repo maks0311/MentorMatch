@@ -6,9 +6,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Data\UserNotification\NotificationModel.cs" />
-	  <Compile Remove="Data\UserNotification\NotificationService.cs" />
-	  <Compile Remove="Data\UserNotification\User%27NotificationService.cs" />
+		<Compile Remove="Data\UserNotification\NotificationModel.cs" />
+		<Compile Remove="Data\UserNotification\NotificationService.cs" />
+		<Compile Remove="Data\UserNotification\User%27NotificationService.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -23,4 +23,9 @@
 		<None Include="wwwroot\images\logo.png" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Content Update="Nlog.config">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 </Project>

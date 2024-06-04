@@ -51,7 +51,7 @@ else
 {
     <RadzenRow Style="margin-top:60px">
         <RadzenColumn Size="12">
-            <RadzenTabs RenderMode="TabRenderMode.Client" SelectedIndex="@SelectedIndex" Style="height: max-content">
+            <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="My Account">
                         <RadzenCard>
@@ -265,7 +265,7 @@ else
                     @if (UserObject.IsStudent || UserObject.IsTutor)
                     {
                         <RadzenTabsItem Text="My Notifications">
-                            <RadzenCard MouseEnter="@NotificationsOnRead">
+                            <RadzenCard>
                                 <RadzenRow>
                                     <RadzenColumn Size="6">
                                         <RadzenDataGrid Data="@UserNotificationEnum"
@@ -279,20 +279,27 @@ else
                                                         AllowVirtualization="true"
                                                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                         LogicalFilterOperator="LogicalFilterOperator.And"
+                                                        CellRender="@OnRenderNotification"
                                                         Visible="true"
                                                         Style="width:inherit">
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Frozen="true" TextAlign="TextAlign.Left" />
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
-                                                    <Template Context="UserNotificationModel">
-                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="ID" Title="Delete" Frozen="true" Sortable="false" Filterable="false" Width="80px" TextAlign="TextAlign.Center">
-                                                    <Template Context="UserNotificationModel">
-                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="clear" Click=@(() => NotificationOnRead(UserNotificationModel.ID)) />
-                                                    </Template>
-                                                </RadzenDataGridColumn>
+                                                @if (UserObject.IsTutor)
+                                                {
+                                                    <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
+                                                        <Template Context="UserNotificationModel">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Disabled="UserNotificationModel.TUTOR_READ" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                }
+                                                else
+                                                {
+                                                    <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
+                                                        <Template Context="UserNotificationModel">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Disabled="UserNotificationModel.STUDENT_READ" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                }
                                             </Columns>
                                         </RadzenDataGrid>
                                     </RadzenColumn>

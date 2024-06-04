@@ -1,0 +1,428 @@
+﻿@using System
+@using System.Text
+@using System.Reflection
+@using Dapper;
+@using System.Data.SqlClient;
+@using Radzen;
+@using Radzen.Blazor;
+@using Radzen.Blazor.Rendering;
+@using Microsoft.Extensions.Configuration;
+@using System.Globalization;
+@using Microsoft.Extensions.Logging;
+@using Microsoft.Extensions.Logging.EventLog;
+@using Blazored.SessionStorage;
+@using Mentor.Data;
+@using System.Text.RegularExpressions;
+
+@inject IConfiguration AppConfig
+@inject ISessionStorageService SessionStorage
+@inject IPermissionService PermissionService;
+
+@inject TooltipService TooltipService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+@inject IUserService UserService;
+@inject ILessonService LessonService;
+@inject IUserNotificationService UserNotificationService;
+
+
+@if (UserObject.IsNotNull() && IsRendered)
+{
+    <RadzenCard Style="width:600px">
+        <RadzenRow Style="margin-bottom:5px">
+            <RadzenColumn Size="12">
+                @if (UserObject.IsTutor)
+                {
+                    <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadTutor" Style="padding-right:25px;" Disabled="@(TutorButtonDisabled)"></RadzenButton>
+                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:300px;"></RadzenLabel>
+                    <RadzenCheckBox TValue="Boolean" Name="TutorCheckBox" Style="margin-left:25px;" Change=@(args => CheckAll(args))></RadzenCheckBox>
+
+                }
+                else if (UserObject.IsStudent)
+                {
+                    <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadStudent" Style="padding-right:25px;" Disabled="@(StudentButtonDisabled)"></RadzenButton>
+                    <RadzenLabel Text="Check all:" Component="StudentCheckBox" Style="margin-left:280px;"></RadzenLabel>
+                    <RadzenCheckBox TValue="Boolean" Name="StudentCheckBox" Style="margin-left:25px; align-content:center" Change=@(args => CheckAll(args))></RadzenCheckBox>
+                }
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenCard>
+
+    <RadzenCard Style="width:600px">
+        <RadzenRow>
+            <RadzenColumn Size="12">
+                <RadzenDataGrid Data="@UserNotificationEnum"
+                                AllowFiltering="false"
+                                AllowMultiColumnSorting="true"
+                                ClearFilterText="true"
+                                AllowColumnResize="false"
+                                FilterMode="FilterMode.Simple"
+                                AllowPaging="true"
+                                AllowSorting="true"
+                                AllowVirtualization="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                LogicalFilterOperator="LogicalFilterOperator.And"
+                                Visible="true"
+                                Style="width:inherit">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Frozen="true" TextAlign="TextAlign.Left" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
+                            <Template Context="UserNotificationModel">
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        @if (UserObject.IsTutor)
+                        {
+                            <RadzenDataGridColumn TItem="UserNotificationModel" Property="TUTOR_READ" Title="Mark as read" Frozen="true" Sortable="false" Filterable="false" Width="80px" TextAlign="TextAlign.Center">
+                                <Template Context="UserNotificationModel">
+                                    <RadzenCheckBox TValue="bool" Value="@UserNotificationModel.TUTOR_READ" Change=@(args => UserNotificationModel.TUTOR_READ = args)></RadzenCheckBox>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        }
+                        else if (UserObject.IsStudent)
+                        {
+                            <RadzenDataGridColumn TItem="UserNotificationModel" Property="STUDENT_READ" Title="Mark as read" Frozen="true" Sortable="false" Filterable="false" Width="80px" TextAlign="TextAlign.Center">
+                                <Template Context="UserNotificationModel">
+                                    <RadzenCheckBox TValue="bool" Value="@UserNotificationModel.STUDENT_READ" Change=@(args => UserNotificationModel.STUDENT_READ = args)></RadzenCheckBox>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        }
+                    </Columns>
+                </RadzenDataGrid>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenCard>
+}
+
+
+
+@code {
+
+    AppState AppState { get; set; } = new AppState();
+    string Msg { get; set; }
+    private bool IsRendered { get; set; } = false;
+
+    private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
+    private readonly int ColumnLabelSize = 2;
+    private readonly int ColumnControlSize = 10;
+
+    string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
+    int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
+
+    private UserModel UserObject { get; set; } = new UserModel();
+    private UserNotificationModel UserNotificationObject { get; set; } = new UserNotificationModel();
+    private LessonModel LessonObject { get; set; } = new LessonModel();
+
+    private IEnumerable<UserNotificationModel> UserNotificationEnum { get; set; }
+
+    private bool StudentCheckAll { get; set; } = false;
+    private bool TutorCheckAll { get; set; } = false;
+
+    private bool TutorButtonDisabled
+    {
+        get
+        {
+            if (UserNotificationEnum.Where(args => args.TUTOR_READ == true).Any())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
+    private bool StudentButtonDisabled
+    {
+        get
+        {
+            if (UserNotificationEnum.Where(args => args.STUDENT_READ == true).Any())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                await InitializeSession();
+                IsRendered = true;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+                await InitializeData();
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task InitializeData()
+    {
+        try
+        {
+            if (AppState.UserInfo.IsNotNull())
+            {
+                UserObject = await UserService.SelectAsync(AppState.UserInfo.USER_ID);
+
+                UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
+                SwapVarsInNotifications();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void CheckAll(bool var)
+    {
+        try
+        {
+            if (UserObject.IsTutor)
+            {
+                if (var)
+                {
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        notification.TUTOR_READ = true;
+                    }
+                }
+                else
+                {
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        notification.TUTOR_READ = false;
+                    }
+                }
+            }
+            else if (UserObject.IsStudent)
+            {
+                if (var)
+                {
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        notification.STUDENT_READ = true;
+                    }
+                }
+                else
+                {
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        notification.STUDENT_READ = false;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+
+    }
+
+    private void SwapVarsInNotifications()
+    {
+        try
+        {
+            foreach (UserNotificationModel notification in UserNotificationEnum)
+            {
+                string tutor = notification.TUTOR_NAME;
+                string student = notification.STUDENT_NAME;
+                string subject = notification.LESSON_SUBJECT;
+                string rating = notification.RATING.ToString();
+
+                if (UserObject.IsTutor)
+                    tutor = "You";
+                if (UserObject.IsStudent)
+                    student = "You";
+
+                string text = notification.TEXT;
+
+                text = text.Replace("{student}", student);
+                text = text.Replace("{tutor}", tutor);
+                text = text.Replace("{subject}", subject);
+                text = text.Replace("{rating}", rating);
+
+                notification.TEXT = text;
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task MarkAsReadTutor()
+    {
+        try
+        {
+            int retval = 1;
+            foreach (UserNotificationModel notification in UserNotificationEnum)
+            {
+                if (notification.TUTOR_READ)
+                {
+                    if (retval.IsPositive())
+                    {
+                        retval = await UserNotificationService.UpdateToReadTutorAsync(notification.ID);
+                    }
+                    else
+                    {
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notifications not marked as read" });
+                        return;
+                    }
+                }
+            }
+
+            UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
+            SwapVarsInNotifications();
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notifications marked as read" });
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task MarkAsReadStudent()
+    {
+        try
+        {
+            int retval = 1;
+            foreach (UserNotificationModel notification in UserNotificationEnum)
+            {
+                if (notification.STUDENT_READ)
+                {
+                    if (retval.IsPositive())
+                    {
+                        retval = await UserNotificationService.UpdateToReadStudentAsync(notification.ID);
+                    }
+                    else
+                    {
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notifications not marked as read" });
+                        return;
+                    }
+                }
+            }
+
+            UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
+            SwapVarsInNotifications();
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notifications marked as read" });
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task NotificationOnRead(int notificationID)
+    {
+        try
+        {
+            int retval = 0;
+            if (UserObject.IsTutor)
+            {
+                retval = await UserNotificationService.UpdateToReadTutorAsync(notificationID);
+            }
+            else if (UserObject.IsStudent)
+            {
+                retval = await UserNotificationService.UpdateToReadStudentAsync(notificationID);
+            }
+
+            if (retval.IsPositive())
+            {
+                UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
+                SwapVarsInNotifications();
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification marked as read" });
+            }
+            else
+            {
+                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not marked as read" });
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private async Task OpenLessonDetails(int lessonID, int notificationID)
+    {
+        try
+        {
+            LessonObject = await LessonService.SelectAsync(lessonID);
+
+            await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+
+            if (notificationID.IsPositive())
+            {
+                await NotificationOnRead(notificationID);
+            }
+
+            UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
+            SwapVarsInNotifications();
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowNotification(NotificationMessage message)
+    {
+        try
+        {
+            message.Style = NotificationPosition;
+            message.Duration = NotificationDuration;
+            NotificationService.Notify(message);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
+    private void ShowTooltip(ElementReference elementReference, string msg)
+    {
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipService.Open(elementReference, msg, options);
+    }
+    public void Dispose()
+    {
+
+    }
+}
