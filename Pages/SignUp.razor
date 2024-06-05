@@ -55,7 +55,7 @@ else
                     Fullname:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
-                    <RadzenTextBox @bind-Value="UserObject.USER_FULLNAME" MouseEnter="@(args => ShowTooltip(args, ""))" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_FULLNAME" MouseEnter="@(args => ShowTooltip(args, "Enter your first and last name."))" Style="width:250px" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit;">
@@ -63,7 +63,7 @@ else
                     Nickname:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
-                    <RadzenTextBox @bind-Value="UserObject.USER_NICKNAME" MouseEnter="@(args => ShowTooltip(args, ""))" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_NICKNAME" MouseEnter="@(args => ShowTooltip(args, "Enter an unique nickname."))" Style="width:250px" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit">
@@ -71,7 +71,7 @@ else
                     Email:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
-                    <RadzenTextBox @bind-Value="UserObject.USER_EMAIL" MouseEnter="@(args => ShowTooltip(args, ""))" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_EMAIL" Style="width:250px" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit">
@@ -79,7 +79,7 @@ else
                     Phone:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
-                    <RadzenTextBox @bind-Value="UserObject.USER_PHONE" MouseEnter="@(args => ShowTooltip(args, ""))" Style="width:250px" />
+                    <RadzenTextBox @bind-Value="UserObject.USER_PHONE" Style="width:250px" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit">
@@ -87,7 +87,7 @@ else
                     Password:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
-                    <RadzenPassword @bind-Value="UserObject.USER_PASS" MouseEnter="@(args => ShowTooltip(args, ""))" Style="width:250px" />
+                    <RadzenPassword @bind-Value="UserObject.USER_PASS" MouseEnter="@(args => ShowTooltip(args, "Password must have 8+ characters - at least one lower case, upper case and digit."))" Style="width:250px" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit">
@@ -95,7 +95,7 @@ else
                     Repeat Password:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
-                    <RadzenPassword @bind-Value="UserPassRepeat" MouseEnter="@(args => ShowTooltip(args, ""))" Style="width:250px" />
+                    <RadzenPassword @bind-Value="UserPassRepeat" Style="width:250px" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit">
@@ -113,7 +113,7 @@ else
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 15px; width:inherit">
-                <RadzenColumn Size="4" Style="text-align:right;">
+                <RadzenColumn Size="4" Style="text-align:right;" Visible="IsWorkTypeVisible">
                     Work Type:
                 </RadzenColumn>
                 <RadzenColumn Size="8">
@@ -122,6 +122,7 @@ else
                                     ValueProperty="WORK_TYPE_ID"
                                     TValue="int"
                                     AllowClear="false"
+                                    Visible="IsWorkTypeVisible"
                                     Style="width:250px"
                                     Data=@WorkTypeEnum />
                 </RadzenColumn>

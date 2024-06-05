@@ -461,16 +461,16 @@ namespace Mentor.Pages
 
                 }
 
-                if (retCreate.IsPositive())
-                {
-                    AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Saved", Detail = Msg });
-                }
-
                 if (retDel.IsPositive())
                 {
                     AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Deleted", Detail = Msg });
+                }
+
+                if (retCreate.IsPositive())
+                {
+                    AvailabilityEnum = await AvailabilityService.SelectAllAsync(AppState.UserInfo.USER_ID, TimeScopeStart, TimeScopeStop);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Availablility Saved", Detail = Msg });
                 }
 
                 return retCreate + retDel;

@@ -393,7 +393,7 @@
                 await NotificationOnRead(notificationID);
             }
 
-            UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
+            UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
             SwapVarsInNotifications();
         }
         catch (Exception ex)

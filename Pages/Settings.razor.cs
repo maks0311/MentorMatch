@@ -19,6 +19,9 @@ namespace Mentor.Pages
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
+        RadzenDataGrid<UserModel> UserGrid = new RadzenDataGrid<UserModel>();
+
+
         private IEnumerable<UserModel> UserEnum { get; set; }
         private IEnumerable<LevelModel> LevelEnum { get; set; }
         private IEnumerable<SubjectModel> SubjectEnum { get; set; }
@@ -87,12 +90,14 @@ namespace Mentor.Pages
             }
         }
 
-        private async void UserEdit(int userID)
+        private async Task UserEdit(int userID)
         {
             try {
                 AppState.SetParamAsInteger("USER_ID", userID);
                 await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                NavigationManager.NavigateTo("/user_editor");
+                await DialogService.OpenAsync<UserEditor>("User Edit", new Dictionary<string, object> { });
+                UserEnum = await UserService.SelectAllAsync();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -100,9 +105,18 @@ namespace Mentor.Pages
             }
         }
 
-        private void SubjectAdd()
+        private async void SubjectAdd()
         {
-            NavigationManager.NavigateTo("/subject");
+            try
+            {
+                await DialogService.OpenAsync<Subject>("Subject Add", new Dictionary<string, object> { });
+                SubjectEnum = await SubjectService.SelectAllAsync();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private async void SubjectEdit(int subjectID)
@@ -111,7 +125,9 @@ namespace Mentor.Pages
             {
                 AppState.SetParamAsInteger("SUBJECT_ID", subjectID);
                 await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                NavigationManager.NavigateTo("/subject");
+                await DialogService.OpenAsync<Subject>("Subject Edit", new Dictionary<string, object> { });
+                SubjectEnum = await SubjectService.SelectAllAsync();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -119,9 +135,18 @@ namespace Mentor.Pages
             }
         }
 
-        private void LevelAdd()
+        private async void LevelAdd()
         {
-            NavigationManager.NavigateTo("/level");
+            try
+            {
+                await DialogService.OpenAsync<Level>("Level Add", new Dictionary<string, object> { });
+                LevelEnum = await LevelService.SelectAllAsync();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private async void LevelEdit(int levelID)
@@ -130,7 +155,9 @@ namespace Mentor.Pages
             {
                 AppState.SetParamAsInteger("LEVEL_ID", levelID);
                 await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                NavigationManager.NavigateTo("/level");
+                await DialogService.OpenAsync<Level>("Level Edit", new Dictionary<string, object> { });
+                LevelEnum = await LevelService.SelectAllAsync();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -138,9 +165,18 @@ namespace Mentor.Pages
             }
         }
 
-        private void CityAdd()
+        private async void CityAdd()
         {
-            NavigationManager.NavigateTo("/city");
+            try
+            {
+                await DialogService.OpenAsync<City>("City Add", new Dictionary<string, object> { });
+                CityEnum = await CityService.SelectAllAsync();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         private async void CityEdit(int cityID)
@@ -149,32 +185,14 @@ namespace Mentor.Pages
             {
                 AppState.SetParamAsInteger("CITY_ID", cityID);
                 await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
-                NavigationManager.NavigateTo("/city");
+                await DialogService.OpenAsync<City>("City Edit", new Dictionary<string, object> { });
+                CityEnum = await CityService.SelectAllAsync();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-        }
-
-        private void ShowNotification(NotificationMessage message)
-        {
-            try
-            {
-                message.Style = NotificationPosition;
-                message.Duration = NotificationDuration;
-                NotificationService.Notify(message);
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-            }
-        }
-
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
         }
 
         public void Dispose()

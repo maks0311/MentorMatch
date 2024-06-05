@@ -103,6 +103,9 @@ namespace Mentor.Pages
                         }
                         await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
+                        Msg = UserName + " logged in.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Authentication", Detail = Msg });
+
                         NavigationManager.NavigateTo("./");
                     }
                     else
@@ -115,13 +118,13 @@ namespace Mentor.Pages
                                 Msg = "Incorrect password.";
                                 break;
                             case -1:
-                                Msg = "Login failed. User [" + UserName + "] does not exist";
+                                Msg = "Login failed. User [" + UserName + "] does not exist.";
                                 break;
                             case -2:
-                                Msg = "Cannot login. User [" + UserName + "] is disabled";
+                                Msg = "Cannot login. User [" + UserName + "] is disabled.";
                                 break;
                             default:
-                                Msg = "Login failed";
+                                Msg = "Login failed.";
                                 break;
                         }
 
@@ -153,12 +156,6 @@ namespace Mentor.Pages
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-        }
-
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
         }
 
         public void Dispose()

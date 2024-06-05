@@ -139,8 +139,7 @@ else
                                                     TValue="int"
                                                     AllowClear="true"
                                                     Style="width:100%"
-                                                    Data=@WorkTypeEnum
-                                                    Change="@(args => OnFilterChange("WORK_TYPE"))" />
+                                                    Data=@WorkTypeEnum/>
                                 </FilterTemplate>
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_RATING" Title="Rating" Frozen="true" Sortable="true" TextAlign="TextAlign.Left">
@@ -151,8 +150,7 @@ else
                                                     TValue="int"
                                                     AllowClear="false"
                                                     Style="width:100%"
-                                                    Data=@RatingEnum
-                                                    Change="@(args => OnFilterChange("RATING"))" />
+                                                    Data=@RatingEnum />
                                 </FilterTemplate>
                                 <Template Context="TutorModel">
                                     <RadzenRating @bind-Value="TutorModel.TUTOR_RATING" ReadOnly="true" />
@@ -168,7 +166,7 @@ else
                     <RadzenRow>
                         <RadzenColumn Size="4"></RadzenColumn>
                         <RadzenColumn Size="4">
-                            <RadzenLabel Text="Select criteria to find best Tutors" Style="font-size:xx-large; margin-top:100px; margin-bottom:100px; text-align:center"></RadzenLabel>
+                            <RadzenLabel Text="No tutors found. Select criteria to find the best tutors for you. :)" Style="font-size:xx-large; margin-top:100px; margin-bottom:100px; text-align:center"></RadzenLabel>
                         </RadzenColumn>
                         <RadzenColumn Size="4"></RadzenColumn>
                     </RadzenRow>

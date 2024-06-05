@@ -552,5 +552,125 @@ namespace Mentor.Data
             }
             return lessonInfoList;
         }
+
+        public IEnumerable<LessonModel> SelectArchiveByTutor(int tutorID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_ID", tutorID, DbType.Int32);
+
+            IEnumerable<LessonModel> lessonInfoList;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    lessonInfoList = conn.Query<LessonModel>("SYS_LESSON_SELECT_ARCHIVE_BY_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return lessonInfoList;
+        }
+
+        public async Task<IEnumerable<LessonModel>> SelectArchiveByTutorAsync(int tutorID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("TUTOR_ID", tutorID, DbType.Int32);
+
+            IEnumerable<LessonModel> lessonInfoList;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    lessonInfoList = await conn.QueryAsync<LessonModel>("SYS_LESSON_SELECT_ARCHIVE_BY_TUTOR", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return lessonInfoList;
+        }
+
+        public IEnumerable<LessonModel> SelectArchiveByStudent(int studentID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("STUDENT_ID", studentID, DbType.Int32);
+
+            IEnumerable<LessonModel> lessonInfoList;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    lessonInfoList = conn.Query<LessonModel>("SYS_LESSON_SELECT_ARCHIVE_BY_STUDENT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return lessonInfoList;
+        }
+
+        public async Task<IEnumerable<LessonModel>> SelectArchiveByStudentAsync(int studentID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("STUDENT_ID", studentID, DbType.Int32);
+
+            IEnumerable<LessonModel> lessonInfoList;
+
+            using (var conn = new SqlConnection(_configuration.Value))
+            {
+                try
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    lessonInfoList = await conn.QueryAsync<LessonModel>("SYS_LESSON_SELECT_ARCHIVE_BY_STUDENT", parameters, commandType: CommandType.StoredProcedure);
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error(ex.Message);
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
+            }
+            return lessonInfoList;
+        }
     }
 }

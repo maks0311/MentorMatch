@@ -49,39 +49,36 @@ else
                 <Tabs>
                     <RadzenTabsItem Text="Users">
                         <RadzenCard Style="margin-top:10px">
-                            <RadzenDataGrid @ref="@UserDataGrid"
-                                            Data="@UserEnum"
-                                            AllowFiltering="true"
-                                            AllowMultiColumnSorting="true"
-                                            ClearFilterText="true"
-                                            AllowColumnResize="true"
-                                            FilterMode="FilterMode.Simple"
-                                            PageSize=25
-                                            AllowPaging="true"
-                                            AllowSorting="true"
-                                            AllowVirtualization="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            LogicalFilterOperator="LogicalFilterOperator.And"
-                                            Visible="true">
+                            <RadzenGrid Data="@UserEnum"
+                                        AllowFiltering="true"
+                                        ClearFilterText="true"
+                                        AllowColumnResize="true"
+                                        FilterMode="FilterMode.Simple"
+                                        PageSize=25
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                        Visible="true">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="UserModel" Property="USER_ID" Filterable="false" Title="ID" Frozen="true" Width="65px" TextAlign="TextAlign.Right" />
-                                    <RadzenDataGridColumn TItem="UserModel" Property="USER_FULLNAME" Title="Fullname" TextAlign="TextAlign.Left" />
-                                    <RadzenDataGridColumn TItem="UserModel" Property="GROUP_NAME" Title="Group" Width="120px" TextAlign="TextAlign.Right" />
-                                    <RadzenDataGridColumn TItem="UserModel" Property="WORK_TYPE_NAME" Title="Worktype" Width="120px" TextAlign="TextAlign.Right" />
+                                    <RadzenGridColumn TItem="UserModel" Property="USER_ID" Filterable="false" Title="ID" Width="65px" TextAlign="TextAlign.Right" />
+                                    <RadzenGridColumn TItem="UserModel" Property="USER_FULLNAME" Title="Fullname" TextAlign="TextAlign.Left" />
+                                    <RadzenGridColumn TItem="UserModel" Property="GROUP_NAME" Title="Group" Width="120px" TextAlign="TextAlign.Right" />
+                                    <RadzenGridColumn TItem="UserModel" Property="WORK_TYPE_NAME" Title="Worktype" Width="120px" TextAlign="TextAlign.Right" />
 
-                                    <RadzenDataGridColumn TItem="UserModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="50px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="UserModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="50px" TextAlign="TextAlign.Center">
                                         <Template Context="UserModel">
                                             <RadzenCheckBox @bind-Value="UserModel.IS_ACTIVE" Disabled="true" TriState="false" TValue="bool" />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
 
-                                    <RadzenDataGridColumn TItem="UserModel" Property="USER_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="UserModel" Property="USER_ID" Title="Edit" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="UserModel">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => UserEdit(UserModel.USER_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit User"))" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => UserEdit(UserModel.USER_ID)) />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
                                 </Columns>
-                            </RadzenDataGrid>
+                            </RadzenGrid>
 
                         </RadzenCard>
                     </RadzenTabsItem>
@@ -92,38 +89,35 @@ else
                         </RadzenCard>
 
                         <RadzenCard Style="margin-top:10px">
-                            <RadzenDataGrid @ref="@SubjectDataGrid"
-                                            Data="@SubjectEnum"
-                                            AllowFiltering="true"
-                                            AllowMultiColumnSorting="true"
-                                            ClearFilterText="true"
-                                            AllowColumnResize="true"
-                                            FilterMode="FilterMode.Simple"
-                                            PageSize=25
-                                            AllowPaging="true"
-                                            AllowSorting="true"
-                                            AllowVirtualization="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            LogicalFilterOperator="LogicalFilterOperator.And"
-                                            Visible="true">
+                            <RadzenGrid Data="@SubjectEnum"
+                                        AllowFiltering="true"
+                                        ClearFilterText="true"
+                                        AllowColumnResize="true"
+                                        FilterMode="FilterMode.Simple"
+                                        PageSize=25
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                        Visible="true">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="SubjectModel" Property="SUBJECT_ID" Filterable="false" Title="ID" Frozen="true" Width="65px" TextAlign="TextAlign.Right" />
-                                    <RadzenDataGridColumn TItem="SubjectModel" Property="SUBJECT_NAME" Title="Subject" TextAlign="TextAlign.Left" />
+                                    <RadzenGridColumn TItem="SubjectModel" Property="SUBJECT_ID" Filterable="false" Title="ID" Width="65px" TextAlign="TextAlign.Right" />
+                                    <RadzenGridColumn TItem="SubjectModel" Property="SUBJECT_NAME" Title="Subject" TextAlign="TextAlign.Left" />
 
-                                    <RadzenDataGridColumn TItem="SubjectModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="65px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="SubjectModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="SubjectModel">
                                             <RadzenCheckBox @bind-Value="SubjectModel.IS_ACTIVE" Disabled="true" TriState="false" TValue="bool" />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
 
-                                    <RadzenDataGridColumn TItem="SubjectModel" Property="SUBJECT_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="SubjectModel" Property="SUBJECT_ID" Title="Edit" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="SubjectModel">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => SubjectEdit(SubjectModel.SUBJECT_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit Subject"))" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => SubjectEdit(SubjectModel.SUBJECT_ID)) />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
 
                                 </Columns>
-                            </RadzenDataGrid>
+                            </RadzenGrid>
                         </RadzenCard>
                     </RadzenTabsItem>
 
@@ -133,38 +127,35 @@ else
                         </RadzenCard>
 
                         <RadzenCard Style="margin-top:10px">
-                            <RadzenDataGrid @ref="@LevelDataGrid"
-                                            Data="@LevelEnum"
-                                            AllowFiltering="true"
-                                            AllowMultiColumnSorting="true"
-                                            ClearFilterText="true"
-                                            AllowColumnResize="true"
-                                            FilterMode="FilterMode.Simple"
-                                            PageSize=25
-                                            AllowPaging="true"
-                                            AllowSorting="true"
-                                            AllowVirtualization="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            LogicalFilterOperator="LogicalFilterOperator.And"
-                                            Visible="true">
+                            <RadzenGrid Data="@LevelEnum"
+                                        AllowFiltering="true"
+                                        ClearFilterText="true"
+                                        AllowColumnResize="true"
+                                        FilterMode="FilterMode.Simple"
+                                        PageSize=25
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                        Visible="true">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="LevelModel" Property="LEVEL_ID" Filterable="false" Title="ID" Frozen="true" Width="65px" TextAlign="TextAlign.Right" />
-                                    <RadzenDataGridColumn TItem="LevelModel" Property="LEVEL_NAME" Title="Subject" TextAlign="TextAlign.Left" />
+                                    <RadzenGridColumn TItem="LevelModel" Property="LEVEL_ID" Filterable="false" Title="ID" Width="65px" TextAlign="TextAlign.Right" />
+                                    <RadzenGridColumn TItem="LevelModel" Property="LEVEL_NAME" Title="Subject" TextAlign="TextAlign.Left" />
 
-                                    <RadzenDataGridColumn TItem="LevelModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="65px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="LevelModel" Property="IS_ACTIVE" Title="Active" Filterable="true" Sortable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="LevelModel">
                                             <RadzenCheckBox @bind-Value="LevelModel.IS_ACTIVE" Disabled="true" TriState="false" TValue="bool" />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
 
-                                    <RadzenDataGridColumn TItem="LevelModel" Property="LEVEL_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="LevelModel" Property="LEVEL_ID" Title="Edit" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="LevelModel">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => LevelEdit(LevelModel.LEVEL_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit Level"))" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => LevelEdit(LevelModel.LEVEL_ID)) />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
 
                                 </Columns>
-                            </RadzenDataGrid>
+                            </RadzenGrid>
                         </RadzenCard>
 
                     </RadzenTabsItem>
@@ -174,32 +165,29 @@ else
                         </RadzenCard>
 
                         <RadzenCard Style="margin-top:10px">
-                            <RadzenDataGrid @ref="@CityDataGrid"
-                                            Data="@CityEnum"
-                                            AllowFiltering="true"
-                                            AllowMultiColumnSorting="true"
-                                            ClearFilterText="true"
-                                            AllowColumnResize="true"
-                                            FilterMode="FilterMode.Simple"
-                                            PageSize=25
-                                            AllowPaging="true"
-                                            AllowSorting="true"
-                                            AllowVirtualization="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            LogicalFilterOperator="LogicalFilterOperator.And"
-                                            Visible="true">
+                            <RadzenGrid Data="@CityEnum"
+                                        AllowFiltering="true"
+                                        ClearFilterText="true"
+                                        AllowColumnResize="true"
+                                        FilterMode="FilterMode.Simple"
+                                        PageSize=25
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        LogicalFilterOperator="LogicalFilterOperator.And"
+                                        Visible="true">
                                 <Columns>
-                                    <RadzenDataGridColumn TItem="CityModel" Property="CITY_ID" Filterable="false" Title="ID" Frozen="true" Width="65px" TextAlign="TextAlign.Right" />
-                                    <RadzenDataGridColumn TItem="CityModel" Property="CITY_NAME" Title="City" TextAlign="TextAlign.Left" />
+                                    <RadzenGridColumn TItem="CityModel" Property="CITY_ID" Filterable="false" Title="ID" Width="65px" TextAlign="TextAlign.Right" />
+                                    <RadzenGridColumn TItem="CityModel" Property="CITY_NAME" Title="City" TextAlign="TextAlign.Left" />
 
-                                    <RadzenDataGridColumn TItem="CityModel" Property="CITY_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
+                                    <RadzenGridColumn TItem="CityModel" Property="CITY_ID" Title="Edit" Sortable="false" Filterable="false" Width="65px" TextAlign="TextAlign.Center">
                                         <Template Context="CityModel">
-                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => CityEdit(CityModel.CITY_ID)) MouseEnter="@(args => ShowTooltip(args, "View or Edit City"))" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => CityEdit(CityModel.CITY_ID)) />
                                         </Template>
-                                    </RadzenDataGridColumn>
+                                    </RadzenGridColumn>
 
                                 </Columns>
-                            </RadzenDataGrid>
+                            </RadzenGrid>
                         </RadzenCard>
                     </RadzenTabsItem>
                 </Tabs>

@@ -41,7 +41,7 @@
                 <RadzenMenu Visible="@IsRendered">
                     <RadzenMenuItem Text="Save Lesson" Icon="save" Click="LessonSave" Style="padding-right:25px;" Disabled="@(!SaveEnabled)"></RadzenMenuItem>
                     <RadzenMenuItem Text="Accept Lesson" Icon="done" Click="LessonAccept" Style="padding-right:25px;" Disabled="@(!AcceptEnabled)"></RadzenMenuItem>
-                    <RadzenMenuItem Text="Cancel Lesson" Icon="delete" Click="LessonDelete" Style="padding-right:25px;" Disabled="@(!DeleteEnabled)"></RadzenMenuItem>
+                    <RadzenMenuItem Text="Cancel Lesson" Icon="delete" Click="LessonCancel" Style="padding-right:25px;" Disabled="@(!CancelEnabled)"></RadzenMenuItem>
                 </RadzenMenu>
             </RadzenColumn>
         </RadzenRow>
@@ -184,7 +184,7 @@
                 <RadzenLabel Text="Students' Rating" />
             </RadzenColumn>
             <RadzenColumn Size="4" Style="margin-top:10px; text-align:center">
-                <RadzenRating Stars="5" Value=@LessonObject.RATING_VALUE Style="margin-left:10px; height:30px; display:table; visibility:visible" ReadOnly=@RatingIsReadOnly MouseEnter=@(args => ShowRatingTooltip(args, @LessonObject.RATING_NAME)) Change="@(args => OnRatingUpdate(args))"></RadzenRating>
+                <RadzenRating Stars="5" Value=@LessonObject.RATING_VALUE Style="margin-left:10px; height:30px; display:table; visibility:visible" ReadOnly=@RatingIsReadOnly MouseEnter=@(args => ShowTooltip(args, @LessonObject.RATING_NAME)) Change="@(args => OnRatingUpdate(args))"></RadzenRating>
             </RadzenColumn>
             <RadzenColumn Size="3"></RadzenColumn>
         </RadzenRow>

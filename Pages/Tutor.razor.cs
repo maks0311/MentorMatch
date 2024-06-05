@@ -188,14 +188,14 @@ namespace Mentor.Pages
                 // when selected not-available slot
                 if (AvailabilityEnum.Where(x => x.DATE_START <= args.Start && x.DATE_STOP >= args.End).Count().IsZero()) 
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Availability", Detail = "Select available time" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Time not available", Detail = "Select available time." });
                     return; 
                 }
 
                 // when selected past slot
                 if (args.Start < DateTime.Now)
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Availability", Detail = "Only future lesson can be registered" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Time not available", Detail = "Only future lesson can be registered." });
                     return;
                 }
 
@@ -252,7 +252,7 @@ namespace Mentor.Pages
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "This lesson belongs to other student", Detail = "Warning" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Cannot edit lesson", Detail = "This lesson belongs to other student." });
                 }
             }
             catch (Exception ex)
@@ -290,6 +290,14 @@ namespace Mentor.Pages
             else
             {
                 args.Attributes["style"] = Globals.CalendarStyleLessonInactive;
+            }
+        }
+
+        private void OnLessonHover(SchedulerAppointmentMouseEventArgs<LessonModel> args)
+        {
+            if (args.Data.STUDENT_ID == AppState.UserInfo.USER_ID)
+            {
+                ShowTooltip(args.Element, args.Data.LESSON_STATUS_NAME);
             }
         }
 

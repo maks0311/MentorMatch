@@ -194,6 +194,7 @@
         {
             AppState.UserInfo = new();
             await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User logged out" });
             NavigationManager.NavigateTo("./");
         }
 
@@ -213,12 +214,6 @@
         if (args.Text == "Search")
         {
             NavigationManager.NavigateTo("/search");
-        }
-
-        if (args.Text == "About")
-        {
-            AppState.UserInfo = new();
-            NavigationManager.NavigateTo("/about");
         }
     }
 

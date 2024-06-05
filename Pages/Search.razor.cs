@@ -114,25 +114,13 @@ namespace Mentor.Pages
             try
             {
                 TutorEnum = await TutorService.SearchAllAsync(SearchTutorName, SearchSubjectObject.SUBJECT_ID, SearchLevelObject.LEVEL_ID, SearchWorkTypeObject.WORK_TYPE_ID, SearchCityObject.CITY_ID);
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-            }
-        }
-
-        private void OnFilterChange(string key)
-        {
-            try
-            {
-                if (key == "WORK_TYPE")
+                if (TutorEnum.Any())
                 {
-                    TutorEnum = TutorEnum.Where(tutor => tutor.WORK_TYPE_ID == WorkTypeObject.WORK_TYPE_ID);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Tutors found", Detail = "We found " + TutorEnum.Count() + " tutor(s) for you" });
                 }
-
-                if (key == "RATING")
+                else
                 {
-                    TutorEnum = TutorEnum.Where(tutor => tutor.TUTOR_RATING == RatingObject.RATING_VALUE);
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "No tutors found", Detail = "Change criteria to find your tutor." });
                 }
             }
             catch (Exception ex)
@@ -167,12 +155,6 @@ namespace Mentor.Pages
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-        }
-
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
         }
     }
 }

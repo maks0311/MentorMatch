@@ -50,7 +50,7 @@ else
                     User Name / E-mail:
                 </RadzenColumn>
                 <RadzenColumn Size="8" Style="text-align:center">
-                    <RadzenTextBox Change=@(args => OnChange(args, "USER_NAME")) MouseEnter=@(args => ShowTooltip(args, "Enter your login or registered e-mail address")) Style="width:250px; align-content:end" />
+                    <RadzenTextBox Change=@(args => OnChange(args, "USER_NAME")) Style="width:250px; align-content:end" />
                 </RadzenColumn>
             </RadzenRow>
             <RadzenRow Style="padding: 20px;">
@@ -58,7 +58,7 @@ else
                     Password:
                 </RadzenColumn>
                 <RadzenColumn Size="8" Style="text-align:center">
-                    <RadzenPassword Change=@(args => OnChange(args, "USER_PASS")) MouseEnter=@(args => ShowTooltip(args, "Enter your password")) Style="width:250px; align-content:center;" />
+                    <RadzenPassword Change=@(args => OnChange(args, "USER_PASS")) Style="width:250px; align-content:center;" />
                 </RadzenColumn>
             </RadzenRow>
 
