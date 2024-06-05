@@ -20,8 +20,8 @@ namespace Mentor.Pages
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
-        private readonly int ColumnLabelSize = 2;
-        private readonly int ColumnControlSize = 10;
+        private readonly int ColumnLabelSize = 5;
+        private readonly int ColumnControlSize = 7;
 
         private LevelModel LevelObject { get; set; } = new LevelModel();
 
@@ -106,13 +106,15 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level", Detail = "Saved" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level saved" });
                         DisableSave = true;
-                        NavigationManager.NavigateTo("/settings");
+                        AppState.SetParamAsInteger("LEVEL_ID", 0);
+                        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                        DialogService.Close();
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Level", Detail = "Not Saved" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Level not saved", Detail = "Something went wrong. Try again." });
                     }
                 }
             }
@@ -126,9 +128,20 @@ namespace Mentor.Pages
         {
             try
             {
-                await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
-                DisableSave = true;
-                NavigationManager.NavigateTo("/settings");
+                var retval = await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
+                if(retval == 1)
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level deleted" });
+                    DisableSave = true;
+                    AppState.SetParamAsInteger("LEVEL_ID", 0);
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                    DialogService.Close();
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Level not deleted", Detail = "Something went wrong. Try again." });
+
+                }
             }
             catch (Exception ex)
             {
@@ -159,14 +172,9 @@ namespace Mentor.Pages
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
+        public async void Dispose()
+        {
 
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
-        }
-        public void Dispose()
-        {
         }
     }
 }

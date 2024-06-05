@@ -14,10 +14,8 @@ namespace Mentor.Pages
         AppState AppState { get; set; } = new AppState();
 
         static string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
-        string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
-        int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
         private bool IsRendered { get; set; } = false;
-        private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+        private NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -78,25 +76,6 @@ namespace Mentor.Pages
             }
         }
 
-        private void ShowNotification(NotificationMessage message)
-        {
-            try
-            {
-                message.Style = NotificationPosition;
-                message.Duration = NotificationDuration;
-                NotificationService.Notify(message);
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-            }
-        }
-
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
-        }
         public void Dispose()
         {
         }

@@ -15,7 +15,7 @@ namespace Mentor.Data
         public bool IS_ACTIVE { get; set; } = true;
         public int GROUP_ID { get; set; } = 0;
         public string GROUP_NAME { get; set; } = String.Empty;
-        public int WORK_TYPE_ID { get; set; } = 0;
+        public int WORK_TYPE_ID { get; set; } = 3;
         public string WORK_TYPE_NAME { get; set; } = String.Empty;
 
         public bool IsAuthenticated

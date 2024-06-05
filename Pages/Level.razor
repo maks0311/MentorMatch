@@ -1,6 +1,4 @@
-﻿@page "/level"
-
-@implements IDisposable
+﻿@implements IDisposable
 
 @using System
 @using System.Text
@@ -35,45 +33,26 @@
 @inject ICompetenceService CompetenceService;
 @inject ILessonService LessonService;
 
-@if (AppState.IsNull())
-{
-    <p>Loading menu...</p>
-}
-else
-{
-    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
-}
-
 @if (LevelObject.IsNotNull())
 {
-    <RadzenRow Style="margin-top:60px">
-        <RadzenColumn Size="12">
-            <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
-                <Tabs>
-                    <RadzenTabsItem Text="Level">
-                        <RadzenCard>
-                            <RadzenButton Text="Save" Icon="save" Click="LevelSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                            <RadzenButton Text="Delete" Icon="cancel" Click="LevelDelete" Disabled="@DisableDelete" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
-                        </RadzenCard>
+    <RadzenCard>
+        <RadzenButton Text="Save" Icon="save" Click="LevelSave" Disabled="@DisableSave" Style="margin-right:5px" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+        <RadzenButton Text="Delete" Icon="cancel" Click="LevelDelete" Disabled="@DisableDelete" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+    </RadzenCard>
 
-                        <RadzenCard>
-                            <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
-                                <RadzenStack Style="width:50%">
-                                    <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Level Name"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LevelObject.LEVEL_NAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
-                                    </RadzenRow>
-                                    <RadzenRow>
-                                        <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@LevelObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange()) /></RadzenColumn>
-                                    </RadzenRow>
-                                </RadzenStack>
-                            </RadzenStack>
+    <RadzenCard>
+        <RadzenStack Style="width:inherit" Orientation="Orientation.Horizontal">
+            <RadzenStack Style="width:50%">
+                <RadzenRow>
+                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Level Name"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@LevelObject.LEVEL_NAME MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
+                    <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@LevelObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange()) /></RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+        </RadzenStack>
 
-                        </RadzenCard>
-                    </RadzenTabsItem>
-                </Tabs>
-            </RadzenTabs>
-        </RadzenColumn>
-    </RadzenRow>
+    </RadzenCard>
 }

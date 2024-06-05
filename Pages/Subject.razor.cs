@@ -19,8 +19,8 @@ namespace Mentor.Pages
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
-        private readonly int ColumnLabelSize = 2;
-        private readonly int ColumnControlSize = 10;
+        private readonly int ColumnLabelSize = 5;
+        private readonly int ColumnControlSize = 7;
 
         private SubjectModel SubjectObject { get; set; } = new SubjectModel();
 
@@ -105,13 +105,15 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Saved"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject saved" });
                         DisableSave = true;
-                        NavigationManager.NavigateTo("/settings");
+                        AppState.SetParamAsInteger("SUBJECT_ID", 0);
+                        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                        DialogService.Close();
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Saved"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Subject not saved", Detail = "Something went wrong. Try again."});
                     }
                 }
             }
@@ -128,13 +130,15 @@ namespace Mentor.Pages
                 var retval = await SubjectService.DeleteAsync(SubjectObject.SUBJECT_ID);
                 if (retval == 1)
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject", Detail = "Deleted"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject deleted"});
                     DisableSave = true;
-                    NavigationManager.NavigateTo("/settings");
+                    AppState.SetParamAsInteger("SUBJECT_ID", 0);
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                    DialogService.Close();
                 }
-                if (retval == 0)
+                else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Subject", Detail = "Not Deleted"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Subject not deleted", Detail = "Something went wrong. Try again."});
                 }
             }
             catch (Exception ex)
@@ -166,14 +170,9 @@ namespace Mentor.Pages
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
-
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
-        }
         public void Dispose()
         {
+
         }
     }
 }

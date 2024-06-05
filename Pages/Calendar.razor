@@ -49,7 +49,6 @@ else
             <RadzenTabs RenderMode="TabRenderMode.Client" Style="height: max-content">
                 <Tabs>
                     <RadzenTabsItem Text="Calendar">
-                        <CalendarLegend/>
                         <RadzenScheduler @ref=@Scheduler
                                          Style="height:650px"
                                          TItem="LessonModel"
@@ -60,6 +59,7 @@ else
                                          SelectedIndex="1"
                                          SlotRender=@OnSlotRender
                                          AppointmentSelect=@OnLessonSelect
+                                         AppointmentMouseEnter="@(args => ShowTooltip(args.Element, args.Data.LESSON_STATUS_NAME))"
                                          AppointmentRender=@OnLessonRender>
                             <RadzenMonthView MaxAppointmentsInSlot="1" />
                             <RadzenWeekView MinutesPerSlot="15" TimeFormat="HH:mm" />

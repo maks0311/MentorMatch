@@ -14,6 +14,10 @@ namespace Mentor.Data
         Task<IEnumerable<LessonModel>> SelectAllByStudentAsync(int studentID);
         IEnumerable<LessonModel> SelectAllByTutor(int tutorID);
         Task<IEnumerable<LessonModel>> SelectAllByTutorAsync(int tutorID);
+        IEnumerable<LessonModel> SelectArchiveByStudent(int studentID);
+        Task<IEnumerable<LessonModel>> SelectArchiveByStudentAsync(int studentID);
+        IEnumerable<LessonModel> SelectArchiveByTutor(int tutorID);
+        Task<IEnumerable<LessonModel>> SelectArchiveByTutorAsync(int tutorID);
         Task<LessonModel> SelectAsync(int lessonID);
         int Update(LessonModel lesson);
         Task<int> UpdateAsync(LessonModel lesson);

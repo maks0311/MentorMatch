@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Radzen;
-using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -19,7 +17,7 @@ namespace Mentor.Pages
         string Msg { get; set; }
         private bool IsRendered { get; set; } = false;
 
-        private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
         private string Pass1 { get; set; } = string.Empty;
         private string Pass2 { get; set; } = string.Empty;
         private bool DisableSave { get; set; } = true;
@@ -42,7 +40,6 @@ namespace Mentor.Pages
         private LessonModel LessonObject { get; set; } = new LessonModel();
         private UserToCityModel UserToCityObject { get; set; } = new UserToCityModel();
         private CityModel CityObject { get; set; } = new CityModel();
-        private UserNotificationModel UserNotificationObject { get; set; } = new UserNotificationModel();
 
         private IEnumerable<GroupModel> GroupEnum { get; set; }
         private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
@@ -133,13 +130,13 @@ namespace Mentor.Pages
 
                     if (UserObject.IsTutor)
                     {
-                        LessonEnum = await LessonService.SelectAllByTutorAsync(UserObject.USER_ID);
+                        LessonEnum = await LessonService.SelectArchiveByTutorAsync(UserObject.USER_ID);
                         CityEnum = await CityService.SelectAllAsync();
                         UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
                     }
                     else if (UserObject.IsStudent)
                     {
-                        LessonEnum = await LessonService.SelectAllByStudentAsync(UserObject.USER_ID);
+                        LessonEnum = await LessonService.SelectArchiveByStudentAsync(UserObject.USER_ID);
                     }
                 }
             }
@@ -173,35 +170,28 @@ namespace Mentor.Pages
                     if (string.IsNullOrEmpty(UserObject.USER_FULLNAME))
                     {
                         Msg = "Your full name cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User info not saved", Detail = Msg });
                         return;
                     }
 
                     if (!IsValidName(UserObject.USER_FULLNAME))
                     {
                         Msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
-                        return;
-                    }
-
-                    if (string.IsNullOrEmpty(UserObject.USER_NICKNAME))
-                    {
-                        Msg = "Your  nickname cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User info not saved", Detail = Msg });
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
                         Msg = "Invalid phone number. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User info not saved", Detail = Msg });
                         return;
                     }
 
                     if (!IsDescValid(UserObject.USER_DESCRIPTION))
                     {
                         Msg = "Description is too long.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail = Msg });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User info not saved", Detail = Msg });
                         return;
                     }
 
@@ -212,12 +202,12 @@ namespace Mentor.Pages
                         AppState.UserInfo = UserObject;
                         await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
 
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User info saved", Detail = "Personal information updated." });
                         DisableSave = true;
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User", Detail = "Not Saved" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User info not saved", Detail = "Something went wrong. Try again later." });
                     }
                 }
             }
@@ -245,47 +235,46 @@ namespace Mentor.Pages
             DisableSave = false;
         }
 
-        private void OnCheckBoxChange(bool? value, string name)
-        {
-            DisableSave = false;
-        }
-
         private void OnDropDownChange(object value, string key)
         {
             DisableSave = false;
         }
 
+        private static bool IsPasswordValid(string password)
+        {
+            if (password.Length < 8)
+            {
+                return false;
+            }
+
+            if (!password.Any(char.IsUpper))
+            {
+                return false;
+            }
+
+            if (!password.Any(char.IsLower))
+            {
+                return false;
+            }
+
+            if (!password.Any(char.IsDigit))
+            {
+                return false;
+            }
+
+            return true;
+
+        }
+
         private void OnPasswordChange()
         {
-            try
+            if (!String.IsNullOrEmpty(Pass1) && !String.IsNullOrEmpty(Pass2))
             {
-                bool pass_error = false;
-                string msg = string.Empty;
-
-                if (String.IsNullOrEmpty(Pass1) || String.IsNullOrEmpty(Pass2))
-                {
-                    pass_error = true;
-                }
-
-                if (Pass1.Length < 6 && pass_error.IsFalse())
-                {
-                    pass_error = true;
-                    msg = "Password too short, should contain at least 6 characters.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg });
-                }
-
-                if (!Pass1.Equals(Pass2, StringComparison.InvariantCulture) && pass_error.IsFalse())
-                {
-                    pass_error = true;
-                    msg = "Password and its repetition are not identical, enter them again please.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = msg });
-                }
-
-                DisablePasswordSave = pass_error;
+                DisablePasswordSave = false;
             }
-            catch (Exception ex)
+            else
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                DisablePasswordSave = true;
             }
         }
 
@@ -293,16 +282,30 @@ namespace Mentor.Pages
         {
             try
             {
+                if (!IsPasswordValid(Pass1))
+                {
+                    Msg = "Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter and one digit.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password not saved", Detail = Msg });
+                    return;
+                }
+
+                if (!Pass1.Equals(Pass2, StringComparison.InvariantCulture))
+                {
+                    Msg = "Password and its repetition are not identical, enter them again please.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password not saved", Detail = Msg });
+                    return;
+                }
+
                 int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, EncryptionHelper.EncryptString(Globals.key, Pass1));
 
                 if (retval.IsPositive())
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Password", Detail = "Password saved correctly" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Password saved", Detail = "Password updated." });
                     DisablePasswordSave = true;
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Password", Detail = "Password not saved" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Password not saved", Detail = "Something went wrong. Try again." });
                 }
             }
             catch (Exception ex)
@@ -321,15 +324,15 @@ namespace Mentor.Pages
                     if (retval.IsPositive())
                     {
                         CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence", Detail = "New competence added" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence saved", Detail = "New competence added." });
                     }
                     else if (retval.IsZero())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "This competence already exists" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence not saved", Detail = "This competence already exists." });
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Competence", Detail = "Competence not added" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Competence not saved", Detail = "Something went wrong. Try again." });
                     }
                 }
             }
@@ -349,6 +352,11 @@ namespace Mentor.Pages
                     if (retVal.IsPositive())
                     {
                         CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(UserObject.USER_ID);
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Competence deleted" });
+                    }
+                    else
+                    {
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Competence not deleted", Detail = "Something went wrong. Try again." });
                     }
                 }
             }
@@ -370,15 +378,15 @@ namespace Mentor.Pages
                     if (retval.IsPositive())
                     {
                         UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "New city added" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City saved", Detail = "New city added." });
                     }
                     else if (retval.IsZero())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "This city already exists" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City not saved", Detail = "This city is already registered." });
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not added" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "City not saved", Detail = "Something went wrong. Try again." });
                     }
                 }
             }
@@ -398,11 +406,11 @@ namespace Mentor.Pages
                     if (retVal.IsPositive())
                     {
                         UserToCityEnum = await UserToCityService.SelectAllByTutorAsync(UserObject.USER_ID);
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "City deleted" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City deleted" });
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "City not deleted" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City not deleted", Detail = "Something went wrong. Try again." });
                     }
                 }
             }
@@ -444,34 +452,6 @@ namespace Mentor.Pages
             }
         }
 
-        private async Task OpenLessonDetails(int lessonID, int notificationID)
-        {
-            try
-            {
-                LessonObject = await LessonService.SelectAsync(lessonID);
-
-                await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
-                if (UserObject.IsTutor)
-                {
-                    LessonEnum = await LessonService.SelectAllByTutorAsync(AppState.UserInfo.USER_ID);
-                }
-                else if (UserObject.IsStudent)
-                {
-                    LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
-                }
-                if (notificationID.IsPositive())
-                {
-                    await NotificationOnRead(notificationID);
-                }
-                UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
-                SwapVarsInNotifications();
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-            }
-        }
-
         private async Task NotificationOnRead(int notificationID)
         {
             try
@@ -490,11 +470,11 @@ namespace Mentor.Pages
                 {
                     UserNotificationEnum = UserNotificationService.SelectAllByUser(UserObject.USER_ID);
                     SwapVarsInNotifications();
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification", Detail = "Notification marked as read" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification marked as read" });
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification", Detail = "Notification not marked as read" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Notification not marked as read", Detail = "Something went wrong. Try again." });
                 }
             }
             catch (Exception ex)
@@ -539,6 +519,33 @@ namespace Mentor.Pages
 
         }
 
+        private async Task OpenLessonDetails(int lessonID, int notificationID)
+        {
+            try
+            {
+                LessonObject = await LessonService.SelectAsync(lessonID);
+
+                await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
+                if (UserObject.IsTutor)
+                {
+                    LessonEnum = await LessonService.SelectArchiveByTutorAsync(AppState.UserInfo.USER_ID);
+                }
+                else if (UserObject.IsStudent)
+                {
+                    LessonEnum = await LessonService.SelectArchiveByStudentAsync(AppState.UserInfo.USER_ID);
+                }
+                if (notificationID.IsPositive())
+                {
+                    await NotificationOnRead(notificationID);
+                }
+                UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
+                SwapVarsInNotifications();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
+        }
         private void ShowNotification(NotificationMessage message)
         {
             try

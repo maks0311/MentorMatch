@@ -14,7 +14,7 @@ namespace Mentor.Pages
     public partial class SignUp
     {
         private AppState AppState { get; set; } = new AppState();
-        private string msg { get; set; }
+        private string Msg { get; set; }
         private bool IsRendered { get; set; } = false;
 
         private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
@@ -36,6 +36,20 @@ namespace Mentor.Pages
         private IEnumerable<GroupModel> GroupEnum { get; set; }
         private IEnumerable<WorkTypeModel> WorkTypeEnum { get; set; }
 
+        private bool IsWorkTypeVisible
+        {
+            get
+            {
+                if(UserObject.GROUP_ID == 2)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
         protected override void OnInitialized()
         {
@@ -176,106 +190,115 @@ namespace Mentor.Pages
                 {
                     if (string.IsNullOrEmpty(UserObject.USER_FULLNAME))
                     {
-                        msg = "Your full name cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Your full name cannot be empty. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsNameValid(UserObject.USER_FULLNAME))
                     {
-                        msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserObject.USER_NICKNAME))
                     {
-                        msg = "Your  nickname cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Your nickname cannot be empty. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsNicknameValid(UserObject.USER_NICKNAME))
                     {
-                        msg = "Invalid nickname format. Nickname must be 3 to 20 characters and contain only letters, numbers, underscores, and hyphens.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Invalid nickname format. Nickname must be 3 to 20 characters and contain only letters, numbers, underscores, and hyphens.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsNicknameUnique(UserObject.USER_NICKNAME))
                     {
-                        msg = "Nickname is already in use. Please choose a different nickname.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Nickname is already in use. Please choose a different nickname.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserObject.USER_EMAIL))
                     {
-                        msg = "Your email cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Your email cannot be empty. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsEmailValid(UserObject.USER_EMAIL))
                     {
-                        msg = "Invalid email or already in use. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication" });
+                        Msg = "Invalid email or already in use. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration" });
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
-                        msg = "Invalid phone number. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Invalid phone number. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsPhoneValid(UserObject.USER_PHONE))
                     {
-                        msg = "Invalid phone number. Please enter a valid phone number.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Invalid phone number. Please enter a valid phone number.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserObject.USER_PASS))
                     {
-                        msg = "Your password cannot be empty. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Your password cannot be empty. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsPasswordValid(UserObject.USER_PASS))
                     {
-                        msg = "Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter and one digit.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter and one digit.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (string.IsNullOrEmpty(UserPassRepeat) || UserPassRepeat != UserObject.USER_PASS)
                     {
-                        msg = "Your password has to match. Please try again.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Authentication", Detail = msg });
+                        Msg = "Your password has to match. Please try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsGroupValid(UserObject.GROUP_ID))
                     {
-                        msg = "Invalid user type selected.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg });
+                        Msg = "Invalid user type selected.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     if (!IsWorkTypeValid(UserObject.WORK_TYPE_ID))
                     {
-                        msg = "Invalid work type selected.";
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Validation Error", Detail = msg });
+                        Msg = "Invalid work type selected.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Registration", Detail = Msg });
                         return;
                     }
 
                     UserObject.USER_ID = await UserService.CreateAsync(UserObject);
+
+                    if (UserObject.USER_ID == -1)
+                    {
+                        Msg = "Something went wrong. User " + UserObject.USER_NICKNAME + " not created. Try again.";
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Registration usuccesful", Detail = Msg });
+                        NavigationManager.NavigateTo("./");
+                        return;
+                    }
+
                     await UserService.PasswordUpdateAsync(UserObject.USER_ID, EncryptionHelper.EncryptString(Globals.key, UserObject.USER_PASS));
-                    msg = "User " + UserObject.USER_NICKNAME + " created.";
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Sign up succesful", Detail = msg });
+                    Msg = "User " + UserObject.USER_NICKNAME + " created.";
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Registration succesful", Detail = Msg });
                     NavigationManager.NavigateTo("./");
                 }
             }
@@ -301,8 +324,15 @@ namespace Mentor.Pages
 
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
+            try
+            {
+                TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+                TooltipService.Open(elementReference, msg, options);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
         public void Dispose()
         {

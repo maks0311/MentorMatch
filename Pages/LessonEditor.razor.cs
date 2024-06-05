@@ -118,15 +118,15 @@ namespace Mentor.Pages
             }
         }
 
-        private bool DeleteEnabled
+        private bool CancelEnabled
         {
             get
             {
                 bool retval = false;
 
-                if (LessonObject.IsNotNull())
+                if (LessonObject.IsNotNull() && LessonObject.LESSON_STATUS_ID == 3 && LessonObject.LESSON_STATUS_ID == 6)
                 {
-                    retval = LessonObject.LESSON_STATUS_ID != 6;
+                    retval = true;
                 }
 
                 return retval;
@@ -318,9 +318,9 @@ namespace Mentor.Pages
                     UserNotificationObject.LESSON_ID = retval;
                     UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
                     UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
-                    _ = await UserNotificationService.CreateAsync(UserNotificationObject);
+                    await UserNotificationService.CreateAsync(UserNotificationObject);
 
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Save", Detail = "Lesson Saved Successfully" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson saved" });
                     IsObjectLessonChanged = false;
                     StateHasChanged();
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
@@ -331,16 +331,16 @@ namespace Mentor.Pages
                     switch (retval)
                     {
                         case -3:
-                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Tutor is not available at selected time" });
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not saved", Detail = "Tutor is not available at selected time" });
                             break;
                         case -4:
-                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Another student registered lesson at selected time" });
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not saved", Detail = "Another student registered lesson at selected time" });
                             break;
                         case -5:
-                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "You registered another lesson at selected time" });
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not saved", Detail = "You registered another lesson at selected time" });
                             break;
                         default:
-                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Save", Detail = "Lesson not saved" });
+                            ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not saved", Detail = "Something went wrong. Try again." });
                             break;
                     }
                 }
@@ -386,7 +386,7 @@ namespace Mentor.Pages
 
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Accept", Detail = "Lesson Accepted Successfully" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson accepted" });
                     IsObjectLessonChanged = false;
                     StateHasChanged();
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
@@ -394,7 +394,7 @@ namespace Mentor.Pages
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Accept", Detail = "Lesson Not Accepted" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not accepted", Detail = "Something went wrong" });
                 }
             }
             catch (Exception ex)
@@ -405,18 +405,19 @@ namespace Mentor.Pages
             
         }
 
-        private async Task LessonDelete()
+        private async Task LessonCancel()
         {
             try {
                 int retval;
-                if (LessonObject.LESSON_STATUS_ID != 6)
+
+                if (LessonObject.LESSON_STATUS_ID != 6 && LessonObject.LESSON_STATUS_ID != 3)
                 {
                     LessonObject.LESSON_STATUS_ID = 3;
                     retval = await LessonService.UpsertAsync(LessonObject);
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Cannot Be Deleted" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not cancelled", Detail = "Inactive lessons cannot be cancelled." });
                     return;
                 }
 
@@ -436,7 +437,7 @@ namespace Mentor.Pages
 
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Delete", Detail = "Lesson Deleted Successfully" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson cancelled" });
                     IsObjectLessonChanged = false;
                     StateHasChanged();
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
@@ -444,7 +445,7 @@ namespace Mentor.Pages
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Delete", Detail = "Lesson Not Deleted" });
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Lesson not cancelled", Detail = "Something went wrong. Try again." });
                 }
             }
             catch (Exception ex)
@@ -478,14 +479,6 @@ namespace Mentor.Pages
             catch (Exception ex)
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-            }
-        }
-
-        private void ShowRatingTooltip(ElementReference elementReference, string msg)
-        {
-            if (!RatingIsReadOnly)
-            {
-                ShowTooltip(elementReference, msg);
             }
         }
 

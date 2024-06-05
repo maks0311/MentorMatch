@@ -19,8 +19,8 @@ namespace Mentor.Pages
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
-        private readonly int ColumnLabelSize = 2;
-        private readonly int ColumnControlSize = 10;
+        private readonly int ColumnLabelSize = 5;
+        private readonly int ColumnControlSize = 7;
 
         private UserModel UserObject { get; set; } = new UserModel();
 
@@ -89,13 +89,13 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User", Detail = "Saved"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User saved"});
                         DisableSave = true;
-                        NavigationManager.NavigateTo("/settings");
+                        DialogService.Close();
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not saved", Detail="Something went wrong. Try again."});
                     }
                 }
             }
@@ -109,9 +109,18 @@ namespace Mentor.Pages
         {
             try
             {
-                await UserService.DeleteAsync(UserObject.USER_ID);
-                DisableSave = true;
-                NavigationManager.NavigateTo("/settings");
+                var retval = await UserService.DeleteAsync(UserObject.USER_ID);
+                if (retval == 1)
+                {
+                    DisableSave = true;
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "User deleted" });
+                    DialogService.Close();
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "User not deleted", Detail = "Something went wrong. Try again." });
+                    DialogService.Close();
+                }
             }
             catch (Exception ex)
             {
@@ -137,11 +146,6 @@ namespace Mentor.Pages
             }
         }
 
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
-        }
         public void Dispose()
         {
         }

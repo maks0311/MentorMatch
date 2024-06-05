@@ -20,7 +20,7 @@
 
 @inject IConfiguration AppConfig
 @inject ISessionStorageService SessionStorage
-@inject IPermissionService PermissionService;
+@inject IPermissionService PermissionService
 
 @inject TooltipService TooltipService
 @inject NavigationManager NavigationManager
@@ -77,32 +77,9 @@ else
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Phone"></RadzenText></RadzenColumn>
                                         <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_PHONE MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
                                     </RadzenRow>
-                                    @if (UserObject.IsAdmin)
-                                    {
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Active"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize"><RadzenCheckBox Style="width:min-content" @bind-Value=@UserObject.IS_ACTIVE TValue="bool" TriState="false" Change=@(args => OnCheckBoxChange(args, "IS_ACTIVE")) /></RadzenColumn>
-                                        </RadzenRow>
-                                    }
                                 </RadzenStack>
                                 <RadzenStack Style="width:50%">
-                                    @if (UserObject.IsAdmin)
-                                    {
-                                        <RadzenRow>
-                                            <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Group"></RadzenText></RadzenColumn>
-                                            <RadzenColumn Size="@ColumnControlSize">
-                                                <RadzenDropDown @bind-Value=@UserObject.GROUP_ID
-                                                                TextProperty="GROUP_NAME"
-                                                                ValueProperty="GROUP_ID"
-                                                                TValue="int"
-                                                                AllowClear="false"
-                                                                Style="width:min-content"
-                                                                Data=@GroupEnum
-                                                                Change=@(args => OnDropDownChange(args, "GROUP")) />
-                                            </RadzenColumn>
-                                        </RadzenRow>
-                                    }
-                                    @if (!UserObject.IsStudent)
+                                    @if(UserObject.IsTutor)
                                     {
                                         <RadzenRow>
                                             <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Work Type"></RadzenText></RadzenColumn>
@@ -136,8 +113,8 @@ else
                         <RadzenCard Style="margin-top:10px; width:600px">
                             <RadzenColumn Size="3">
                                 <RadzenStack Orientation="Orientation.Vertical">
-                                    <RadzenPassword @bind-Value="Pass1" AutoComplete="false" Text="Password" Placeholder="Enter Password" Change="OnPasswordChange"></RadzenPassword>
-                                    <RadzenPassword @bind-Value="Pass2" AutoComplete="false" Text="Repeat Password" Placeholder="Repeat Password" Change="OnPasswordChange"></RadzenPassword>
+                                    <RadzenPassword @bind-Value="Pass1" AutoComplete="false" Placeholder="Enter Password" Change="OnPasswordChange"></RadzenPassword>
+                                    <RadzenPassword @bind-Value="Pass2" AutoComplete="false" Placeholder="Repeat Password" Change="OnPasswordChange"></RadzenPassword>
                                 </RadzenStack>
                             </RadzenColumn>
                         </RadzenCard>

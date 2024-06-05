@@ -20,8 +20,8 @@ namespace Mentor.Pages
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
-        private readonly int ColumnLabelSize = 2;
-        private readonly int ColumnControlSize = 10;
+        private readonly int ColumnLabelSize = 5;
+        private readonly int ColumnControlSize = 7;
 
         private CityModel CityObject { get; set; } = new CityModel();
 
@@ -106,13 +106,15 @@ namespace Mentor.Pages
 
                     if (retval.IsPositive())
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City", Detail = "Saved" });
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City saved"});
                         DisableSave = true;
-                        NavigationManager.NavigateTo("/settings");
+                        AppState.SetParamAsInteger("CITY_ID", 0);
+                        await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                        DialogService.Close();
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Not Saved"});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "City not saved", Detail = "Something went wrong. Try again."});
                     }
                 }
             }
@@ -126,10 +128,21 @@ namespace Mentor.Pages
         {
             try
             {
-                await CityService.DeleteAsync(CityObject.CITY_ID);
-                DisableSave = true;
-                ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "City", Detail = "Deleted"});
-                NavigationManager.NavigateTo("/settings");
+                var retval = await CityService.DeleteAsync(CityObject.CITY_ID);
+                if(retval == 1)
+                {
+                    DisableSave = true;
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City deleted" });
+                    AppState.SetParamAsInteger("CITY_ID", 0);
+                    await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                    DialogService.Close();
+                }
+                else
+                {
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "City not deleted", Detail = "Something went wrong. Try again." });
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -154,12 +167,6 @@ namespace Mentor.Pages
             {
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
-        }
-
-        private void ShowTooltip(ElementReference elementReference, string msg)
-        {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
         }
 
         public void Dispose()
