@@ -13,7 +13,6 @@ namespace Mentor.Data
         public int LESSON_STATUS_ID { get; set; } = 0;
         public string LESSON_STATUS_NAME { get; set; } = string.Empty;
         public string LESSON_STATUS_ICON { get; set; } = string.Empty;
-        public string LESSON_STATUS_ICON_COLOR { get; set; } = string.Empty;
         public int TUTOR_ID { get; set; } = 0;
         public string TUTOR_NAME { get; set; } = string.Empty;
         public int STUDENT_ID { get; set; } = 0;

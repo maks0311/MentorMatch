@@ -14,6 +14,6 @@ namespace Mentor.Data
         Task<IEnumerable<CityModel>> SelectAllAsync();
         Task<CityModel> SelectAsync(int cityID);
         int Update(CityModel city);
-        Task<int> UpdateAsync(CityModel city);
+        Task<int> UpdateAsync(CityModel city); 
     }
 }

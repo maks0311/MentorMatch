@@ -45,20 +45,20 @@
 
         @if (AppState.IsNotNull())
         {
-            @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated)
+            @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated )
             {
                 <RadzenMenuItem Text="@AppState.UserInfo.USER_NICKNAME" Icon="person"></RadzenMenuItem>
-                @if (AnyNewNotifications)
+                @if (AppState.UserInfo.IsAdmin)
+                {
+                    <RadzenMenuItem Text="Settings" Icon="settings"></RadzenMenuItem>
+                }
+                else if (AnyNewNotifications)
                 {
                     <RadzenMenuItem Text="Notifications" Icon="feedback" IconColor="red" MouseEnter="@(args => ShowTooltip(args, @NotificationsNumber + " new notifications"))"></RadzenMenuItem>
                 }
                 else
                 {
                     <RadzenMenuItem Text="Notifications" Icon="feedback"></RadzenMenuItem>
-                }
-                @if (AppState.UserInfo.IsAdmin)
-                {
-                    <RadzenMenuItem Text="Settings" Icon="settings"></RadzenMenuItem>
                 }
                 <RadzenMenuItem Text="Logout" Icon="lock"></RadzenMenuItem>
             }
@@ -72,8 +72,6 @@
         {
             <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
         }
-
-        <RadzenMenuItem Text="About" Icon="help_outline"></RadzenMenuItem>
     </RadzenMenu>
 </div>
 
@@ -91,8 +89,6 @@
     private static NLog.ILogger AppLogger = LogManager.GetCurrentClassLogger();
 
     private IEnumerable<UserNotificationModel> NewUserNotifications = new List<UserNotificationModel>();
-
-    private RadzenTabs myTabs;
 
     private bool AnyNewNotifications
     {
@@ -166,11 +162,6 @@
 
     private async Task OnMenuItemClick(Radzen.MenuItemEventArgs args)
     {
-        if (args.Text == "About")
-        {
-            NavigationManager.NavigateTo("/about");
-        }
-
         if (args.Text == "Login")
         {
             NavigationManager.NavigateTo("/login");
@@ -179,6 +170,14 @@
         if (args.Text == "Sign Up")
         {
             NavigationManager.NavigateTo("/signup");
+        }
+
+        if (AppState.UserInfo != null && AppState.UserInfo.IsAuthenticated)
+        {
+            if (args.Text == AppState.UserInfo.USER_NICKNAME)
+            {
+                NavigationManager.NavigateTo("/user");
+            }
         }
 
         if (args.Text == "Notifications")
@@ -198,22 +197,9 @@
             NavigationManager.NavigateTo("./");
         }
 
-        if (AppState.UserInfo != null && AppState.UserInfo.IsAuthenticated)
-        {
-            if (args.Text == AppState.UserInfo.USER_NICKNAME)
-            {
-                NavigationManager.NavigateTo("/user");
-            }
-        }
-
         if (args.Text == "Settings")
         {
             NavigationManager.NavigateTo("/settings");
-        }
-
-        if (args.Text == "Search")
-        {
-            NavigationManager.NavigateTo("/search");
         }
     }
 
@@ -233,7 +219,7 @@
 
     private void ShowTooltip(ElementReference elementReference, string msg)
     {
-        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration, Style = Globals.ColorTooltip };
         TooltipService.Open(elementReference, msg, options);
     }
 

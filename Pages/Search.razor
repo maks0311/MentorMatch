@@ -125,7 +125,7 @@ else
                                     LogicalFilterOperator="LogicalFilterOperator.And"
                                     Visible="@TutorEnum.Count().IsPositive()">
                         <Columns>
-                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_ID" Title="Edit" Frozen="true" Sortable="false" Filterable="false" Width="60px">
+                            <RadzenDataGridColumn TItem="TutorModel" Property="TUTOR_ID" Title="Open" Frozen="true" Sortable="false" Filterable="false" Width="60px">
                                 <Template Context="TutorModel">
                                     <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="more_horiz" Click=@(() => TutorView(TutorModel.TUTOR_ID)) />
                                 </Template>

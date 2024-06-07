@@ -69,6 +69,39 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        IsRendered = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeSession();
+
+            IsRendered = true;
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task InitializeSession()
+    {
+        try
+        {
+            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
+            {
+                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
+    }
+
     private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
     {
         if (args.Text == "Home")
@@ -84,11 +117,6 @@
         if (args.Text == "My Calendar")
         {
             NavigationManager.NavigateTo("/calendar");
-        }
-
-        if (args.Text == "Manual")
-        {
-            //NavigationManager.NavigateTo(manual_url);
         }
 
         if (args.Text == "About")

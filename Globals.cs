@@ -7,42 +7,26 @@
             get { return new string[] { "DESKTOP-I5PE8FV", "VPS1052" }; }
         }
 
-        public static string UserNotLoggedInMessage = "User is not logged in";
-
         public static readonly string key = "b14ca5898a4e4133bbce2ea2315a2000";
 
-        public static string ColorStatus1 = "darkorange";
-        public static string ColorStatus2 = "lightgreen";
-        public static string ColorStatus3 = "red";
-        public static string ColorStatus4 = "darkorange";
-        public static string ColorStatus5 = "darkorange";
-        public static string ColorStatus6 = "silver";
-        public static string ColorStatus7 = "yellowgreen";
-        public static string ColorInactive = "gray";
-        public static string ColorToday = "lightyellow";
-        public static string ColorAvailability = "peachpuff";
+        public static readonly string ColorStatusPending = "darkorange";
+        public static readonly string ColorStatusAccepted = "#50C878";
+        public static readonly string ColorStatusCancelled = "red";
+        public static readonly string ColorStatusEnded = "#6082B6";
+        public static readonly string ColorInactive = "silver";
+        public static readonly string ColorToday = "lightyellow";
+        public static readonly string ColorAvailability = "#F0F8FF";
+        public static readonly string ColorTooltip = "background: #35A0D7";
 
-        private static string CalendarStylePrefix = "background: ";
-        public static string CalendarStyleLessonStatus1 = CalendarStylePrefix + ColorStatus1;
-        public static string CalendarStyleLessonStatus2 = CalendarStylePrefix + ColorStatus2;
-        public static string CalendarStyleLessonStatus3 = CalendarStylePrefix + ColorStatus3;
-        public static string CalendarStyleLessonStatus4 = CalendarStylePrefix + ColorStatus4;
-        public static string CalendarStyleLessonStatus5 = CalendarStylePrefix + ColorStatus5;
-        public static string CalendarStyleLessonStatus6 = CalendarStylePrefix + ColorStatus6;
-        public static string CalendarStyleLessonStatus7 = CalendarStylePrefix + ColorStatus7;
+        private static readonly string StylePrefix = "background: ";
+        public static readonly string CalendarStyleLessonStatusPending = StylePrefix + ColorStatusPending;
+        public static readonly string CalendarStyleLessonStatusAccepted = StylePrefix + ColorStatusAccepted;
+        public static readonly string CalendarStyleLessonStatusCancelled = StylePrefix + ColorStatusCancelled;
+        public static readonly string CalendarStyleLessonStatusEnded = StylePrefix + ColorStatusEnded;
 
-        public static string CalendarStyleLessonInactive = CalendarStylePrefix + ColorInactive;
-        public static string CalendarStyleToday = CalendarStylePrefix + ColorToday;
-        public static string CalendarStyleAvailability = CalendarStylePrefix + ColorAvailability;
-
-        private static string LegendPrefix = "overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:smaller; font-weight:bold; padding-top:5px; text-align:center; height:25px; width:max-content; background-color: ";
-        public static string LegendStyleStatus1 = LegendPrefix + ColorStatus1;
-        public static string LegendStyleStatus2 = LegendPrefix + ColorStatus2;
-        public static string LegendStyleStatus3 = LegendPrefix + ColorStatus3;
-        public static string LegendStyleStatus4 = LegendPrefix + ColorStatus4;
-        public static string LegendStyleStatus5 = LegendPrefix + ColorStatus5;
-        public static string LegendStyleStatus6 = LegendPrefix + ColorStatus6;
-        public static string LegendStyleStatus7 = LegendPrefix + ColorStatus7;
+        public static readonly string CalendarStyleLessonInactive = StylePrefix + ColorInactive;
+        public static readonly string CalendarStyleToday = StylePrefix + ColorToday;
+        public static readonly string CalendarStyleAvailability = StylePrefix + ColorAvailability;
 
     }
 }

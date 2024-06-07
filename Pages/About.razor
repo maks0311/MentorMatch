@@ -35,14 +35,17 @@ else
 }
 
 <div class="content px-4">
-    <div class="row" style="margin-top:100px">
-        <div class="col-12" style="display:block; text-align:center;">
-            <RadzenImage Path="images/logo.png" Style="height: 100px; width: 450px; margin-bottom: 30px; border-radius: 20px; margin-top: 200px"></RadzenImage>
-            <h2>Welcome to <span style="color: rgb(255,147,86)">Mentor-Match</span></h2>
-            <h4>Software Version: @AppVersion</h4>
+    <div class="row" style="margin-top: 50px; display: flex; justify-content: center;">
+        <RadzenImage Path="images/logo.png" Style="height: 100px; width: 450px; margin-bottom: 10px; border-radius: 20px;"></RadzenImage>
+    </div>
+    <div class="row" style="display: flex; justify-content: left; margin-left: 20px; margin-top: 50px">
+        <div>
+            <h2>Welcome to <span style="color: rgb(255,147,86)">Mentor-Match!</span></h2>
+            <h4 style="max-width: 650px; text-align: justify;">MentorMatch: Your ultimate destination for connecting students and tutors! Find the perfect tutor or promote your tutoring services with ease. Register now to access tailored features, book lessons effortlessly, and match with top-rated tutors by subject and level. Achieve your educational goals with MentorMatch today!</h4>
         </div>
     </div>
 </div>
+
 
 @code {
     private AppState AppState { get; set; } = new AppState();

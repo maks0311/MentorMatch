@@ -120,9 +120,9 @@ else
                         </RadzenCard>
                     </RadzenTabsItem>
 
-                    @if (UserObject.IsTutor || UserObject.IsAdmin)
+                    @if (UserObject.IsTutor)
                     {
-                        <RadzenTabsItem Text="My Competence">
+                        <RadzenTabsItem Text="My Competences">
                             <RadzenCard>
                                 <RadzenRow Style="margin-bottom: 10px">
                                     <RadzenColumn Size="2"><RadzenText Text="Subject"></RadzenText></RadzenColumn>
@@ -260,7 +260,8 @@ else
                                                         Visible="true"
                                                         Style="width:inherit">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Width="450px" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Filterable="false" Title="Received at" Frozen="true" TextAlign="TextAlign.Left" />
                                                 @if (UserObject.IsTutor)
                                                 {
                                                     <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
@@ -313,7 +314,7 @@ else
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn TItem="LessonModel" Property="LESSON_STATUS_NAME" Filterable="false" Title="Status" Frozen="true" TextAlign="TextAlign.Center" Width="100px">
                                             <Template Context="LessonModel">
-                                                <RadzenIcon Icon="@LessonModel.LESSON_STATUS_ICON" MouseEnter="@(args => ShowTooltip(args, LessonModel.LESSON_STATUS_NAME))" class="@LessonModel.LESSON_STATUS_ICON_COLOR" />
+                                                <RadzenIcon Icon="@LessonModel.LESSON_STATUS_ICON" MouseEnter="@(args => ShowTooltip(args, LessonModel.LESSON_STATUS_NAME))" />
                                             </Template>
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn TItem="LessonModel" Property="RATING_NAME" Filterable="false" Title="Rating" Frozen="true" TextAlign="TextAlign.Center">
