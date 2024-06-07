@@ -30,27 +30,27 @@
 
 @if (UserObject.IsNotNull() && IsRendered)
 {
-    <RadzenCard Style="width:600px">
+    <RadzenCard Style="width:800px">
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="12">
                 @if (UserObject.IsTutor)
                 {
-                    <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadTutor" Style="padding-right:25px;" Disabled="@(TutorButtonDisabled)"></RadzenButton>
-                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:300px;"></RadzenLabel>
+                    <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadTutor" Style="padding-right:25px;" Disabled="@(TutorButtonDisabled)" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:470px;"></RadzenLabel>
                     <RadzenCheckBox TValue="Boolean" Name="TutorCheckBox" Style="margin-left:25px;" Change=@(args => CheckAll(args))></RadzenCheckBox>
 
                 }
                 else if (UserObject.IsStudent)
                 {
-                    <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadStudent" Style="padding-right:25px;" Disabled="@(StudentButtonDisabled)"></RadzenButton>
-                    <RadzenLabel Text="Check all:" Component="StudentCheckBox" Style="margin-left:280px;"></RadzenLabel>
+                    <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadStudent" Style="padding-right:25px;" Disabled="@(StudentButtonDisabled)" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                    <RadzenLabel Text="Check all:" Component="StudentCheckBox" Style="margin-left:470px;"></RadzenLabel>
                     <RadzenCheckBox TValue="Boolean" Name="StudentCheckBox" Style="margin-left:25px; align-content:center" Change=@(args => CheckAll(args))></RadzenCheckBox>
                 }
             </RadzenColumn>
         </RadzenRow>
     </RadzenCard>
 
-    <RadzenCard Style="width:600px">
+    <RadzenCard Style="width:800px">
         <RadzenRow>
             <RadzenColumn Size="12">
                 <RadzenDataGrid Data="@UserNotificationEnum"
@@ -67,7 +67,8 @@
                                 Visible="true"
                                 Style="width:inherit">
                     <Columns>
-                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Frozen="true" TextAlign="TextAlign.Left" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Width="350px" Frozen="true" TextAlign="TextAlign.Left" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Filterable="false" Title="Received at" Width="120px" Frozen="true" TextAlign="TextAlign.Left" />
                         <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
                             <Template Context="UserNotificationModel">
                                 <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
@@ -105,9 +106,6 @@
     private bool IsRendered { get; set; } = false;
 
     private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
-    private readonly int ColumnLabelSize = 2;
-    private readonly int ColumnControlSize = 10;
 
     string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
@@ -418,9 +416,17 @@
 
     private void ShowTooltip(ElementReference elementReference, string msg)
     {
-        TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-        TooltipService.Open(elementReference, msg, options);
+        try
+        {
+            TooltipOptions options = new() { Duration = NotificationDuration };
+            TooltipService.Open(elementReference, msg, options);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+        }
     }
+
     public void Dispose()
     {
 

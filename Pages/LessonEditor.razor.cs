@@ -54,7 +54,18 @@ namespace Mentor.Pages
             get
             {
                 if (LessonObject.IsNotNull() && UserObject.IsNotNull())
-                    return (LessonObject.LESSON_STATUS_ID == 6);
+                    if (LessonObject.LESSON_STATUS_ID == 2 || LessonObject.LESSON_STATUS_ID == 1)
+                    {
+                        return false;
+                    }
+                    else if(LessonObject.LESSON_STATUS_ID == 1 && UserObject.IsTutor)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 else return true;
             }
         }
@@ -124,7 +135,7 @@ namespace Mentor.Pages
             {
                 bool retval = false;
 
-                if (LessonObject.IsNotNull() && LessonObject.LESSON_STATUS_ID == 3 && LessonObject.LESSON_STATUS_ID == 6)
+                if (LessonObject.IsNotNull() && LessonObject.LESSON_STATUS_ID != 3 && LessonObject.LESSON_STATUS_ID != 6)
                 {
                     retval = true;
                 }
@@ -318,6 +329,7 @@ namespace Mentor.Pages
                     UserNotificationObject.LESSON_ID = retval;
                     UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
                     UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
+                    UserNotificationObject.SENT_DATE = DateTime.Now;
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson saved" });
@@ -383,6 +395,7 @@ namespace Mentor.Pages
                     UserNotificationObject.LESSON_ID = retval;
                     UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
                     UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
+                    UserNotificationObject.SENT_DATE = DateTime.Now;
 
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
@@ -434,6 +447,7 @@ namespace Mentor.Pages
                     UserNotificationObject.LESSON_ID = retval;
                     UserNotificationObject.STUDENT_ID = LessonObject.STUDENT_ID;
                     UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
+                    UserNotificationObject.SENT_DATE = DateTime.Now;
 
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
@@ -498,8 +512,15 @@ namespace Mentor.Pages
 
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
+            try
+            {
+                TooltipOptions options = new() { Duration = NotificationDuration, Style = Globals.ColorTooltip };
+                TooltipService.Open(elementReference, msg, options);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         public void Dispose()

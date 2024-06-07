@@ -146,6 +146,7 @@ namespace Mentor.Data
             parameters.Add("LESSON_ID", userNotification.LESSON_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", userNotification.TUTOR_ID, DbType.Int32);
             parameters.Add("STUDENT_ID", userNotification.STUDENT_ID, DbType.Int32);
+            parameters.Add("SENT_DATE", userNotification.SENT_DATE, DbType.DateTime);
 
             int affectedRows;
             int retVal = 0;
@@ -181,6 +182,7 @@ namespace Mentor.Data
             parameters.Add("LESSON_ID", userNotification.LESSON_ID, DbType.Int32);
             parameters.Add("TUTOR_ID", userNotification.TUTOR_ID, DbType.Int32);
             parameters.Add("STUDENT_ID", userNotification.STUDENT_ID, DbType.Int32);
+            parameters.Add("SENT_DATE", userNotification.SENT_DATE, DbType.DateTime);
 
             int affectedRows;
             int retVal = 0;

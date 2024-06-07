@@ -23,7 +23,6 @@ namespace Mentor.Data
             parameters.Add("LESSON_STATUS_ID", status.LESSON_STATUS_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("LESSON_STATUS_NAME", status.LESSON_STATUS_NAME, DbType.String);
             parameters.Add("LESSON_STATUS_ICON", status.LESSON_STATUS_ICON, DbType.String);
-            parameters.Add("LESSON_STATUS_ICON_COLOR", status.LESSON_STATUS_ICON_COLOR, DbType.String);
             parameters.Add("IS_ACTIVE", status.IS_ACTIVE, DbType.Boolean);
 
             int affectedRows;
@@ -59,7 +58,6 @@ namespace Mentor.Data
             parameters.Add("LESSON_STATUS_ID", status.LESSON_STATUS_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("LESSON_STATUS_NAME", status.LESSON_STATUS_NAME, DbType.String);
             parameters.Add("LESSON_STATUS_ICON", status.LESSON_STATUS_ICON, DbType.String);
-            parameters.Add("LESSON_STATUS_ICON_COLOR", status.LESSON_STATUS_ICON_COLOR, DbType.String);
             parameters.Add("IS_ACTIVE", status.IS_ACTIVE, DbType.Boolean);
 
 
@@ -215,7 +213,6 @@ namespace Mentor.Data
             parameters.Add("LESSON_STATUS_ID", status.LESSON_STATUS_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("LESSON_STATUS_NAME", status.LESSON_STATUS_NAME, DbType.String);
             parameters.Add("LESSON_STATUS_ICON", status.LESSON_STATUS_ICON, DbType.String);
-            parameters.Add("LESSON_STATUS_ICON_COLOR", status.LESSON_STATUS_ICON_COLOR, DbType.String);
             parameters.Add("IS_ACTIVE", status.IS_ACTIVE, DbType.Boolean);
 
 
@@ -249,7 +246,6 @@ namespace Mentor.Data
             parameters.Add("LESSON_STATUS_ID", status.LESSON_STATUS_ID, DbType.Int32, ParameterDirection.InputOutput);
             parameters.Add("LESSON_STATUS_NAME", status.LESSON_STATUS_NAME, DbType.String);
             parameters.Add("LESSON_STATUS_ICON", status.LESSON_STATUS_ICON, DbType.String);
-            parameters.Add("LESSON_STATUS_ICON_COLOR", status.LESSON_STATUS_ICON_COLOR, DbType.String);
             parameters.Add("IS_ACTIVE", status.IS_ACTIVE, DbType.Boolean);
 
 

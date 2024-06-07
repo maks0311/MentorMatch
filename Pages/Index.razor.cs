@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
-using Radzen;
-using Microsoft.Extensions.Configuration;
 
 namespace Mentor.Pages
 {

@@ -562,8 +562,15 @@ namespace Mentor.Pages
 
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
+            try
+            {
+                TooltipOptions options = new() { Duration = NotificationDuration, Style = Globals.ColorTooltip };
+                TooltipService.Open(elementReference, msg, options);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
         public void Dispose()
         {

@@ -172,7 +172,7 @@ namespace Mentor.Pages
                 AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
             }
         }
-        public async void Dispose()
+        public void Dispose()
         {
 
         }

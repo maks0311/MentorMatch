@@ -221,7 +221,6 @@ namespace Mentor.Pages
                     LESSON_STATUS_ID = status.LESSON_STATUS_ID,
                     LESSON_STATUS_NAME = status.LESSON_STATUS_NAME,
                     LESSON_STATUS_ICON = status.LESSON_STATUS_ICON,
-                    LESSON_STATUS_ICON_COLOR = status.LESSON_STATUS_ICON_COLOR,
                     SUBJECT_ID = subject.SUBJECT_ID,
                     SUBJECT_NAME = subject.SUBJECT_NAME,
                     LEVEL_ID = level.LEVEL_ID,
@@ -268,22 +267,22 @@ namespace Mentor.Pages
                 switch (args.Data.LESSON_STATUS_ID)
                 {
                     case 1:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusPending;
                         break;
                     case 2:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusAccepted;
                         break;
                     case 3:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus3;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusCancelled;
                         break;
                     case 4:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusPending;
                         break;
                     case 5:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusPending;
                         break;
                     case 6:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusEnded;
                         break;
                 }
             }
@@ -344,8 +343,15 @@ namespace Mentor.Pages
 
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
+            try
+            {
+                TooltipOptions options = new() { Duration = NotificationDuration, Style = Globals.ColorTooltip };
+                TooltipService.Open(elementReference, msg, options);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
     }
 }

@@ -326,7 +326,7 @@ namespace Mentor.Pages
         {
             try
             {
-                TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
+                TooltipOptions options = new() { Duration = NotificationDuration, Style = Globals.ColorTooltip };
                 TooltipService.Open(elementReference, msg, options);
             }
             catch (Exception ex)

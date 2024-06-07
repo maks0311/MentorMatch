@@ -114,7 +114,7 @@ namespace Mentor.Pages
         {
             try
             {
-                if (AppState.UserInfo.IsNotNull())
+                if (AppState.UserInfo.USER_ID.IsPositive())
                 {
                     UserObject = await UserService.SelectAsync(AppState.UserInfo.USER_ID);
                     SubjectEnum = await SubjectService.SelectAllAsync();
@@ -164,22 +164,19 @@ namespace Mentor.Pages
                 switch (args.Data.LESSON_STATUS_ID)
                 {
                     case 1:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus1;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusPending;
                         break;
                     case 2:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus2;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusAccepted;
                         break;
                     case 4:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus4;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusPending;
                         break;
                     case 5:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus5;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusPending;
                         break;
                     case 6:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus6;
-                        break;
-                    case 7:
-                        args.Attributes["style"] = Globals.CalendarStyleLessonStatus7;
+                        args.Attributes["style"] = Globals.CalendarStyleLessonStatusEnded;
                         break;
                 }
             }
@@ -498,8 +495,15 @@ namespace Mentor.Pages
 
         private void ShowTooltip(ElementReference elementReference, string msg)
         {
-            TooltipOptions options = new TooltipOptions() { Duration = NotificationDuration };
-            TooltipService.Open(elementReference, msg, options);
+            try
+            {
+                TooltipOptions options = new() { Duration = NotificationDuration, Style = Globals.ColorTooltip };
+                TooltipService.Open(elementReference, msg, options);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            }
         }
 
         public void Dispose()
