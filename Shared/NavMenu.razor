@@ -15,6 +15,7 @@
 @using Blazored.SessionStorage;
 @using Mentor.Data;
 @using System.Threading
+@using System.Diagnostics
 
 @inject IJSRuntime JS
 
@@ -59,7 +60,6 @@
     string msg { get; set; }
     string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
     private string AppVersion { get; set; }
-    private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
     private bool collapseNavMenu = true;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     private string manual_url = "/manual/manual.pdf";
@@ -98,7 +98,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 

@@ -7,13 +7,12 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Mentor.Pages;
+using System.Diagnostics;
 
 namespace Mentor.Data
 {
     public class TutorService : ITutorService
     {
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
         private readonly SqlConnectionConfiguration _configuration;
         public TutorService(SqlConnectionConfiguration configuration)
         {
@@ -38,7 +37,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -68,7 +67,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -96,7 +95,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -124,7 +123,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -155,7 +154,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -186,7 +185,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -219,7 +218,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -253,7 +252,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally

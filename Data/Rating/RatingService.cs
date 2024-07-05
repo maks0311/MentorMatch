@@ -5,13 +5,12 @@ using System.Data;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using System.Diagnostics;
 
 namespace Mentor.Data
 {
     public class RatingService : IRatingService
     {
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
         private readonly SqlConnectionConfiguration _configuration;
         public RatingService(SqlConnectionConfiguration configuration)
         {
@@ -35,7 +34,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -64,7 +63,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally

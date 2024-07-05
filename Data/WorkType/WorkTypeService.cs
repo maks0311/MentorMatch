@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Diagnostics;
 
 
 namespace Mentor.Data
 {
     public class WorkTypeService : IWorkTypeService
     {
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
         private readonly SqlConnectionConfiguration _configuration;
         public WorkTypeService(SqlConnectionConfiguration configuration)
         {
@@ -36,7 +35,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -65,8 +64,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
-                    throw;
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error); throw;
                 }
                 finally
                 {

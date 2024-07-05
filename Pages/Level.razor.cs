@@ -5,6 +5,7 @@ using Radzen;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using System.Diagnostics;
 
 namespace Mentor.Pages
 {
@@ -13,7 +14,6 @@ namespace Mentor.Pages
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
 
-        private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
         private bool DisableSave { get; set; } = true;
         private bool DisableDelete { get; set; } = false;
 
@@ -44,7 +44,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -60,7 +60,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -120,7 +120,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Mentor.Pages
             try
             {
                 var retval = await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
-                if(retval == 1)
+                if (retval == 1)
                 {
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level deleted" });
                     DisableSave = true;
@@ -145,7 +145,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -169,7 +169,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
         public void Dispose()

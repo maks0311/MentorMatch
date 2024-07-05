@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System;
 using Mentor.Data;
+using System.Diagnostics;
 
 namespace Mentor.Pages
 {
@@ -15,8 +16,6 @@ namespace Mentor.Pages
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
         private bool IsRendered { get; set; } = false;
-
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
 
         private string UserName = string.Empty;
         private string UserPass = string.Empty;
@@ -29,7 +28,8 @@ namespace Mentor.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            try {
+            try
+            {
                 if (firstRender)
                 {
                     await InitializeSession();
@@ -41,7 +41,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -56,13 +56,14 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
         private void OnChange(string value, string key)
         {
-            try {
+            try
+            {
                 if (key == "USER_NAME")
                 {
                     UserName = value;
@@ -75,13 +76,14 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
         private async Task OnClick(string key)
         {
-            try {
+            try
+            {
                 if (key == "LOGIN")
                 {
                     if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(UserPass))
@@ -140,7 +142,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -154,7 +156,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 

@@ -1,7 +1,6 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Diagnostics;
 
 namespace Mentor
 {
@@ -9,7 +8,6 @@ namespace Mentor
 
     public static class Extensions
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public static bool IsNull<T>(this T obj) where T : class
         {
@@ -19,7 +17,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                Log.Error(MethodBase.GetCurrentMethod().Name, ex.Message, ex.InnerException.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return false;
             }
         }
@@ -32,7 +30,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                Log.Error(MethodBase.GetCurrentMethod().Name, ex.Message, ex.InnerException.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return false;
             }
         }
@@ -45,7 +43,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                Log.Error(MethodBase.GetCurrentMethod().Name, ex.Message, ex.InnerException.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return false;
             }
         }
@@ -58,7 +56,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                Log.Error(MethodBase.GetCurrentMethod().Name, ex.Message, ex.InnerException.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return false;
             }
         }

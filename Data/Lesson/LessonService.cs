@@ -4,14 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Mentor.Data
 {
     public class LessonService : ILessonService
     {
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
         private readonly SqlConnectionConfiguration _configuration;
         public LessonService(SqlConnectionConfiguration configuration)
         {
@@ -46,7 +45,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -87,7 +86,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -117,7 +116,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -147,7 +146,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -185,7 +184,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -223,7 +222,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -253,7 +252,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -283,7 +282,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -322,7 +321,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -361,7 +360,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -390,7 +389,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -420,7 +419,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -451,7 +450,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -481,7 +480,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -511,7 +510,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -541,7 +540,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -571,7 +570,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -601,7 +600,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -631,7 +630,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally
@@ -661,7 +660,7 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Error(ex.Message);
+                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                     throw;
                 }
                 finally

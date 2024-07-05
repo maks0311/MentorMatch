@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System;
+using System.Diagnostics;
 
 namespace Mentor.Pages
 {
@@ -16,8 +17,6 @@ namespace Mentor.Pages
         private AppState AppState { get; set; } = new AppState();
         private string Msg { get; set; }
         private bool IsRendered { get; set; } = false;
-
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
 
         private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
@@ -40,7 +39,7 @@ namespace Mentor.Pages
         {
             get
             {
-                if(UserObject.GROUP_ID == 2)
+                if (UserObject.GROUP_ID == 2)
                 {
                     return true;
                 }
@@ -73,7 +72,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -88,7 +87,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -103,7 +102,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -304,7 +303,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -318,7 +317,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -331,7 +330,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
         public void Dispose()

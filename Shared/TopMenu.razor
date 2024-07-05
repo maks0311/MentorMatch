@@ -4,8 +4,7 @@
 
 @using Dapper;
 @using System.Data.SqlClient;
-@using Mentor.Pages
-@using NLog;
+@using Mentor.Pages;
 @using Radzen;
 @using System.Threading;
 @using Radzen.Blazor;
@@ -18,6 +17,7 @@
 @using System.Reflection;
 @using Blazored.SessionStorage;
 @using Mentor.Data;
+@using System.Diagnostics
 
 @inject ISessionStorageService SessionStorage
 @inject IConfiguration AppConfig
@@ -45,7 +45,7 @@
 
         @if (AppState.IsNotNull())
         {
-            @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated )
+            @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated)
             {
                 <RadzenMenuItem Text="@AppState.UserInfo.USER_NICKNAME" Icon="person"></RadzenMenuItem>
                 @if (AppState.UserInfo.IsAdmin)
@@ -85,8 +85,6 @@
     private string msg { get; set; }
     private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
-    private static NLog.ILogger AppLogger = LogManager.GetCurrentClassLogger();
 
     private IEnumerable<UserNotificationModel> NewUserNotifications = new List<UserNotificationModel>();
 
@@ -141,7 +139,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -156,7 +154,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -213,7 +211,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -239,7 +237,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error(MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 }

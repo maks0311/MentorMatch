@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using System.Diagnostics;
 
 namespace Mentor.Pages
 {
@@ -13,7 +14,7 @@ namespace Mentor.Pages
 
         static string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
         private bool IsRendered { get; set; } = false;
-        private NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
+
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -35,7 +36,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -50,7 +51,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -70,7 +71,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
