@@ -5,6 +5,7 @@ using Radzen;
 using System.Reflection;
 using System.Threading.Tasks;
 using System;
+using System.Diagnostics;
 
 namespace Mentor.Pages
 {
@@ -12,7 +13,6 @@ namespace Mentor.Pages
     {
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
-        private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
         private bool DisableSave { get; set; } = true;
         private bool DisableDelete { get; set; } = false;
 
@@ -43,7 +43,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -113,13 +113,13 @@ namespace Mentor.Pages
                     }
                     else
                     {
-                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Subject not saved", Detail = "Something went wrong. Try again."});
+                        ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Subject not saved", Detail = "Something went wrong. Try again." });
                     }
                 }
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -130,7 +130,7 @@ namespace Mentor.Pages
                 var retval = await SubjectService.DeleteAsync(SubjectObject.SUBJECT_ID);
                 if (retval == 1)
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject deleted"});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject deleted" });
                     DisableSave = true;
                     AppState.SetParamAsInteger("SUBJECT_ID", 0);
                     await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
@@ -138,12 +138,12 @@ namespace Mentor.Pages
                 }
                 else
                 {
-                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Subject not deleted", Detail = "Something went wrong. Try again."});
+                    ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Subject not deleted", Detail = "Something went wrong. Try again." });
                 }
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -167,7 +167,7 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
         public void Dispose()

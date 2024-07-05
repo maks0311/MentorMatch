@@ -105,8 +105,6 @@
     string Msg { get; set; }
     private bool IsRendered { get; set; } = false;
 
-    private static readonly NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
     string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
@@ -168,7 +166,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -184,7 +182,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -203,7 +201,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -248,7 +246,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
 
     }
@@ -281,7 +279,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -312,7 +310,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -343,7 +341,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -374,7 +372,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -396,7 +394,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -410,7 +408,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 
@@ -423,7 +421,7 @@
         }
         catch (Exception ex)
         {
-            AppLogger.Error("{0} {1}", MethodBase.GetCurrentMethod().Name, ex.Message);
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
     }
 

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using Mentor.Data;
 using Microsoft.AspNetCore.Components;
+using System.Diagnostics;
 
 namespace Mentor
 {
@@ -20,8 +21,6 @@ namespace Mentor
         public String CRUD { get; set; }
         public List<AppStateParams> Params { get; set; }
 
-        private static NLog.ILogger AppLogger = NLog.LogManager.GetCurrentClassLogger();
-
         public AppState()
         {
             try
@@ -35,7 +34,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -65,7 +64,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
         }
 
@@ -108,7 +107,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
 
             return retVal;
@@ -125,8 +124,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
-                return defVal;
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error); return defVal;
             }
         }
 
@@ -146,7 +144,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return defVal;
             }
         }
@@ -167,7 +165,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return defVal;
             }
         }
@@ -188,7 +186,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return defVal;
             }
         }
@@ -208,7 +206,7 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                AppLogger.Error(ex.Message);
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
                 return false;
             }
         }
