@@ -14,17 +14,11 @@
 	<ItemGroup>
 		<PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
 		<PackageReference Include="Dapper" Version="2.1.35" />
-		<PackageReference Include="Radzen.Blazor" Version="4.32.4" />
+		<PackageReference Include="Radzen.Blazor" Version="4.33.3" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="wwwroot\images\logo.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Update="Nlog.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 	</ItemGroup>
 </Project>
