@@ -31,48 +31,50 @@
 
 @if (UserObject.IsNotNull() && IsRendered)
 {
-    <RadzenCard Style="width:800px">
+    <RadzenCard Style="width:1200px">
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="12">
                 @if (UserObject.IsTutor)
                 {
                     <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadTutor" Style="padding-right:25px;" Disabled="@(TutorButtonDisabled)" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:470px;"></RadzenLabel>
+                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:800px;"></RadzenLabel>
                     <RadzenCheckBox TValue="Boolean" Name="TutorCheckBox" Style="margin-left:25px;" Change=@(args => CheckAll(args))></RadzenCheckBox>
 
                 }
                 else if (UserObject.IsStudent)
                 {
                     <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadStudent" Style="padding-right:25px;" Disabled="@(StudentButtonDisabled)" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                    <RadzenLabel Text="Check all:" Component="StudentCheckBox" Style="margin-left:470px;"></RadzenLabel>
+                    <RadzenLabel Text="Check all:" Component="StudentCheckBox" Style="margin-left:850px;"></RadzenLabel>
                     <RadzenCheckBox TValue="Boolean" Name="StudentCheckBox" Style="margin-left:25px; align-content:center" Change=@(args => CheckAll(args))></RadzenCheckBox>
                 }
             </RadzenColumn>
         </RadzenRow>
     </RadzenCard>
 
-    <RadzenCard Style="width:800px">
+    <RadzenCard Style="width:1200px">
         <RadzenRow>
             <RadzenColumn Size="12">
                 <RadzenDataGrid Data="@UserNotificationEnum"
                                 AllowFiltering="false"
-                                AllowMultiColumnSorting="true"
-                                ClearFilterText="true"
+                                AllowMultiColumnSorting="false"
                                 AllowColumnResize="false"
                                 FilterMode="FilterMode.Simple"
                                 AllowPaging="true"
-                                AllowSorting="true"
+                                AllowSorting="false"
                                 AllowVirtualization="true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 LogicalFilterOperator="LogicalFilterOperator.And"
                                 Visible="true"
                                 Style="width:inherit">
                     <Columns>
-                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Width="350px" Frozen="true" TextAlign="TextAlign.Left" />
-                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Filterable="false" Title="Received at" Width="120px" Frozen="true" TextAlign="TextAlign.Left" />
-                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Title="Message content" Width="250px" Frozen="true" TextAlign="TextAlign.Center" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_SUBJECT" Title="Subject" Width="60px" Frozen="true" TextAlign="TextAlign.Center" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_START" Title="Lesson Start" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_STOP" Title="Lesson End" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Sortable="true" Title="Received at" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Title="Details" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
                             <Template Context="UserNotificationModel">
-                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID, UserNotificationModel.ID)) />
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="description" Click=@(() => OpenLessonDetails(UserNotificationModel.LESSON_ID)) />
                             </Template>
                         </RadzenDataGridColumn>
                         @if (UserObject.IsTutor)
@@ -110,7 +112,6 @@
     int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
     private UserModel UserObject { get; set; } = new UserModel();
-    private UserNotificationModel UserNotificationObject { get; set; } = new UserNotificationModel();
     private LessonModel LessonObject { get; set; } = new LessonModel();
 
     private IEnumerable<UserNotificationModel> UserNotificationEnum { get; set; }
@@ -260,7 +261,6 @@
             {
                 string tutor = notification.TUTOR_NAME;
                 string student = notification.STUDENT_NAME;
-                string subject = notification.LESSON_SUBJECT;
                 string rating = notification.RATING.ToString();
 
                 if (UserObject.IsTutor)
@@ -272,7 +272,6 @@
 
                 text = text.Replace("{student}", student);
                 text = text.Replace("{tutor}", tutor);
-                text = text.Replace("{subject}", subject);
                 text = text.Replace("{rating}", rating);
 
                 notification.TEXT = text;
@@ -377,18 +376,13 @@
         }
     }
 
-    private async Task OpenLessonDetails(int lessonID, int notificationID)
+    private async Task OpenLessonDetails(int lessonID)
     {
         try
         {
             LessonObject = await LessonService.SelectAsync(lessonID);
 
             await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
-
-            if (notificationID.IsPositive())
-            {
-                await NotificationOnRead(notificationID);
-            }
 
             UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
             SwapVarsInNotifications();
@@ -397,6 +391,24 @@
         {
             EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
         }
+    }
+
+    private void OnRenderNotification(DataGridCellRenderEventArgs<UserNotificationModel> args)
+    {
+        try
+        {
+            switch (args.Data.NOTIFICATION_ID)
+            {
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+        }
+
+
     }
 
     private void ShowNotification(NotificationMessage message)

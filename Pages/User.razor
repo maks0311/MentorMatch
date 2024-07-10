@@ -244,7 +244,7 @@ else
                         <RadzenTabsItem Text="My Notifications">
                             <RadzenCard>
                                 <RadzenRow>
-                                    <RadzenColumn Size="6">
+                                    <RadzenColumn Size="12">
                                         <RadzenDataGrid Data="@UserNotificationEnum"
                                                         AllowFiltering="false"
                                                         AllowMultiColumnSorting="true"
@@ -260,8 +260,11 @@ else
                                                         Visible="true"
                                                         Style="width:inherit">
                                             <Columns>
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Width="450px" Frozen="true" TextAlign="TextAlign.Left" />
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Filterable="false" Title="Received at" Frozen="true" TextAlign="TextAlign.Left" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Width="400px" Frozen="true" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_SUBJECT" Filterable="false" Title="Subject" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_START" Filterable="false" Title="Lesson Start" Width="200px" Frozen="true" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_STOP" Filterable="false" Title="Lesson End" Width="200px" Frozen="true" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Filterable="false" Title="Received at" Width="200px" Frozen="true" TextAlign="TextAlign.Center" />
                                                 @if (UserObject.IsTutor)
                                                 {
                                                     <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Filterable="false" Title="Lesson" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
@@ -299,7 +302,11 @@ else
                                                 LogicalFilterOperator="LogicalFilterOperator.And"
                                                 Visible="true">
                                     <Columns>
-                                        <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Center" />
+                                        <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Center">
+                                            <Template Context="LessonModel">
+                                                <RadzenLink>@LessonModel.TUTOR_NAME</RadzenLink>
+                                            </Template>
+                                        </RadzenDataGridColumn>
                                         <RadzenDataGridColumn TItem="LessonModel" Property="STUDENT_NAME" Filterable="false" Title="Student" Frozen="true" Visible="@UserObject.IsTutor" TextAlign="TextAlign.Center" />
                                         <RadzenDataGridColumn TItem="LessonModel" Property="SUBJECT_NAME" Filterable="false" Title="Subject" Frozen="true" TextAlign="TextAlign.Center" />
                                         <RadzenDataGridColumn TItem="LessonModel" Property="DATE_START" Filterable="false" Title="Start Date" Frozen="true" TextAlign="TextAlign.Center">
