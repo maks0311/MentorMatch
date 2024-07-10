@@ -25,6 +25,7 @@ namespace Mentor.Data
             parameters.Add("USER_NICKNAME", user.USER_NICKNAME, DbType.String);
             parameters.Add("USER_EMAIL", user.USER_EMAIL, DbType.String);
             parameters.Add("USER_PHONE", user.USER_PHONE, DbType.String);
+            parameters.Add("USER_PASS", user.USER_PASS, DbType.String);
             parameters.Add("IS_ACTIVE", user.IS_ACTIVE, DbType.Boolean);
             parameters.Add("USER_DESCRIPTION", user.USER_DESCRIPTION, DbType.String);
             parameters.Add("GROUP_ID", user.GROUP_ID, DbType.Int32);
@@ -63,6 +64,7 @@ namespace Mentor.Data
             parameters.Add("USER_NICKNAME", user.USER_NICKNAME, DbType.String);
             parameters.Add("USER_EMAIL", user.USER_EMAIL, DbType.String);
             parameters.Add("USER_PHONE", user.USER_PHONE, DbType.String);
+            parameters.Add("USER_PASS", user.USER_PASS, DbType.String);
             parameters.Add("IS_ACTIVE", user.IS_ACTIVE, DbType.Boolean);
             parameters.Add("USER_DESCRIPTION", user.USER_DESCRIPTION, DbType.String);
             parameters.Add("GROUP_ID", user.GROUP_ID, DbType.Int32);
@@ -347,7 +349,7 @@ namespace Mentor.Data
         {
             var parameters = new DynamicParameters();
             parameters.Add("USER_NAME", userName, DbType.String);
-            parameters.Add("USER_PASS", EncryptionHelper.EncryptString(Globals.key, userPass), DbType.String);
+            parameters.Add("USER_PASS", userPass, DbType.String);
 
             int retVal = 0;
 

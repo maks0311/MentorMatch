@@ -54,39 +54,10 @@
         </RadzenRow>
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="6">
-                @if (UserEnum.IsNotNull() && UserEnum.Any())
-                {
-                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.STUDENT_ID"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowFiltering="false"
-                                            AllowClear="false"
-                                            AllowSorting="false"
-                                            ShowSearch="false"
-                                            TextProperty="USER_FULLNAME"
-                                            ValueProperty="USER_ID"
-                                            Disabled=@(!UserObject.IsAdmin)
-                                            Data=@UserEnum
-                                            Change=@(args => OnDropDownChange("STUDENT"))
-                                            Style="width:inherit" />
-
-                }
+                <RadzenTextBox @bind-Value="@LessonObject.STUDENT_NAME" Style="width:inherit" Disabled="true"></RadzenTextBox>
             </RadzenColumn>
             <RadzenColumn Size="6">
-                @if (UserEnum.IsNotNull() && UserEnum.Any())
-                {
-                    <RadzenDropDownDataGrid @bind-Value="@LessonObject.TUTOR_ID"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowFiltering="false"
-                                            AllowClear="false"
-                                            AllowSorting="false"
-                                            ShowSearch="false"
-                                            TextProperty="USER_FULLNAME"
-                                            ValueProperty="USER_ID"
-                                            Data=@UserEnum
-                                            Disabled=@(!UserObject.IsAdmin)
-                                            Change=@(args => OnDropDownChange("TUTOR"))
-                                            Style="width:inherit" />
-                }
+                <RadzenTextBox @bind-Value="@LessonObject.TUTOR_NAME" Style="width:inherit" Disabled="true"></RadzenTextBox>
             </RadzenColumn>
         </RadzenRow>
     </RadzenCard>

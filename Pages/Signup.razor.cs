@@ -295,7 +295,6 @@ namespace Mentor.Pages
                         return;
                     }
 
-                    await UserService.PasswordUpdateAsync(UserObject.USER_ID, EncryptionHelper.EncryptString(Globals.key, UserObject.USER_PASS));
                     Msg = "User " + UserObject.USER_NICKNAME + " created.";
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Registration succesful", Detail = Msg });
                     NavigationManager.NavigateTo("./");

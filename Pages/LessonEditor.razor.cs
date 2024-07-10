@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Radzen;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
@@ -16,7 +15,6 @@ namespace Mentor.Pages
         [Parameter]
         public LessonModel LessonObject { get; set; }
         private bool IsObjectLessonChanged { get; set; } = false;
-        EventLog EventLog { get; set; }
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
 
@@ -26,13 +24,13 @@ namespace Mentor.Pages
         private UserModel UserObject { get; set; } = new UserModel();
         private UserNotificationModel UserNotificationObject { get; set; } = new UserNotificationModel();
 
-        private IEnumerable<UserModel> UserEnum;
         private IEnumerable<SubjectModel> SubjectEnum;
         private IEnumerable<SubjectModel> SubjectEnumFiltered;
         private IEnumerable<LevelModel> LevelEnum;
         private IEnumerable<LevelModel> LevelEnumFiltered;
         private IEnumerable<CompetenceModel> CompetenceEnum;
         private IEnumerable<RatingModel> RatingEnum;
+        private IEnumerable<UserNotificationModel> UserNotificationEnum;
 
         private readonly IEnumerable<TimeOnly> QuarterOnlyList = TimeHelper.GetDailyQuartersAsTimeOnly();
         private TermItem Term { get; set; } = new TermItem();
@@ -116,7 +114,7 @@ namespace Mentor.Pages
                     // PENDING
                     if ((LessonObject.LESSON_STATUS_ID == 1) && UserObject.IsTutor)
                         retval = true;
-                    // POSTPONED BY STRUDENT
+                    // POSTPONED BY STUDENT
                     else if ((LessonObject.LESSON_STATUS_ID == 4) && UserObject.IsTutor)
                         retval = true;
                     // POSTPONED BY TUTOR
@@ -134,7 +132,7 @@ namespace Mentor.Pages
             {
                 bool retval = false;
 
-                if (LessonObject.IsNotNull() && LessonObject.LESSON_STATUS_ID != 3 && LessonObject.LESSON_STATUS_ID != 6)
+                if (LessonObject.IsCreated && LessonObject.LESSON_STATUS_ID != 3 && LessonObject.LESSON_STATUS_ID != 6)
                 {
                     retval = true;
                 }
@@ -189,15 +187,17 @@ namespace Mentor.Pages
                 if (AppState.UserInfo.IsNotNull() && LessonObject.IsNotNull())
                 {
                     UserObject = UserService.Select(AppState.UserInfo.USER_ID);
-                    UserEnum = await UserService.SelectAllAsync();
                     SubjectEnum = await SubjectService.SelectAllAsync();
                     CompetenceEnum = await CompetenceService.SelectAllByTutorAsync(LessonObject.TUTOR_ID);
+                    UserNotificationEnum = await UserNotificationService.SelectAllNewByUserAsync(UserObject.USER_ID);
+                    UserNotificationEnum = UserNotificationEnum.Where(x => x.LESSON_ID == LessonObject.LESSON_ID);
 
                     LevelEnum = await LevelService.SelectAllAsync();
                     RatingEnum = await RatingService.SelectAllAsync();
 
                     SubjectEnumFiltered = FilterSubjectList(LessonObject.TUTOR_ID);
                     LevelEnumFiltered = FilterLevelList(LessonObject.SUBJECT_ID, LessonObject.TUTOR_ID);
+
                 }
             }
             catch (Exception ex)
@@ -248,6 +248,7 @@ namespace Mentor.Pages
         private void OnDateChange()
         {
             IsObjectLessonChanged = true;
+            LessonObject.DATE_STOP = LessonObject.DATE_START;
         }
 
         private void OnDropDownChange(string key)
@@ -276,11 +277,11 @@ namespace Mentor.Pages
             {
                 if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
                 {
-                    Term.TimeStop = Term.TimeStart;
+                    Term.TimeStop = Term.TimeStart.AddMinutes(15);
                 }
                 else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
                 {
-                    Term.TimeStart = Term.TimeStop;
+                    Term.TimeStart = Term.TimeStop.AddMinutes(-15);
                 }
 
                 LessonObject.DATE_START = new DateTime(LessonObject.DATE_START.Year, LessonObject.DATE_START.Month, LessonObject.DATE_START.Day, Term.TimeStart.Hour, Term.TimeStart.Minute, 0);
@@ -330,6 +331,14 @@ namespace Mentor.Pages
                     UserNotificationObject.TUTOR_ID = LessonObject.TUTOR_ID;
                     UserNotificationObject.SENT_DATE = DateTime.Now;
                     await UserNotificationService.CreateAsync(UserNotificationObject);
+
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        if (UserObject.IsStudent)
+                            await UserNotificationService.UpdateToReadStudentAsync(notification.ID);
+                        if (UserObject.IsTutor)
+                            await UserNotificationService.UpdateToReadTutorAsync(notification.ID);
+                    }
 
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson saved" });
                     IsObjectLessonChanged = false;
@@ -398,6 +407,14 @@ namespace Mentor.Pages
 
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        if (UserObject.IsStudent)
+                            await UserNotificationService.UpdateToReadStudentAsync(notification.ID);
+                        if (UserObject.IsTutor)
+                            await UserNotificationService.UpdateToReadTutorAsync(notification.ID);
+                    }
+
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson accepted" });
                     IsObjectLessonChanged = false;
                     StateHasChanged();
@@ -451,6 +468,14 @@ namespace Mentor.Pages
 
                     await UserNotificationService.CreateAsync(UserNotificationObject);
 
+                    foreach (UserNotificationModel notification in UserNotificationEnum)
+                    {
+                        if (UserObject.IsStudent)
+                            await UserNotificationService.UpdateToReadStudentAsync(notification.ID);
+                        if (UserObject.IsTutor)
+                            await UserNotificationService.UpdateToReadTutorAsync(notification.ID);
+                    }
+
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Lesson cancelled" });
                     IsObjectLessonChanged = false;
                     StateHasChanged();
@@ -475,11 +500,6 @@ namespace Mentor.Pages
         }
 
         private void OnRatingUpdate(int val)
-        {
-            OnRatingUpdate(val, EventLog);
-        }
-
-        private void OnRatingUpdate(int val, EventLog eventLog)
         {
             try
             {

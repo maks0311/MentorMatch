@@ -296,7 +296,7 @@ namespace Mentor.Pages
                     return;
                 }
 
-                int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, EncryptionHelper.EncryptString(Globals.key, Pass1));
+                int retval = await UserService.PasswordUpdateAsync(UserObject.USER_ID, Pass1);
 
                 if (retval.IsPositive())
                 {
@@ -468,7 +468,7 @@ namespace Mentor.Pages
 
                 if (retval.IsPositive())
                 {
-                    UserNotificationEnum = UserNotificationService.SelectAllByUser(UserObject.USER_ID);
+                    UserNotificationEnum = await UserNotificationService.SelectAllByUserAsync(UserObject.USER_ID);
                     SwapVarsInNotifications();
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Notification marked as read" });
                 }
