@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
+using Mentor.Shared;
 
 namespace Mentor.Pages
 {
@@ -17,6 +18,7 @@ namespace Mentor.Pages
         private bool IsRendered { get; set; } = false;
 
         RadzenScheduler<LessonModel> Scheduler;
+        TopMenu Menu;
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
         private DateTime TimeScopeStart { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
@@ -227,6 +229,7 @@ namespace Mentor.Pages
 
                 await DialogService.OpenAsync<LessonEditor>("Add New Lesson", new Dictionary<string, object> { { "LessonObject", lesson } });
                 LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
+                await Menu.Reload();
                 await Scheduler.Reload();
             }
             catch (Exception ex)
@@ -245,6 +248,7 @@ namespace Mentor.Pages
                 {
                     await DialogService.OpenAsync<LessonEditor>(String.Format("Lesson - {0}", LessonObject.LESSON_STATUS_NAME), new Dictionary<string, object> { { "LessonObject", LessonObject } });
                     LessonEnum = await LessonService.SelectAllByTutorAsync(TutorID);
+                    await Menu.Reload();
                     await Scheduler.Reload();
                 }
                 else

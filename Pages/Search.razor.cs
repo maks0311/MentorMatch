@@ -129,11 +129,11 @@ namespace Mentor.Pages
             }
         }
 
-        async Task TutorView(int TutorID)
+        async Task TutorView(int tutorID)
         {
             try
             {
-                AppState.SetParamAsInteger("TUTOR_ID", TutorID);
+                AppState.SetParamAsInteger("TUTOR_ID", tutorID);
                 await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
                 NavigationManager.NavigateTo("/tutor");
             }

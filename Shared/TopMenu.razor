@@ -201,6 +201,11 @@
         }
     }
 
+    public async Task Reload()
+    {
+        await InitializeData();
+    }
+
     private void ShowNotification(NotificationMessage message)
     {
         try

@@ -42,7 +42,7 @@
 }
 else
 {
-    <TopMenu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
+    <TopMenu @ref=@Menu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 }
 
 @if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))

@@ -1,4 +1,5 @@
 ﻿using Mentor.Data;
+using Mentor.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Radzen;
@@ -18,6 +19,7 @@ namespace Mentor.Pages
         private bool IsRendered { get; set; } = false;
 
         RadzenScheduler<LessonModel> Scheduler;
+        TopMenu Menu;
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
 
@@ -256,6 +258,7 @@ namespace Mentor.Pages
                 {
                     LessonEnum = await LessonService.SelectAllByStudentAsync(AppState.UserInfo.USER_ID);
                 }
+                await Menu.Reload();
                 await Scheduler.Reload();
             }
             catch (Exception ex)

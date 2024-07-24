@@ -17,8 +17,7 @@ namespace Mentor.Data
         public DateTime SENT_DATE {  get; set; } = DateTime.MinValue;
         public bool TUTOR_READ { get; set; } = false;
         public bool STUDENT_READ { get; set; } = false;
-        public DateTime DATE_START { get; set; } = DateTime.MinValue;
-        public DateTime DATE_STOP { get; set; } = DateTime.MinValue;
+        public String LESSON_DATE { get; set; } = String.Empty;
         public int RATING { get; set; } = 0;
 
     }
