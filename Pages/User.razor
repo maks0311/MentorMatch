@@ -34,6 +34,7 @@
 @inject ISubjectService SubjectService;
 @inject ICompetenceService CompetenceService;
 @inject ILessonService LessonService;
+@inject ITutorService TutorService;
 @inject ICityService CityService;
 @inject IUserToCityService UserToCityService;
 @inject IUserNotificationService UserNotificationService;
@@ -262,8 +263,7 @@ else
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Filterable="false" Title="Notification" Width="400px" Frozen="true" TextAlign="TextAlign.Center" />
                                                 <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_SUBJECT" Filterable="false" Title="Subject" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_START" Filterable="false" Title="Lesson Start" Width="200px" Frozen="true" TextAlign="TextAlign.Center" />
-                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_STOP" Filterable="false" Title="Lesson End" Width="200px" Frozen="true" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_DATE" Title="Lesson Date" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
                                                 <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Filterable="false" Title="Received at" Width="200px" Frozen="true" TextAlign="TextAlign.Center" />
                                                 @if (UserObject.IsTutor)
                                                 {
@@ -304,7 +304,7 @@ else
                                     <Columns>
                                         <RadzenDataGridColumn TItem="LessonModel" Property="TUTOR_NAME" Filterable="false" Title="Tutor" Frozen="true" Visible="@UserObject.IsStudent" TextAlign="TextAlign.Center">
                                             <Template Context="LessonModel">
-                                                <RadzenLink>@LessonModel.TUTOR_NAME</RadzenLink>
+                                                <RadzenLink >@LessonModel.TUTOR_NAME</RadzenLink>
                                             </Template>
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn TItem="LessonModel" Property="STUDENT_NAME" Filterable="false" Title="Student" Frozen="true" Visible="@UserObject.IsTutor" TextAlign="TextAlign.Center" />

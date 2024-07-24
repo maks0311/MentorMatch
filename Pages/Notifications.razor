@@ -37,7 +37,7 @@
                 @if (UserObject.IsTutor)
                 {
                     <RadzenButton Text="Mark As Read" Icon="done_all" Click="MarkAsReadTutor" Style="padding-right:25px;" Disabled="@(TutorButtonDisabled)" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
-                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:800px;"></RadzenLabel>
+                    <RadzenLabel Text="Check all:" Component="TutorCheckBox" Style="margin-left:850px;"></RadzenLabel>
                     <RadzenCheckBox TValue="Boolean" Name="TutorCheckBox" Style="margin-left:25px;" Change=@(args => CheckAll(args))></RadzenCheckBox>
 
                 }
@@ -69,8 +69,7 @@
                     <Columns>
                         <RadzenDataGridColumn TItem="UserNotificationModel" Property="TEXT" Title="Message content" Width="250px" Frozen="true" TextAlign="TextAlign.Center" />
                         <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_SUBJECT" Title="Subject" Width="60px" Frozen="true" TextAlign="TextAlign.Center" />
-                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_START" Title="Lesson Start" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
-                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="DATE_STOP" Title="Lesson End" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
+                        <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_DATE" Title="Lesson Date" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
                         <RadzenDataGridColumn TItem="UserNotificationModel" Property="SENT_DATE" Sortable="true" Title="Received at" Width="120px" Frozen="true" TextAlign="TextAlign.Center" />
                         <RadzenDataGridColumn TItem="UserNotificationModel" Property="LESSON_ID" Title="Details" Frozen="true" Width="80px" TextAlign="TextAlign.Center">
                             <Template Context="UserNotificationModel">

@@ -518,7 +518,6 @@ namespace Mentor.Pages
 
 
         }
-
         private async Task OpenLessonDetails(int lessonID, int notificationID)
         {
             try
@@ -545,6 +544,21 @@ namespace Mentor.Pages
             {
                 EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
             }
+        }
+
+        private async Task TutorView(int tutorID)
+        {
+            try
+            {
+                AppState.SetParamAsInteger("TUTOR_ID", tutorID);
+                await SessionStorage.SetItemAsync<AppState>("APP_STATE", AppState);
+                NavigationManager.NavigateTo("/tutor");
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            }
+
         }
         private void ShowNotification(NotificationMessage message)
         {
