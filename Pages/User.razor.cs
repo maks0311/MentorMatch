@@ -52,6 +52,7 @@ namespace Mentor.Pages
         private IEnumerable<UserNotificationModel> UserNotificationEnum { get; set; }
 
         private readonly string NamePattern = "^[A-Za-z '-]+$";
+        private readonly string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
         private readonly string phonePattern = @"^\+?\d{1,4}[-. ]?\(?\d{1,4}\)?[-. ]?\d{4,10}$";
 
         protected override void OnInitialized()
@@ -146,9 +147,19 @@ namespace Mentor.Pages
             }
         }
 
-        private bool IsValidName(string name)
+        private bool IsNameValid(string name)
         {
             return Regex.IsMatch(name, NamePattern);
+        }
+
+        private bool IsEmailValid(string email)
+        {
+            UserModel user = UserService.SelectByEmail(email);
+            if (user != null)
+            {
+                return false;
+            }
+            return Regex.IsMatch(email, emailPattern);
         }
 
         private bool IsPhoneValid(string phone)
@@ -174,7 +185,7 @@ namespace Mentor.Pages
                         return;
                     }
 
-                    if (!IsValidName(UserObject.USER_FULLNAME))
+                    if (!IsNameValid(UserObject.USER_FULLNAME))
                     {
                         Msg = "Invalid full name. Please use only letters, spaces, hyphens, and apostrophes.";
                         ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "User info not saved", Detail = Msg });

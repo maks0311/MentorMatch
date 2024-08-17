@@ -14,7 +14,7 @@ namespace Mentor.Pages
         AppState AppState { get; set; } = new AppState();
         private bool IsRendered { get; set; } = false;
         private bool DisableSave { get; set; } = true;
-        private bool DisableDelete { get; set; } = false;
+        private bool DeleteVisible { get; set; } = true;
 
         string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
         int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
@@ -76,7 +76,7 @@ namespace Mentor.Pages
                     }
                     else
                     {
-                        DisableDelete = true;
+                        DeleteVisible = false;
                     }
                 }
             }

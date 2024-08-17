@@ -32,7 +32,7 @@
 <RadzenTooltip />
 
 <div class="sidebar">
-    <NavMenu />
+    <NavMenu/>
 </div>
 
 <div class="main">
@@ -40,94 +40,3 @@
         @Body
     </div>
 </div>
-
-@code {
-    private AppState AppState { get; set; } = new AppState();
-    private string msg { get; set; }
-
-
-    private string NotificationPosition { get { return AppConfig.GetSection("PopUpNotifications").GetValue<string>("Position"); } }
-    private int NotificationDuration { get { return AppConfig.GetSection("PopUpNotifications").GetValue<int>("Duration"); } }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await InitializeSession();
-
-            SessionStorage.Changed += (sender, e) =>
-            {
-                Console.WriteLine($"Value for key {e.Key} changed from {e.OldValue} to {e.NewValue}");
-            };
-
-            StateHasChanged();
-        }
-    }
-
-    async Task InitializeSession()
-    {
-        try
-        {
-            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
-            {
-                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
-            }
-        }
-        catch (Exception ex)
-        {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
-        }
-    }
-
-    private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
-    {
-        if (args.Text == "Login")
-        {
-            NavigationManager.NavigateTo("/login");
-        }
-
-        if (args.Text == "Logout")
-        {
-            AppState.UserInfo = new();
-            NavigationManager.NavigateTo("./");
-        }
-
-        if (args.Text == "About")
-        {
-            AppState.UserInfo = new();
-            NavigationManager.NavigateTo("/about");
-        }
-    }
-
-    void OnMenuitemClick(Radzen.MenuItemEventArgs args)
-    {
-        if (args.Text == "About")
-        {
-            NavigationManager.NavigateTo("/about");
-        }
-
-        if (args.Text == "Login")
-        {
-            NavigationManager.NavigateTo("/login");
-        }
-
-        if (args.Text == "Logout")
-        {
-            AppState.UserInfo = new();
-            NavigationManager.NavigateTo("./");
-        }
-
-        if (args.Text == "Settings")
-        {
-            NavigationManager.NavigateTo("/settings");
-        }
-    }
-
-    void OnClick(string buttonName)
-    {
-        if (buttonName == "Return")
-        {
-
-        }
-    }
-}

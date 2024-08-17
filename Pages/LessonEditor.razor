@@ -152,7 +152,7 @@
     <RadzenCard Style="width:inherit; margin-top:10px" Visible="LessonObject.LESSON_STATUS_ID == 6">
         <RadzenRow Style="margin-bottom:5px">
             <RadzenColumn Size="5" Style="margin-top:10px; text-align:right">
-                <RadzenLabel Text="Students' Rating" />
+                <RadzenLabel Text="Student's Rating" />
             </RadzenColumn>
             <RadzenColumn Size="4" Style="margin-top:10px; text-align:center">
                 <RadzenRating Stars="5" Value=@LessonObject.RATING_VALUE Style="margin-left:10px; height:30px; display:table; visibility:visible" ReadOnly=@RatingIsReadOnly MouseEnter=@(args => ShowTooltip(args, @LessonObject.RATING_NAME)) Change="@(args => OnRatingUpdate(args))"></RadzenRating>
