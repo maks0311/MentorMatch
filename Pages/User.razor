@@ -72,7 +72,7 @@ else
                                     </RadzenRow>
                                     <RadzenRow>
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="E-mail"></RadzenText></RadzenColumn>
-                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_EMAIL MaxLength="50" Placeholder="" Disabled="true"></RadzenTextBox></RadzenColumn>
+                                        <RadzenColumn Size="@ColumnControlSize"><RadzenTextBox Style="width:inherit" @bind-Value=@UserObject.USER_EMAIL MaxLength="50" Placeholder="" Change="@OnChange"></RadzenTextBox></RadzenColumn>
                                     </RadzenRow>
                                     <RadzenRow>
                                         <RadzenColumn Size="@ColumnLabelSize"><RadzenText Text="Phone"></RadzenText></RadzenColumn>

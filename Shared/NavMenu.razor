@@ -31,37 +31,23 @@
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Mentor</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+    <RadzenButton Style="background: rgba(255, 255, 255, 0.1)" Click="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
-    </button>
+    </RadzenButton>
 </div>
 
-<RadzenPanelMenu Click="@(args => OnMenuItemClick(args))" Style="background-color: hsla(0, 0%, 0%, 0)">
-    @if (AppState != null)
-    {
+<RadzenPanelMenu Visible="collapseNavMenu" Click="@(args => OnMenuItemClick(args))" Style="background-color: hsla(0, 0%, 0%, 0)">
         <RadzenPanelMenuItem Text="Home" Icon="home" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="Search" Icon="search" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Text="My Calendar" Icon="date_range" Match="NavLinkMatch.All" Style="white-space:nowrap;"></RadzenPanelMenuItem>
-
         <RadzenLink Path="@manual_url" Target="_blank" Style="color:white;">
             <RadzenPanelMenuItem Text="Manual" Icon="chrome_reader_mode" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
         </RadzenLink>
 
         <RadzenPanelMenuItem Text="About" Icon="help_outline" Match="NavLinkMatch.All"></RadzenPanelMenuItem>
-    }
 </RadzenPanelMenu>
 
 
 @code {
-    [Parameter]
-    public AppState AppState { get; set; } = new AppState();
-    [Parameter]
-    public bool IsRendered { get; set; } = false;
-    string msg { get; set; }
-    string Today { get { return DateTime.Now.ToString("D", new CultureInfo("en-EN")); } }
-    private string AppVersion { get; set; }
     private bool collapseNavMenu = true;
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     private string manual_url = "/manual/manual.pdf";
 
     private void ToggleNavMenu()
@@ -69,54 +55,11 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        IsRendered = false;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await InitializeSession();
-
-            IsRendered = true;
-
-            StateHasChanged();
-        }
-    }
-
-    private async Task InitializeSession()
-    {
-        try
-        {
-            if (await SessionStorage.ContainKeyAsync("APP_STATE"))
-            {
-                AppState = await SessionStorage.GetItemAsync<AppState>("APP_STATE");
-            }
-        }
-        catch (Exception ex)
-        {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
-        }
-    }
-
     private void OnMenuItemClick(Radzen.MenuItemEventArgs args)
     {
         if (args.Text == "Home")
         {
             NavigationManager.NavigateTo("/");
-        }
-
-        if (args.Text == "Search")
-        {
-            NavigationManager.NavigateTo("/search");
-        }
-
-        if (args.Text == "My Calendar")
-        {
-            NavigationManager.NavigateTo("/calendar");
         }
 
         if (args.Text == "About")

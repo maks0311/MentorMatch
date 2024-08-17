@@ -45,7 +45,7 @@ else
     <TopMenu @ref=@Menu AppState="@AppState" IsRendered="@IsRendered"></TopMenu>
 }
 
-@if ((AppState.UserInfo.IsNotNull()) && (AppState.UserInfo.IsAuthenticated.IsTrue()))
+@if ((AppState.UserInfo.IsAuthenticated.IsTrue()))
 {
     <RadzenRow Style="margin-top:60px">
         <RadzenColumn Size="12">

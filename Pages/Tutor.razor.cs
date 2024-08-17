@@ -44,7 +44,7 @@ namespace Mentor.Pages
             {
                 if (UserObject.IsNotNull())
                 {
-                    return !UserObject.IsTutor;
+                    return UserObject.IsStudent;
                 }
                 else
                 {

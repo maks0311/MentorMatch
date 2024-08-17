@@ -48,17 +48,22 @@
             @if (AppState.UserInfo.IsNotNull() && AppState.UserInfo.IsAuthenticated)
             {
                 <RadzenMenuItem Text="@AppState.UserInfo.USER_NICKNAME" Icon="person"></RadzenMenuItem>
+                <RadzenMenuItem Text="Search" Icon="search"></RadzenMenuItem>
                 @if (AppState.UserInfo.IsAdmin)
                 {
                     <RadzenMenuItem Text="Settings" Icon="settings"></RadzenMenuItem>
                 }
-                else if (AnyNewNotifications)
-                {
-                    <RadzenMenuItem Text="Notifications" Icon="feedback" IconColor="red" MouseEnter="@(args => ShowTooltip(args, @NotificationsNumber + " new notifications"))"></RadzenMenuItem>
-                }
                 else
                 {
-                    <RadzenMenuItem Text="Notifications" Icon="feedback"></RadzenMenuItem>
+                    <RadzenMenuItem Text="My Calendar" Icon="date_range"></RadzenMenuItem>
+                    if (AnyNewNotifications)
+                    {
+                        <RadzenMenuItem Text="Notifications" Icon="feedback" IconColor="red" MouseEnter="@(args => ShowTooltip(args, @NotificationsNumber + " new notifications"))"></RadzenMenuItem>
+                    }
+                    else
+                    {
+                        <RadzenMenuItem Text="Notifications" Icon="feedback"></RadzenMenuItem>
+                    }
                 }
                 <RadzenMenuItem Text="Logout" Icon="lock"></RadzenMenuItem>
             }
@@ -67,10 +72,6 @@
                 <RadzenMenuItem Text="Sign Up" Icon="assignment_ind"></RadzenMenuItem>
                 <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
             }
-        }
-        else
-        {
-            <RadzenMenuItem Text="Login" Icon="lock_open"></RadzenMenuItem>
         }
     </RadzenMenu>
 </div>
@@ -176,6 +177,16 @@
             {
                 NavigationManager.NavigateTo("/user");
             }
+        }
+
+        if (args.Text == "Search")
+        {
+            NavigationManager.NavigateTo("/search");
+        }
+
+        if (args.Text == "My Calendar")
+        {
+            NavigationManager.NavigateTo("/calendar");
         }
 
         if (args.Text == "Notifications")
