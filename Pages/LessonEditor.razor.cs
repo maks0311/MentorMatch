@@ -275,11 +275,11 @@ namespace Mentor.Pages
         {
             try
             {
-                if ((key == "TIME_START") && (Term.TimeStart > Term.TimeStop))
+                if ((key == "TIME_START") && (Term.TimeStart >= Term.TimeStop))
                 {
                     Term.TimeStop = Term.TimeStart.AddMinutes(15);
                 }
-                else if ((key == "TIME_STOP") && (Term.TimeStop < Term.TimeStart))
+                else if ((key == "TIME_STOP") && (Term.TimeStop <= Term.TimeStart))
                 {
                     Term.TimeStart = Term.TimeStop.AddMinutes(-15);
                 }

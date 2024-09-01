@@ -129,7 +129,7 @@ namespace Mentor.Pages
             try
             {
                 var retval = await LevelService.DeleteAsync(LevelObject.LEVEL_ID);
-                if (retval == 1)
+                if (retval >= 1)
                 {
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Level deleted" });
                     DisableSave = true;

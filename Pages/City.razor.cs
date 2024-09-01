@@ -128,7 +128,7 @@ namespace Mentor.Pages
             try
             {
                 var retval = await CityService.DeleteAsync(CityObject.CITY_ID);
-                if (retval == 1)
+                if (retval >= 1)
                 {
                     DisableSave = true;
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "City deleted" });

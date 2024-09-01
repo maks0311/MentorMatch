@@ -213,9 +213,9 @@ namespace Mentor.Pages
                 LessonModel lesson = new()
                 {
                     TUTOR_ID = tutor.USER_ID,
-                    TUTOR_NAME = tutor.USER_NICKNAME,
+                    TUTOR_NAME = tutor.USER_FULLNAME,
                     STUDENT_ID = student.USER_ID,
-                    STUDENT_NAME = student.USER_NICKNAME,
+                    STUDENT_NAME = student.USER_FULLNAME,
                     DATE_START = args.Start,
                     DATE_STOP = args.End,
                     LESSON_STATUS_ID = status.LESSON_STATUS_ID,

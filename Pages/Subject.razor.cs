@@ -128,7 +128,7 @@ namespace Mentor.Pages
             try
             {
                 var retval = await SubjectService.DeleteAsync(SubjectObject.SUBJECT_ID);
-                if (retval == 1)
+                if (retval >= 1)
                 {
                     ShowNotification(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Subject deleted" });
                     DisableSave = true;
