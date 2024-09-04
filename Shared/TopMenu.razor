@@ -12,8 +12,6 @@
 @using Microsoft.AspNetCore.Components;
 @using Microsoft.Extensions.Configuration;
 @using System.Globalization;
-@using Microsoft.Extensions.Logging;
-@using Microsoft.Extensions.Logging.EventLog;
 @using System.Reflection;
 @using Blazored.SessionStorage;
 @using Mentor.Data;
@@ -140,7 +138,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -155,7 +154,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -227,7 +227,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -253,7 +254,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 }

@@ -34,7 +34,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -64,7 +65,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -107,7 +109,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
 
             return retVal;
@@ -124,7 +127,9 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error); return defVal;
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
+                return defVal;
             }
         }
 
@@ -144,7 +149,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
                 return defVal;
             }
         }
@@ -165,7 +171,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
                 return defVal;
             }
         }
@@ -186,7 +193,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
                 return defVal;
             }
         }
@@ -206,7 +214,8 @@ namespace Mentor
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }

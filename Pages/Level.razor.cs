@@ -44,7 +44,8 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -60,7 +61,8 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -83,7 +85,8 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -120,7 +123,8 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -145,7 +149,8 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -169,7 +174,8 @@ namespace Mentor.Pages
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                Console.WriteLine(ex.GetType().FullName);
+                Console.WriteLine(ex.Message);
             }
         }
         public void Dispose()
