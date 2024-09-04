@@ -8,8 +8,6 @@
 @using Radzen.Blazor.Rendering;
 @using Microsoft.Extensions.Configuration;
 @using System.Globalization;
-@using Microsoft.Extensions.Logging;
-@using Microsoft.Extensions.Logging.EventLog;
 @using Blazored.SessionStorage;
 @using Mentor.Data;
 @using System.Text.RegularExpressions;
@@ -167,7 +165,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -183,7 +182,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -202,7 +202,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -247,7 +248,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
 
     }
@@ -278,7 +280,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -309,7 +312,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -340,7 +344,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -371,7 +376,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -388,26 +394,9 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
-    }
-
-    private void OnRenderNotification(DataGridCellRenderEventArgs<UserNotificationModel> args)
-    {
-        try
-        {
-            switch (args.Data.NOTIFICATION_ID)
-            {
-
-
-            }
-        }
-        catch (Exception ex)
-        {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
-        }
-
-
     }
 
     private void ShowNotification(NotificationMessage message)
@@ -420,7 +409,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 
@@ -433,7 +423,8 @@
         }
         catch (Exception ex)
         {
-            EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+            Console.WriteLine(ex.GetType().FullName);
+            Console.WriteLine(ex.Message);
         }
     }
 

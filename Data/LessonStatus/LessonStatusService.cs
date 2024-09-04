@@ -39,7 +39,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -75,7 +76,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -104,7 +106,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -133,7 +136,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -163,7 +167,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -193,7 +198,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -226,7 +232,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -259,7 +266,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -288,7 +296,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -318,7 +327,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally

@@ -1,14 +1,9 @@
 ﻿using Dapper;
-using Mentor.Data;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using System.Threading.Tasks;
 using System;
-using Mentor;
-using Mentor.Pages;
-using System.Diagnostics;
 
 namespace Mentor.Data
 {
@@ -41,7 +36,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -74,7 +70,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -104,7 +101,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -134,7 +132,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -162,7 +161,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -190,7 +190,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -221,7 +222,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -251,7 +253,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -280,7 +283,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
@@ -309,7 +313,8 @@ namespace Mentor.Data
                 }
                 catch (Exception ex)
                 {
-                    EventLog.WriteEntry("Mentor", ex.Message, EventLogEntryType.Error);
+                    Console.WriteLine(ex.GetType().FullName);
+                    Console.WriteLine(ex.Message);
                     throw;
                 }
                 finally
